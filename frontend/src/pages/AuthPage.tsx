@@ -30,11 +30,15 @@ export function AuthPage() {
   const [cooldown, setCooldown] = useState(0);
   const [limited, setLimited] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
+  // Reset per-screen fields when the mode changes. Done during render (not in an effect) so there
+  // is no window where the new screen is visible and a fast typist's input then gets wiped.
+  const [shownMode, setShownMode] = useState(mode);
+  if (shownMode !== mode) {
+    setShownMode(mode);
     setError("");
     setPassword("");
     setOtp("");
-  }, [mode]);
+  }
   useEffect(() => {
     heading.current?.focus();
   }, [mode, auth.status]);
