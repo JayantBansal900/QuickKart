@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <defs>
+    <linearGradient id="g" gradientTransform="rotate(28 .5 .5)">
+      <stop offset="0" stop-color="#fdf2f8"/><stop offset="1" stop-color="#fce7f3"/>
+    </linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#g)"/>
+  <circle cx="228" cy="118" r="230" fill="url(#glow)" opacity=".55"/>
+  <ellipse cx="300" cy="452" rx="120" ry="14" fill="#be185d" opacity=".08"/>
+  <g transform="translate(180 170) scale(10)" fill="none" stroke="#be185d" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 3h.01"/>
+    <path d="M7 5h.01"/>
+    <path d="M11 7h.01"/>
+    <path d="M3 7h.01"/>
+    <path d="M7 9h.01"/>
+    <path d="M3 11h.01"/>
+    <rect width="4" height="4" x="15" y="5"/>
+    <path d="m19 9 2 2v10c0 .6-.4 1-1 1h-6c-.6 0-1-.4-1-1V11l2-2"/>
+    <path d="m13 14 8-2"/>
+    <path d="m13 19 8-2"/>
+  </g>
+</svg>

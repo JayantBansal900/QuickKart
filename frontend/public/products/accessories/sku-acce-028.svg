@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <defs>
+    <linearGradient id="g" gradientTransform="rotate(48 .5 .5)">
+      <stop offset="0" stop-color="#f0f9ff"/><stop offset="1" stop-color="#e0f2fe"/>
+    </linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#g)"/>
+  <circle cx="438" cy="194" r="230" fill="url(#glow)" opacity=".55"/>
+  <ellipse cx="300" cy="452" rx="120" ry="14" fill="#0369a1" opacity=".08"/>
+  <g transform="translate(180 170) scale(10)" fill="none" stroke="#0369a1" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 19a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1z"/>
+    <path d="M17 21v-2"/>
+    <path d="M19 14V6.5a1 1 0 0 0-7 0v11a1 1 0 0 1-7 0V10"/>
+    <path d="M21 21v-2"/>
+    <path d="M3 5V3"/>
+    <path d="M4 10a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2a2 2 0 0 1-2 2z"/>
+    <path d="M7 5V3"/>
+  </g>
+</svg>

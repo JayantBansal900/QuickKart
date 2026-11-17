@@ -1,0 +1,247 @@
+import React, { useEffect, useRef, useState } from "react";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { ApiError } from "../services/http";
+import { safeDestination } from "../routing";
+export function AuthPage() {
+  const auth = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const mode =
+    location.pathname === "/register"
+      ? "register"
+      : location.pathname === "/verify-email"
+        ? "verify"
+        : "login";
+  const next = safeDestination(
+    new URLSearchParams(location.search).get("next"),
+    auth.isAdmin ? "/admin" : "/account/profile",
+  );
+  const suffix = `?next=${encodeURIComponent(next)}`;
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [busy, setBusy] = useState(false);
+  const pending = useRef(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [limited, setLimited] = useState(false);
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    setError("");
+    setPassword("");
+    setOtp("");
+  }, [mode]);
+  useEffect(() => {
+    heading.current?.focus();
+  }, [mode, auth.status]);
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown((n) => n - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldown]);
+  if (auth.status === "initializing")
+    return (
+      <p role="status" className="p-8">
+        Checking your session…
+      </p>
+    );
+  if (auth.isAuthenticated) return <Navigate replace to={next} />;
+  const perform = async (resend = false) => {
+    if (pending.current || (cooldown > 0 && (resend || limited))) return;
+    pending.current = true;
+    setBusy(true);
+    setError("");
+    setNotice("");
+    try {
+      if (resend) {
+        await auth.resendOtp({ email: email.trim() });
+        setNotice("A new code has been sent.");
+        setCooldown(60);
+      } else if (mode === "login") await auth.login(email, password);
+      else if (mode === "register") {
+        await auth.register(name, email, password, phone || undefined);
+        setNotice(
+          "Account created. Check your email for the verification code.",
+        );
+        setCooldown(60);
+        navigate("/verify-email" + suffix);
+      } else await auth.verifyOtp({ email: email.trim(), otp });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Unable to complete this request.";
+      setError(message);
+      if (err instanceof ApiError && err.status === 429) {
+        setCooldown(err.retryAfter ?? 60);
+        setLimited(true);
+      }
+      if (mode === "login" && /not verified|unverified/i.test(message)) {
+        navigate("/verify-email" + suffix);
+        setNotice(
+          "Verify your email before signing in. Request a new code if needed.",
+        );
+      }
+    } finally {
+      pending.current = false;
+      setBusy(false);
+    }
+  };
+  const titles = {
+    login: ["Sign In", "Welcome back. Sign in to continue shopping."],
+    register: ["Create Account", "Join QuickKart in less than a minute."],
+    verify: ["Verify Your Email", "Enter the 6-digit code we sent to your inbox."],
+  } as const;
+  const [title, subtitle] = titles[mode];
+  const tab = (to: string, label: string, active: boolean) => (
+    <Link
+      to={to + suffix}
+      className={`flex-1 rounded-full py-2 text-center text-sm font-medium transition-colors ${
+        active ? "bg-surface text-fg shadow-card" : "text-muted hover:text-fg"
+      }`}
+    >
+      {label}
+    </Link>
+  );
+  return (
+    <div className="qk-container grid min-h-[calc(100vh-4rem)] items-center gap-10 py-10 lg:grid-cols-2">
+      {/* Brand panel (desktop only) */}
+      <div className="relative hidden h-full min-h-[560px] overflow-hidden rounded-[32px] bg-fg p-12 text-bg lg:flex lg:flex-col lg:justify-between">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-accent opacity-40 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-accent opacity-20 blur-3xl" />
+        <p className="relative text-lg font-bold tracking-tight">
+          quick<span className="text-accent">kart</span>
+        </p>
+        <div className="relative">
+          <h2 className="text-4xl font-bold leading-tight tracking-tight">Shop smarter.<br />Pay on delivery.</h2>
+          <ul className="mt-8 space-y-3 text-sm opacity-80">
+            <li>✓ 500+ products across 8 categories</li>
+            <li>✓ Cash on delivery on every order</li>
+            <li>✓ Email-verified accounts</li>
+          </ul>
+        </div>
+        <p className="relative text-xs opacity-60">© {new Date().getFullYear()} QuickKart</p>
+      </div>
+
+      {/* Form */}
+      <section className="mx-auto w-full max-w-md">
+        {mode !== "verify" && (
+          <div className="mb-8 flex rounded-full bg-subtle p-1">
+            {tab("/login", "Sign in", mode === "login")}
+            {tab("/register", "Create account", mode === "register")}
+          </div>
+        )}
+        <h1 ref={heading} tabIndex={-1} className="text-3xl font-semibold tracking-tight text-fg outline-none">
+          {title}
+        </h1>
+        <p className="mt-2 text-sm text-muted">{subtitle}</p>
+
+        {auth.status === "invalid" && (
+          <p role="status" className="mt-6 rounded-xl bg-subtle p-3 text-sm text-fg">
+            Your session is no longer valid. Please sign in again.
+          </p>
+        )}
+        {error && (
+          <p role="alert" className="mt-6 rounded-xl bg-sale-soft p-3 text-sm text-sale">
+            {error}
+          </p>
+        )}
+        {notice && (
+          <p role="status" className="mt-6 rounded-xl bg-success-soft p-3 text-sm text-success">
+            {notice}
+          </p>
+        )}
+
+        <form
+          className="mt-8 space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void perform();
+          }}
+        >
+          {mode === "register" && (
+            <label className="qk-label">
+              Full Name
+              <input className="qk-input" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
+            </label>
+          )}
+          <label className="qk-label">
+            Email Address
+            <input className="qk-input" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          </label>
+          {mode === "register" && (
+            <label className="qk-label">
+              Phone Number (optional)
+              <input className="qk-input" type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </label>
+          )}
+          {mode !== "verify" ? (
+            <label className="qk-label">
+              Password
+              <input
+                className="qk-input"
+                type="password"
+                required
+                minLength={mode === "register" ? 6 : undefined}
+                autoComplete={mode === "register" ? "new-password" : "current-password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
+          ) : (
+            <label className="qk-label">
+              Verification Code
+              <input
+                className="qk-input text-center text-2xl font-semibold tracking-[0.5em]"
+                required
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                placeholder="••••••"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              />
+            </label>
+          )}
+          <button
+            className="qk-btn qk-btn-primary h-12 w-full"
+            disabled={busy || (limited && cooldown > 0)}
+            type="submit"
+          >
+            {busy
+              ? "Please wait…"
+              : limited && cooldown > 0
+                ? `Try again in ${cooldown}s`
+                : mode === "register"
+                  ? "Create Account"
+                  : mode === "verify"
+                    ? "Verify & Activate Account"
+                    : "Sign In"}
+          </button>
+          {mode === "verify" && (
+            <button
+              type="button"
+              className="w-full text-center text-sm font-medium text-accent disabled:text-muted"
+              disabled={busy || cooldown > 0 || !email.trim()}
+              onClick={() => void perform(true)}
+            >
+              {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend Code"}
+            </button>
+          )}
+        </form>
+        <nav aria-label="Account options" className="mt-8 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-muted">
+          {mode === "verify" ? (
+            <Link to={"/login" + suffix} className="hover:text-fg">Back to sign in</Link>
+          ) : (
+            <Link to={"/verify-email" + suffix} className="hover:text-fg">Have a verification code?</Link>
+          )}
+          <Link to="/" className="hover:text-fg">Continue shopping</Link>
+        </nav>
+      </section>
+    </div>
+  );
+}

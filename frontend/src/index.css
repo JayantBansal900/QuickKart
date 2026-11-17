@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+/* Dark mode is class-based (html.dark) so the user can override the system setting. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Design tokens. Every colour is a CSS variable that changes under .dark, so
+   components written once work in both themes.
+   --------------------------------------------------------------------------- */
+:root {
+  --qk-bg: #fafafa;            /* page background */
+  --qk-surface: #ffffff;       /* cards, header, dialogs */
+  --qk-subtle: #f4f4f5;        /* image wells, hover fills, inputs */
+  --qk-fg: #09090b;            /* primary text */
+  --qk-muted: #71717a;         /* secondary text */
+  --qk-border: #e4e4e7;
+  --qk-accent: #4f46e5;        /* the single brand accent (indigo) */
+  --qk-accent-fg: #ffffff;
+  --qk-accent-soft: #eef2ff;
+  --qk-sale: #e11d48;
+  --qk-sale-soft: #fff1f2;
+  --qk-success: #059669;
+  --qk-success-soft: #ecfdf5;
+  --qk-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.12);
+  color-scheme: light;
+}
+
+.dark {
+  --qk-bg: #09090b;
+  --qk-surface: #121214;
+  --qk-subtle: #1c1c1f;
+  --qk-fg: #fafafa;
+  --qk-muted: #a1a1aa;
+  --qk-border: #27272a;
+  --qk-accent: #818cf8;
+  --qk-accent-fg: #0b0b12;
+  --qk-accent-soft: #1e1b4b;
+  --qk-sale: #fb7185;
+  --qk-sale-soft: #2a1118;
+  --qk-success: #34d399;
+  --qk-success-soft: #0b2a20;
+  --qk-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -16px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Semantic colours used by the new storefront */
+  --color-bg: var(--qk-bg);
+  --color-surface: var(--qk-surface);
+  --color-subtle: var(--qk-subtle);
+  --color-fg: var(--qk-fg);
+  --color-muted: var(--qk-muted);
+  --color-line: var(--qk-border);
+  --color-accent: var(--qk-accent);
+  --color-accent-fg: var(--qk-accent-fg);
+  --color-accent-soft: var(--qk-accent-soft);
+  --color-sale: var(--qk-sale);
+  --color-sale-soft: var(--qk-sale-soft);
+  --color-success: var(--qk-success);
+  --color-success-soft: var(--qk-success-soft);
+
+  /* Legacy "brand-*" names still used by a few screens, mapped onto the new tokens
+     so they follow the new look and dark mode automatically. */
+  --color-brand-white: var(--qk-surface);
+  --color-brand-cream: var(--qk-bg);
+  --color-brand-surface: var(--qk-subtle);
+  --color-brand-ebony: var(--qk-fg);
+  --color-brand-text-primary: var(--qk-fg);
+  --color-brand-text-secondary: var(--qk-muted);
+  --color-brand-warm-gray: var(--qk-muted);
+  --color-brand-forest: var(--qk-accent);
+  --color-brand-forest-light: var(--qk-accent-soft);
+  --color-brand-sienna: var(--qk-accent);
+  --color-brand-sienna-light: var(--qk-accent-soft);
+  --color-brand-cyan: var(--qk-accent);
+  --color-brand-mint: var(--qk-accent);
+  --color-brand-electric: var(--qk-accent);
+  --color-brand-terracotta: var(--qk-sale);
+  --color-brand-terracotta-light: var(--qk-sale-soft);
+  --color-brand-border: var(--qk-border);
+  --color-brand-silk: var(--qk-border);
+
+  --shadow-card: var(--qk-shadow);
+
+  --animate-fade-in: fade-in 180ms ease-out both;
+  --animate-scale-in: scale-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-in-right: slide-in-right 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-in-left: slide-in-left 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-rise: rise 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes scale-in { from { opacity: 0; transform: scale(0.97) translateY(6px) } to { opacity: 1; transform: none } }
+@keyframes slide-in-right { from { transform: translateX(100%) } to { transform: none } }
+@keyframes slide-in-left { from { transform: translateX(-100%) } to { transform: none } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: none } }
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background-color: var(--qk-bg);
+    color: var(--qk-fg);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 200ms ease, color 200ms ease;
+  }
+  ::selection { background: var(--qk-accent); color: var(--qk-accent-fg); }
+  :focus-visible { outline: 2px solid var(--qk-accent); outline-offset: 2px; border-radius: 6px; }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+}
+
+/* Reusable component classes (kept small on purpose) */
+@layer components {
+  .qk-container { width: 100%; max-width: 1360px; margin-inline: auto; padding-inline: 1rem; }
+  @media (min-width: 768px) { .qk-container { padding-inline: 2rem; } }
+
+  .qk-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    height: 2.75rem; padding-inline: 1.25rem; border-radius: 9999px;
+    font-size: 0.875rem; font-weight: 600; white-space: nowrap; cursor: pointer;
+    transition: background-color 150ms, color 150ms, border-color 150ms, transform 150ms, opacity 150ms;
+  }
+  .qk-btn:active:not(:disabled) { transform: scale(0.98); }
+  .qk-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .qk-btn-primary { background: var(--qk-fg); color: var(--qk-bg); }
+  .qk-btn-primary:hover:not(:disabled) { opacity: 0.88; }
+  .qk-btn-accent { background: var(--qk-accent); color: var(--qk-accent-fg); }
+  .qk-btn-accent:hover:not(:disabled) { opacity: 0.9; }
+  .qk-btn-ghost { background: transparent; color: var(--qk-fg); border: 1px solid var(--qk-border); }
+  .qk-btn-ghost:hover:not(:disabled) { background: var(--qk-subtle); }
+
+  .qk-input {
+    width: 100%; height: 2.75rem; padding-inline: 0.875rem; border-radius: 0.75rem;
+    background: var(--qk-surface); color: var(--qk-fg); border: 1px solid var(--qk-border);
+    font-size: 0.875rem; transition: border-color 150ms, box-shadow 150ms;
+  }
+  textarea.qk-input { height: auto; padding-block: 0.625rem; }
+  .qk-input::placeholder { color: var(--qk-muted); }
+  .qk-input:focus { outline: none; border-color: var(--qk-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--qk-accent) 20%, transparent); }
+  .qk-input:disabled { opacity: 0.6; }
+
+  .qk-card { background: var(--qk-surface); border: 1px solid var(--qk-border); border-radius: 1.25rem; }
+  .qk-label { display: block; font-size: 0.8125rem; font-weight: 500; color: var(--qk-fg); }
+  .qk-label > .qk-input { margin-top: 0.375rem; }
+  .qk-scrollbar-none { scrollbar-width: none; }
+  .qk-scrollbar-none::-webkit-scrollbar { display: none; }
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--qk-border); border-radius: 9999px; border: 3px solid var(--qk-bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--qk-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+  }
+}

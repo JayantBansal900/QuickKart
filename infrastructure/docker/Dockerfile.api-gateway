@@ -1,0 +1,8 @@
+ARG JAVA_RUNTIME=eclipse-temurin:17-jre-alpine
+FROM ${JAVA_RUNTIME}
+WORKDIR /app
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+COPY --chown=appuser:appgroup target/*.jar app.jar
+USER appuser
+EXPOSE 8080
+ENTRYPOINT ["java", "-Xms64m", "-Xmx256m", "-jar", "app.jar"]

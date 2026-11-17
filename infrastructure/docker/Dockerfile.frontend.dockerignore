@@ -1,0 +1,7 @@
+**
+!frontend/
+!frontend/dist/
+!frontend/dist/**
+!infrastructure/
+!infrastructure/docker/
+!infrastructure/docker/nginx.conf

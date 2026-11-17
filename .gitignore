@@ -1,0 +1,35 @@
+# ---- Dependencies & build output ----
+node_modules/
+build/
+dist/
+coverage/
+target/
+*.jar
+*.war
+*.class
+__pycache__/
+*.pyc
+
+# ---- IDE / editor / local tooling ----
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+.claude/
+.DS_Store
+Thumbs.db
+
+# ---- Runtime logs & temp files ----
+*.log
+dump.rdb
+tmp/
+*.tmp
+
+# ---- Secrets: never commit real environment files ----
+.env*
+!.env.example
+
+# ---- Private local material: DB backups, archived files, staging secrets ----
+.local/
