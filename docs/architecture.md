@@ -87,8 +87,8 @@ sequenceDiagram
     participant C as Customer
     participant O as Order service
     participant DB as PostgreSQL
-    C->>O: POST /orders/checkout {idempotencyKey, cartFingerprint, address…}
-    O->>DB: BEGIN; lock user row
+    C->>O: POST /orders/checkout (idempotencyKey, cartFingerprint, address)
+    O->>DB: BEGIN, lock user row
     O->>DB: same key already used? → return that order (or 409 if details differ)
     O->>DB: lock each product row FOR UPDATE, check stock
     O->>DB: insert order + items + payment(COD, COLLECTION_PENDING), decrement stock, clear cart
@@ -107,13 +107,13 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    T[checkout transaction] -->|BEFORE_COMMIT| OB[(outbox_events)]
-    OB -->|every 1 s, oldest first| R[OutboxRelay]
-    R -->|acks=all, idempotent producer<br/>key = orderId| K{{quickkart.order-events}}
-    K --> C[OrderNotificationConsumer<br/>monolith]
-    C -->|eventId seen?| PE[(processed_events)]
-    C -->|new| E[order confirmation email]
-    C -->|3 retries failed| D{{quickkart.order-events.DLT}}
+    T["checkout transaction"] -->|"BEFORE_COMMIT"| OB[("outbox_events")]
+    OB -->|"every 1 s, oldest first"| R["OutboxRelay"]
+    R -->|"acks=all, idempotent producer, key = orderId"| K{{"quickkart.order-events"}}
+    K --> C["OrderNotificationConsumer (monolith)"]
+    C -->|"eventId seen?"| PE[("processed_events")]
+    C -->|"new"| E["order confirmation email"]
+    C -->|"3 retries failed"| D{{"quickkart.order-events.DLT"}}
 ```
 
 Why not publish to Kafka directly after commit? If the process dies or Kafka is down between the commit and the send, the event is lost. With the outbox:
