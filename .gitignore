@@ -33,3 +33,6 @@ tmp/
 
 # ---- Private local material: DB backups, archived files, staging secrets ----
 .local/
+
+# Product photos uploaded while running product-service outside Docker
+backend/services/*/uploads/

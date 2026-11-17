@@ -8,43 +8,45 @@
    components written once work in both themes.
    --------------------------------------------------------------------------- */
 :root {
-  --qk-bg: #fafafa;            /* page background */
+  /* Warm, editorial palette: off-white paper, near-black ink, one deep green accent. */
+  --qk-bg: #f6f4f0;            /* page background */
   --qk-surface: #ffffff;       /* cards, header, dialogs */
-  --qk-subtle: #f4f4f5;        /* image wells, hover fills, inputs */
-  --qk-fg: #09090b;            /* primary text */
-  --qk-muted: #71717a;         /* secondary text */
-  --qk-border: #e4e4e7;
-  --qk-accent: #4f46e5;        /* the single brand accent (indigo) */
+  --qk-subtle: #efebe5;        /* image wells, hover fills */
+  --qk-fg: #171412;            /* primary text */
+  --qk-muted: #6f6a63;         /* secondary text */
+  --qk-border: #e3ddd4;
+  --qk-accent: #1f4d38;        /* deep forest green */
   --qk-accent-fg: #ffffff;
-  --qk-accent-soft: #eef2ff;
-  --qk-sale: #e11d48;
-  --qk-sale-soft: #fff1f2;
-  --qk-success: #059669;
-  --qk-success-soft: #ecfdf5;
-  --qk-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.12);
+  --qk-accent-soft: #e5eee8;
+  --qk-sale: #c2410c;
+  --qk-sale-soft: #fdeee4;
+  --qk-success: #15803d;
+  --qk-success-soft: #e7f5ec;
+  --qk-shadow: 0 1px 2px rgb(23 20 18 / 0.04), 0 12px 32px -16px rgb(23 20 18 / 0.18);
   color-scheme: light;
 }
 
 .dark {
-  --qk-bg: #09090b;
-  --qk-surface: #121214;
-  --qk-subtle: #1c1c1f;
-  --qk-fg: #fafafa;
-  --qk-muted: #a1a1aa;
-  --qk-border: #27272a;
-  --qk-accent: #818cf8;
-  --qk-accent-fg: #0b0b12;
-  --qk-accent-soft: #1e1b4b;
-  --qk-sale: #fb7185;
-  --qk-sale-soft: #2a1118;
-  --qk-success: #34d399;
-  --qk-success-soft: #0b2a20;
-  --qk-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -16px rgb(0 0 0 / 0.7);
+  --qk-bg: #0e0d0c;
+  --qk-surface: #171513;
+  --qk-subtle: #211e1b;
+  --qk-fg: #f5f2ed;
+  --qk-muted: #a39d94;
+  --qk-border: #2e2a26;
+  --qk-accent: #8cc4a4;
+  --qk-accent-fg: #0e0d0c;
+  --qk-accent-soft: #1a2b22;
+  --qk-sale: #fb923c;
+  --qk-sale-soft: #2b1a10;
+  --qk-success: #4ade80;
+  --qk-success-soft: #0f2a1a;
+  --qk-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -18px rgb(0 0 0 / 0.75);
   color-scheme: dark;
 }
 
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Instrument Serif", ui-serif, Georgia, "Times New Roman", serif;
 
   /* Semantic colours used by the new storefront */
   --color-bg: var(--qk-bg);
@@ -144,6 +146,10 @@
   .qk-input::placeholder { color: var(--qk-muted); }
   .qk-input:focus { outline: none; border-color: var(--qk-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--qk-accent) 20%, transparent); }
   .qk-input:disabled { opacity: 0.6; }
+
+  /* Editorial display type for hero and section headings */
+  .qk-display { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.01em; line-height: 1.02; }
+  .qk-eyebrow { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--qk-muted); }
 
   .qk-card { background: var(--qk-surface); border: 1px solid var(--qk-border); border-radius: 1.25rem; }
   .qk-label { display: block; font-size: 0.8125rem; font-weight: 500; color: var(--qk-fg); }

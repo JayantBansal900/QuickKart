@@ -108,6 +108,20 @@ public class ProductService {
         return ProductResponse.fromEntity(saved);
     }
 
+    /** Points the product at a newly uploaded photo and returns the URL it replaced. */
+    @Transactional
+    @CacheEvict(cacheNames = {SEARCH_CACHE, CATEGORY_CACHE}, allEntries = true)
+    public ImageChange setImage(Long id, String imageUrl) {
+        Product product = productRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        String previous = product.getImageUrl();
+        product.setImageUrl(imageUrl);
+        product.setThumbnailUrl(imageUrl);
+        return new ImageChange(ProductResponse.fromEntity(productRepository.save(product)), previous);
+    }
+
+    public record ImageChange(ProductResponse product, String previousUrl) {}
+
     @Transactional
     @CacheEvict(cacheNames = {SEARCH_CACHE, CATEGORY_CACHE}, allEntries = true)
     public ProductResponse updateProduct(Long id, ProductRequest request) {

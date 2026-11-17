@@ -57,14 +57,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
       onClick={() => onViewDetails(product)}
       className="group relative flex h-full cursor-pointer flex-col"
     >
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-subtle">
+      <div className="relative aspect-square overflow-hidden rounded-3xl bg-subtle ring-1 ring-line/60">
         {image && !imageFailed ? (
           <img
             src={image}
             alt={product.name}
             loading="lazy"
             onError={() => setImageFailed(true)}
-            className={`h-full w-full object-cover transition-transform dark:brightness-[0.88] duration-500 ease-out group-hover:scale-[1.04] ${
+            className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05] dark:brightness-[0.9] ${
               isOutOfStock ? 'opacity-50 grayscale' : ''
             }`}
           />
@@ -76,7 +76,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
 
         <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
           {discount > 0 && !isOutOfStock && (
-            <span className="rounded-full bg-sale px-2.5 py-1 text-[11px] font-semibold text-white">−{discount}%</span>
+            <span className="rounded-full bg-surface/95 px-2.5 py-1 text-[11px] font-semibold text-sale shadow-sm backdrop-blur">−{discount}%</span>
           )}
           {isOutOfStock && (
             <span className="rounded-full bg-fg/85 px-2.5 py-1 text-[11px] font-semibold text-bg">Sold out</span>
@@ -89,18 +89,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
             onClick={handleAddToCart}
             disabled={isLoading}
             aria-label={`Add ${product.name} to cart`}
-            className={`absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-full shadow-card transition-all duration-200 disabled:opacity-60 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:focus-visible:translate-y-0 md:focus-visible:opacity-100 ${
-              justAdded ? 'bg-success text-white md:translate-y-0 md:opacity-100' : 'bg-surface text-fg hover:bg-fg hover:text-bg'
+            className={`absolute bottom-3 right-3 inline-flex h-10 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold shadow-card transition-all duration-200 disabled:opacity-60 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:focus-visible:translate-y-0 md:focus-visible:opacity-100 ${
+              justAdded ? 'bg-success text-white md:translate-y-0 md:opacity-100' : 'bg-fg text-bg hover:opacity-90'
             }`}
           >
-            {justAdded ? <Check className="h-4 w-4" strokeWidth={3} /> : <Plus className="h-5 w-5" />}
+            {justAdded ? <><Check className="h-4 w-4" strokeWidth={3} /> Added</> : <><Plus className="h-4 w-4" /> Add</>}
           </button>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col px-0.5 pt-3">
+      <div className="flex flex-1 flex-col px-1 pt-3.5">
         <div className="flex items-center justify-between gap-2 text-xs text-muted">
-          <span className="truncate">{product.brand || product.category || ' '}</span>
+          <span className="truncate text-[11px] font-semibold uppercase tracking-[0.12em]">{product.brand || product.category || ' '}</span>
           {rating !== null && (
             <span className="flex shrink-0 items-center gap-1">
               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
@@ -110,12 +110,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
           )}
         </div>
 
-        <h3 className="mt-1 line-clamp-2 text-sm font-medium leading-snug text-fg">{product.name}</h3>
+        <h3 className="mt-1.5 line-clamp-2 text-[15px] font-medium leading-snug text-fg">{product.name}</h3>
 
         <div className="mt-auto flex flex-wrap items-baseline gap-x-2 pt-2">
-          <span className="text-base font-semibold tracking-tight text-fg">{formatPrice(product.price)}</span>
+          <span className="text-lg font-semibold tracking-tight text-fg">{formatPrice(product.price)}</span>
           {originalPrice && !isOutOfStock && (
-            <span className="text-xs text-muted line-through">{formatPrice(originalPrice)}</span>
+            <>
+              <span className="text-xs text-muted line-through">{formatPrice(originalPrice)}</span>
+              <span className="text-xs font-semibold text-success">{discount}% off</span>
+            </>
           )}
         </div>
         {lowStock && <p className="mt-1 text-xs font-medium text-sale">Only {product.stockQuantity} left</p>}

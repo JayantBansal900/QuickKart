@@ -5,6 +5,7 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  product_uploads:
 
 services:
   postgres:
@@ -134,6 +135,7 @@ services:
     ports:
       - "8082:8082"
     environment:
+      APP_UPLOADS_DIR: /app/uploads
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-quickkart}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -145,6 +147,8 @@ services:
       DEV_PRODUCTS_ENABLED: ${DEV_PRODUCTS_ENABLED:-true}
       DEV_TOOLS_ENABLED: ${DEV_TOOLS_ENABLED:-false}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+    volumes:
+      - product_uploads:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy

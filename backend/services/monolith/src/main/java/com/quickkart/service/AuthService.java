@@ -89,19 +89,24 @@ public class AuthService {
         // as an unlimited "is this email registered?" oracle.
         rateLimiter.check("register", normalizedEmail);
 
-        if (userRepository.existsByEmail(normalizedEmail)) {
+        String hashedPassword = passwordEncoder.encode(request.getPassword());
+        User existing = userRepository.findByEmailForUpdate(normalizedEmail).orElse(null);
+        User user;
+        if (existing == null) {
+            user = new User(request.getName().trim(), normalizedEmail, hashedPassword, "USER");
+        } else if (isAbandonedSignup(existing)) {
+            // The address was registered but never verified (e.g. the code expired or never arrived).
+            // Without this, the person could neither sign up again nor sign in. Restart the signup:
+            // take the new details and send a fresh code (generateAndSendOtp voids every older code).
+            // Nothing is unlocked until someone who can read that inbox enters the new code.
+            user = existing;
+            user.setName(request.getName().trim());
+            user.setPassword(hashedPassword);
+        } else {
             // Trade-off: a 409 still reveals that the account exists (needed for a usable signup UX),
             // but it is rate-limited and no longer echoes the address back.
             throw new DuplicateEmailException("An account with this email already exists. Please sign in.");
         }
-        String hashedPassword = passwordEncoder.encode(request.getPassword());
-
-        User user = new User(
-                request.getName().trim(),
-                normalizedEmail,
-                hashedPassword,
-                "USER"
-        );
         if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank()) {
             user.setPhoneNumber(request.getPhoneNumber().trim());
         }
@@ -345,6 +350,13 @@ public class AuthService {
         } else {
             dispatch.run();
         }
+    }
+
+    /** A customer account that was created but never verified. Admins and suspended accounts never qualify. */
+    private static boolean isAbandonedSignup(User user) {
+        return !user.isEmailVerified()
+                && "PENDING_VERIFICATION".equals(user.getAccountStatus())
+                && "USER".equals(user.getRole());
     }
 
     private void generateAndSendOtp(String email, String name) {

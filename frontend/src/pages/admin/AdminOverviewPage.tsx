@@ -72,20 +72,20 @@ export function AdminOverviewPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl border border-line bg-surface p-5 ">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-bold">Recent orders</h2>
-            <Link to="/admin/orders" className="text-xs font-semibold text-slate-600 underline">View all</Link>
+            <h2 className="font-semibold">Recent orders</h2>
+            <Link to="/admin/orders" className="text-xs font-semibold text-muted underline">View all</Link>
           </div>
           {recentOrders.length === 0 ? (
-            <p className="text-sm text-slate-500">{loading ? "Loading…" : "No orders yet."}</p>
+            <p className="text-sm text-muted">{loading ? "Loading…" : "No orders yet."}</p>
           ) : (
             <ul className="divide-y divide-slate-100">
               {recentOrders.map((o) => (
                 <li key={o.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                   <div className="min-w-0">
                     <p className="font-semibold">#{o.id} · {formatINR(o.totalAmount)}</p>
-                    <p className="truncate text-xs text-slate-500">{o.userEmail ?? `User #${o.userId}`} · {formatDateTime(o.createdAt ?? o.orderDate)}</p>
+                    <p className="truncate text-xs text-muted">{o.userEmail ?? `User #${o.userId}`} · {formatDateTime(o.createdAt ?? o.orderDate)}</p>
                   </div>
                   <StatusBadge value={o.status} />
                 </li>
@@ -94,19 +94,19 @@ export function AdminOverviewPage() {
           )}
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl border border-line bg-surface p-5 ">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-bold">Running low</h2>
-            <Link to="/admin/inventory" className="text-xs font-semibold text-slate-600 underline">Manage inventory</Link>
+            <h2 className="font-semibold">Running low</h2>
+            <Link to="/admin/inventory" className="text-xs font-semibold text-muted underline">Manage inventory</Link>
           </div>
           {lowStock.length === 0 ? (
-            <p className="text-sm text-slate-500">{loading ? "Loading…" : "All products are well stocked."}</p>
+            <p className="text-sm text-muted">{loading ? "Loading…" : "All products are well stocked."}</p>
           ) : (
             <ul className="divide-y divide-slate-100">
               {lowStock.map((p) => (
                 <li key={p.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                   <span className="min-w-0 truncate">{p.name}</span>
-                  <span className={`flex-none font-bold tabular-nums ${p.stockQuantity <= 0 ? "text-rose-700" : "text-amber-700"}`}>
+                  <span className={`flex-none font-semibold tabular-nums ${p.stockQuantity <= 0 ? "text-sale" : "text-amber-700 dark:text-amber-400"}`}>
                     {p.stockQuantity <= 0 ? "Out of stock" : `${p.stockQuantity} left`}
                   </span>
                 </li>

@@ -139,16 +139,19 @@ export function AuthPage() {
   return (
     <div className="qk-container grid min-h-[calc(100vh-4rem)] items-center gap-10 py-10 lg:grid-cols-2">
       {/* Brand panel (desktop only) */}
-      <div className="relative hidden h-full min-h-[560px] overflow-hidden rounded-[32px] bg-fg p-12 text-bg lg:flex lg:flex-col lg:justify-between">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-accent opacity-40 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-accent opacity-20 blur-3xl" />
-        <p className="relative text-lg font-bold tracking-tight">
-          quick<span className="text-accent">kart</span>
-        </p>
+      <div className="relative hidden h-full min-h-[560px] overflow-hidden rounded-[32px] bg-[#171412] p-12 text-white lg:flex lg:flex-col lg:justify-between">
+        <img
+          src="/categories/auth.webp"
+          alt=""
+          onError={(e) => { e.currentTarget.style.display = "none"; }}
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-70"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
+        <p className="relative text-lg font-semibold tracking-tight">quickkart</p>
         <div className="relative">
-          <h2 className="text-4xl font-bold leading-tight tracking-tight">Shop smarter.<br />Pay on delivery.</h2>
+          <h2 className="qk-display text-5xl">Shop smarter.<br /><em>Pay on delivery.</em></h2>
           <ul className="mt-8 space-y-3 text-sm opacity-80">
-            <li>✓ 500+ products across 8 categories</li>
+            <li>✓ 535 products across 8 categories</li>
             <li>✓ Cash on delivery on every order</li>
             <li>✓ Email-verified accounts</li>
           </ul>
@@ -164,7 +167,7 @@ export function AuthPage() {
             {tab("/register", "Create account", mode === "register")}
           </div>
         )}
-        <h1 ref={heading} tabIndex={-1} className="text-3xl font-semibold tracking-tight text-fg outline-none">
+        <h1 ref={heading} tabIndex={-1} className="qk-display text-4xl text-fg outline-none">
           {title}
         </h1>
         <p className="mt-2 text-sm text-muted">{subtitle}</p>

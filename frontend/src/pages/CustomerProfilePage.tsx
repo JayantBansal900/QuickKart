@@ -92,7 +92,7 @@ export const CustomerProfilePage: React.FC<CustomerProfilePageProps> = ({ onNavi
             {(displayName.trim()[0] ?? 'U').toUpperCase()}
           </span>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-fg">{displayName}</h1>
+            <h1 className="qk-display text-4xl text-fg">{displayName}</h1>
             <p className="text-sm text-muted">{profile?.email || user?.email}</p>
           </div>
         </div>

@@ -88,19 +88,19 @@ export function AdminOrdersPage() {
       <div className="flex flex-col gap-3 sm:flex-row">
         <label className="relative flex-1">
           <span className="sr-only">Search orders</span>
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by order #, customer email or recipient"
-            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-slate-900 focus:outline-none"
+            className="w-full rounded-lg border border-line bg-surface py-2 pl-9 pr-3 text-sm focus:border-accent focus:outline-none"
           />
         </label>
         <select
           aria-label="Filter by status"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as "ALL" | Status)}
-          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+          className="rounded-lg border border-line bg-surface px-3 py-2 text-sm"
         >
           <option value="ALL">All statuses</option>
           {ALL_STATUSES.map((s) => (
@@ -131,7 +131,7 @@ export function AdminOrdersPage() {
               const isOpen = expanded === o.id;
               return (
                 <React.Fragment key={o.id}>
-                  <tr className="hover:bg-slate-50">
+                  <tr className="hover:bg-subtle">
                     <td className={tdClass}>
                       <button
                         type="button"
@@ -141,25 +141,25 @@ export function AdminOrdersPage() {
                       >
                         #{o.id}
                       </button>
-                      <p className="text-xs text-slate-500">{formatDateTime(o.createdAt ?? o.orderDate)}</p>
+                      <p className="text-xs text-muted">{formatDateTime(o.createdAt ?? o.orderDate)}</p>
                     </td>
                     <td className={tdClass}>{o.userEmail ?? `User #${o.userId}`}</td>
                     <td className={`${tdClass} font-semibold tabular-nums`}>{formatINR(o.totalAmount)}</td>
                     <td className={tdClass}>
-                      <p className="text-xs text-slate-500">{o.paymentMethod ?? "—"}</p>
+                      <p className="text-xs text-muted">{o.paymentMethod ?? "—"}</p>
                       <StatusBadge value={o.paymentStatus} />
                     </td>
                     <td className={tdClass}><StatusBadge value={o.status} /></td>
                     <td className={`${tdClass} text-right`}>
                       {nextOptions.length === 0 ? (
-                        <span className="text-xs text-slate-400">Final</span>
+                        <span className="text-xs text-muted">Final</span>
                       ) : (
                         <select
                           aria-label={`Update status for order ${o.id}`}
                           disabled={updatingId === o.id}
                           value=""
                           onChange={(e) => e.target.value && void changeStatus(o, e.target.value as Status)}
-                          className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-xs font-semibold"
+                          className="rounded-md border border-line bg-surface px-2 py-1.5 text-xs font-semibold"
                         >
                           <option value="">Move to…</option>
                           {nextOptions.map((s) => (
@@ -170,11 +170,11 @@ export function AdminOrdersPage() {
                     </td>
                   </tr>
                   {isOpen && (
-                    <tr className="bg-slate-50">
+                    <tr className="bg-subtle">
                       <td colSpan={6} className="px-4 py-4 text-sm">
                         <div className="grid gap-4 sm:grid-cols-2">
                           <div>
-                            <h3 className="mb-1 text-xs font-semibold uppercase text-slate-500">Items</h3>
+                            <h3 className="mb-1 text-xs font-semibold uppercase text-muted">Items</h3>
                             <ul className="space-y-1">
                               {o.items.map((item) => (
                                 <li key={item.productId} className="flex justify-between gap-3">
@@ -185,12 +185,12 @@ export function AdminOrdersPage() {
                             </ul>
                           </div>
                           <div>
-                            <h3 className="mb-1 text-xs font-semibold uppercase text-slate-500">Delivery</h3>
+                            <h3 className="mb-1 text-xs font-semibold uppercase text-muted">Delivery</h3>
                             <p>{o.recipientName ?? "—"}</p>
-                            <p className="text-slate-600">{o.deliveryAddress ?? "—"}</p>
-                            <p className="text-slate-600">{o.deliveryPhone ?? ""}</p>
+                            <p className="text-muted">{o.deliveryAddress ?? "—"}</p>
+                            <p className="text-muted">{o.deliveryPhone ?? ""}</p>
                             {o.cancelledAt && (
-                              <p className="mt-2 text-rose-700">Cancelled {formatDateTime(o.cancelledAt)} by {o.cancelledBy}</p>
+                              <p className="mt-2 text-sale">Cancelled {formatDateTime(o.cancelledAt)} by {o.cancelledBy}</p>
                             )}
                           </div>
                         </div>

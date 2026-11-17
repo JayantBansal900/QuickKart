@@ -81,12 +81,12 @@ export function AdminUsersPage() {
 
       <label className="relative block">
         <span className="sr-only">Search users</span>
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by name, email or ID"
-          className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-slate-900 focus:outline-none"
+          className="w-full rounded-lg border border-line bg-surface py-2 pl-9 pr-3 text-sm focus:border-accent focus:outline-none"
         />
       </label>
 
@@ -111,14 +111,14 @@ export function AdminUsersPage() {
             visible.map((u) => {
               const readOnly = u.role === "ADMIN" || u.id === me?.id;
               return (
-                <tr key={u.id} className="hover:bg-slate-50">
+                <tr key={u.id} className="hover:bg-subtle">
                   <td className={tdClass}>
                     <p className="font-semibold">{u.name}</p>
-                    <p className="text-xs text-slate-500">#{u.id} · {u.email}</p>
+                    <p className="text-xs text-muted">#{u.id} · {u.email}</p>
                   </td>
                   <td className={tdClass}>{u.phoneNumber || "—"}</td>
                   <td className={tdClass}><StatusBadge value={u.role} /></td>
-                  <td className={tdClass}>{u.emailVerified ? "Yes" : <span className="text-amber-700">No</span>}</td>
+                  <td className={tdClass}>{u.emailVerified ? "Yes" : <span className="text-amber-700 dark:text-amber-400">No</span>}</td>
                   <td className={`${tdClass} text-xs`}>{formatDateTime(u.createdAt)}</td>
                   <td className={`${tdClass} text-xs`}>{formatDateTime(u.lastLoginAt)}</td>
                   <td className={tdClass}>
@@ -130,7 +130,7 @@ export function AdminUsersPage() {
                         disabled={updatingId === u.id}
                         value={u.accountStatus}
                         onChange={(e) => void setStatus(u, e.target.value)}
-                        className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-xs font-semibold"
+                        className="rounded-md border border-line bg-surface px-2 py-1.5 text-xs font-semibold"
                       >
                         {MANAGEABLE_STATUSES.map((s) => (
                           <option key={s} value={s}>{s}</option>

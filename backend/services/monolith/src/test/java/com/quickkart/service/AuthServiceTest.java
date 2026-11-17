@@ -63,7 +63,6 @@ class AuthServiceTest {
     void shouldRegisterUserSuccessfullyAndHashPassword() {
         RegisterRequest request = new RegisterRequest("Jayant", "jayant@example.com", "password123");
 
-        when(userRepository.existsByEmail("jayant@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("$2a$10$encodedHash123");
 
         User savedUser = new User(1L, "Jayant", "jayant@example.com", "$2a$10$encodedHash123", "USER");
@@ -96,10 +95,47 @@ class AuthServiceTest {
     void shouldThrowDuplicateEmailExceptionWhenEmailExists() {
         RegisterRequest request = new RegisterRequest("Jayant", "jayant@example.com", "password123");
 
-        when(userRepository.existsByEmail("jayant@example.com")).thenReturn(true);
+        User verified = new User(1L, "Jayant", "jayant@example.com", "$2a$10$old", "USER");
+        verified.setEmailVerified(true);
+        verified.setAccountStatus("ACTIVE");
+        when(userRepository.findByEmailForUpdate("jayant@example.com")).thenReturn(java.util.Optional.of(verified));
 
         assertThrows(DuplicateEmailException.class, () -> authService.register(request));
         verify(userRepository, never()).save(any(User.class));
+        verifyNoInteractions(emailService);
+    }
+
+    @Test
+    void registeringAgainRestartsAnUnverifiedSignupWithAFreshCode() {
+        RegisterRequest request = new RegisterRequest("Jayant B", "jayant@example.com", "new-password-1");
+        User pending = new User(7L, "Old Name", "jayant@example.com", "$2a$10$old", "USER");
+        pending.setEmailVerified(false);
+        pending.setAccountStatus("PENDING_VERIFICATION");
+        when(userRepository.findByEmailForUpdate("jayant@example.com")).thenReturn(java.util.Optional.of(pending));
+        when(passwordEncoder.encode("new-password-1")).thenReturn("$2a$10$new");
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        AuthResponse response = authService.register(request);
+
+        assertEquals(7L, response.getId(), "the existing pending row is reused, not duplicated");
+        assertNull(response.getToken());
+        assertEquals("$2a$10$new", pending.getPassword());
+        assertEquals("Jayant B", pending.getName());
+        assertFalse(pending.isEmailVerified(), "nothing is unlocked until the new code is entered");
+        verify(emailService).sendVerificationOtp(eq("jayant@example.com"), eq("Jayant B"), anyString());
+    }
+
+    @Test
+    void anUnverifiedAdminAccountIsNeverTakenOverBySignup() {
+        RegisterRequest request = new RegisterRequest("Mallory", "admin@example.com", "attacker-pass-1");
+        User admin = new User(2L, "Admin", "admin@example.com", "$2a$10$admin", "ADMIN");
+        admin.setEmailVerified(false);
+        admin.setAccountStatus("PENDING_VERIFICATION");
+        when(userRepository.findByEmailForUpdate("admin@example.com")).thenReturn(java.util.Optional.of(admin));
+
+        assertThrows(DuplicateEmailException.class, () -> authService.register(request));
+        assertEquals("$2a$10$admin", admin.getPassword());
+        verifyNoInteractions(emailService);
     }
 
     @Test

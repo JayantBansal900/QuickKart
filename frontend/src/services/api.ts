@@ -231,6 +231,20 @@ export const api = {
     return handleResponse<Product>(res);
   },
 
+  /** Uploads a product photo (JPEG/PNG/WebP, max 3 MB). The server checks the file's real type. */
+  async uploadProductImage(id: number, file: File): Promise<Product> {
+    const token = localStorage.getItem(TOKEN_KEY);
+    const body = new FormData();
+    body.append('file', file);
+    // No Content-Type header: the browser sets multipart/form-data with the right boundary.
+    const res = await apiFetch(`${API_BASE_URL}/admin/products/${id}/image`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body,
+    });
+    return handleResponse<Product>(res);
+  },
+
   async deleteProduct(id: number): Promise<void> {
     const res = await apiFetch(`${API_BASE_URL}/admin/products/${id}`, {
       method: 'DELETE',
