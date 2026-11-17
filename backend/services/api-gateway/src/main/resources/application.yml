@@ -1,0 +1,63 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  cloud:
+    gateway:
+      # Validate browser origins here; downstream services receive an internal request.
+      default-filters:
+        - RemoveRequestHeader=Origin
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "${CORS_ALLOWED_ORIGIN:http://localhost:3000}"
+              - "${CORS_SECONDARY_ORIGIN:http://127.0.0.1:3000}"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        - id: product-service-route
+          uri: ${PRODUCT_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/products/**,/api/admin/products/**
+
+        - id: order-service-route
+          uri: ${ORDER_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/cart/**,/api/orders/**,/api/admin/orders/**,/api/kafka/**
+
+        - id: monolith-auth-payment-route
+          uri: ${MONOLITH_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/auth/**,/api/payments/**
+
+        - id: monolith-admin-route
+          uri: ${MONOLITH_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/admin/**
+
+        - id: monolith-fallback-route
+          uri: ${MONOLITH_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/**
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{correlationId:-N/A}] %-5level %logger{36} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics

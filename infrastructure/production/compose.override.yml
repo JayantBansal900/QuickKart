@@ -1,0 +1,55 @@
+# Review-only production overlay. Requires Compose >=2.24.4; never applied automatically.
+# Combine with root docker-compose.yml only after explicit release/migration approval.
+services:
+  postgres:
+    ports: !reset []
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Provide approved existing database password}
+  redis:
+    ports: !reset []
+  kafka:
+    ports: !reset []
+  backend:
+    image: ${MONOLITH_IMAGE:?Provide scanned immutable image digest}
+    ports: !reset []
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DEV_ADMIN_ENABLED: 'false'
+      DEV_PRODUCTS_ENABLED: 'false'
+      DEV_TOOLS_ENABLED: 'false'
+      SMTP_HOST: ${SMTP_HOST:?Required}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:?Required}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:?Required}
+      SMTP_FROM: ${SMTP_FROM:?Required}
+      CORS_ALLOWED_ORIGIN: ${PUBLIC_ORIGIN:?Approved HTTPS origin required}
+  product-service:
+    image: ${PRODUCT_IMAGE:?Provide scanned immutable image digest}
+    ports: !reset []
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DEV_PRODUCTS_ENABLED: 'false'
+      DEV_TOOLS_ENABLED: 'false'
+  order-service:
+    image: ${ORDER_IMAGE:?Provide scanned immutable image digest}
+    ports: !reset []
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DEV_TOOLS_ENABLED: 'false'
+  api-gateway:
+    image: ${GATEWAY_IMAGE:?Provide scanned immutable image digest}
+    ports: !reset []
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      CORS_ALLOWED_ORIGIN: ${PUBLIC_ORIGIN:?Approved HTTPS origin required}
+      CORS_SECONDARY_ORIGIN: ${PUBLIC_ORIGIN:?Approved HTTPS origin required}
+  frontend:
+    image: ${FRONTEND_IMAGE:?Provide scanned immutable image digest}
+    ports: !override ['127.0.0.1:3000:3000']
+volumes:
+  postgres_data:
+    external: true
+    name: ${APPROVED_POSTGRES_VOLUME:?Existing volume identity must be explicitly approved}
+  redis_data:
+    external: true
+    name: ${APPROVED_REDIS_VOLUME:?Existing volume identity must be explicitly approved}

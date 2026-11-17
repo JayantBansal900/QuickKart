@@ -1,0 +1,70 @@
+name: QuickKart verification
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [monolith, product-service, order-service, api-gateway]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - run: mvn --batch-mode verify
+        working-directory: backend/services/${{ matrix.module }}
+      - name: Reject test dependencies in runtime JAR
+        run: python -c "import sys; from pathlib import Path; sys.path.insert(0, 'scripts/deployment'); from verify_runtime import inspect; inspect(next(Path('backend/services/${{ matrix.module }}/target').glob('*.jar')))"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tests-${{ matrix.module }}
+          path: backend/services/${{ matrix.module }}/target/surefire-reports/*.xml
+  postgres-commerce:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module: [monolith, order-service]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      # The test factory creates an owned Testcontainers database; no developer URL is accepted.
+      - run: mvn --batch-mode -Dquickkart.test.postgres=true -Dtest=CommerceReliabilityIntegrationTest,CommerceMigrationIntegrationTest,OrderNotificationReliabilityTest verify
+        working-directory: backend/services/${{ matrix.module }}
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: node scripts/validate-catalog.cjs
+      - run: npm audit --omit=dev
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate without printing resolved configuration
+        run: docker compose config --quiet
+        env:
+          JWT_SECRET: ci-validation-only-never-deploy
+          OTP_HASH_SECRET: ci-validation-only-never-deploy-separate

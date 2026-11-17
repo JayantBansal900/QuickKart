@@ -1,0 +1,386 @@
+{
+  "name": "quickkart-stage-p5",
+  "services": {
+    "api-gateway": {
+      "build": {
+        "context": "E:\\quickkart-backend\\backend\\services\\api-gateway",
+        "dockerfile": "../../../infrastructure/docker/Dockerfile.api-gateway"
+      },
+      "depends_on": {
+        "backend": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "order-service": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "product-service": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "environment": {
+        "CORS_ALLOWED_ORIGIN": "http://127.0.0.1:13000",
+        "CORS_SECONDARY_ORIGIN": "http://localhost:13000",
+        "MONOLITH_SERVICE_URL": "http://backend:8081",
+        "ORDER_SERVICE_URL": "http://order-service:8083",
+        "PRODUCT_SERVICE_URL": "http://product-service:8082",
+        "SPRING_PROFILES_ACTIVE": "prod"
+      },
+      "healthcheck": {
+        "interval": "10s",
+        "retries": 5,
+        "start_period": "30s",
+        "test": [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"
+        ],
+        "timeout": "5s"
+      },
+      "image": "quickkart-stage-p5/api-gateway:phase5",
+      "ports": [
+        "127.0.0.1:18080:8080"
+      ],
+      "networks": [
+        "default",
+        "edge"
+      ]
+    },
+    "backend": {
+      "build": {
+        "context": "E:\\quickkart-backend\\backend\\services\\monolith",
+        "dockerfile": "../../../infrastructure/docker/Dockerfile.monolith"
+      },
+      "depends_on": {
+        "kafka": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "postgres": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "redis": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "mailpit": {
+          "condition": "service_started"
+        },
+        "migrate": {
+          "condition": "service_completed_successfully"
+        }
+      },
+      "environment": {
+        "DEV_ADMIN_EMAIL": "",
+        "DEV_ADMIN_ENABLED": "false",
+        "DEV_ADMIN_NAME": "",
+        "DEV_ADMIN_PASSWORD": "",
+        "DEV_PRODUCTS_ENABLED": "false",
+        "DEV_TOOLS_ENABLED": "false",
+        "JWT_EXPIRATION_MS": "${JWT_EXPIRATION_MS:-86400000}",
+        "JWT_SECRET": "${JWT_SECRET:?Set JWT_SECRET to a random Base64 key of at least 32 bytes}",
+        "KAFKA_BOOTSTRAP_SERVERS": "kafka:29092",
+        "KAFKA_EMBEDDED_ENABLED": "false",
+        "OTP_HASH_SECRET": "${OTP_HASH_SECRET:?Set OTP_HASH_SECRET to a separate random Base64 key of at least 32 bytes}",
+        "REDIS_HOST": "redis",
+        "REDIS_PASSWORD": "${REDIS_PASSWORD:-}",
+        "REDIS_PORT": 6379,
+        "SMTP_FROM": "quickkart@example.test",
+        "SMTP_HOST": "mailpit",
+        "SMTP_PASSWORD": "${SMTP_PASSWORD:?Missing staging SMTP password}",
+        "SMTP_PORT": "1025",
+        "SMTP_USERNAME": "stage",
+        "SPRING_DATASOURCE_PASSWORD": "${POSTGRES_PASSWORD:-postgres}",
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://postgres:5432/${POSTGRES_DB:-quickkart}",
+        "SPRING_DATASOURCE_USERNAME": "${POSTGRES_USER:-postgres}",
+        "SPRING_PROFILES_ACTIVE": "prod",
+        "SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST": "mailpit"
+      },
+      "healthcheck": {
+        "interval": "10s",
+        "retries": 5,
+        "start_period": "30s",
+        "test": [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:8081/actuator/health || exit 1"
+        ],
+        "timeout": "5s"
+      },
+      "image": "quickkart-stage-p5/backend:phase5",
+      "ports": [
+        "127.0.0.1:18081:8081"
+      ],
+      "networks": [
+        "default",
+        "edge"
+      ]
+    },
+    "frontend": {
+      "build": {
+        "context": "E:\\quickkart-backend",
+        "dockerfile": "infrastructure/docker/Dockerfile.frontend"
+      },
+      "depends_on": {
+        "api-gateway": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "image": "quickkart-stage-p5/frontend:phase5",
+      "ports": [
+        "127.0.0.1:13000:3000"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "wget",
+          "-q",
+          "--spider",
+          "http://127.0.0.1:3000/"
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 10
+      },
+      "networks": [
+        "default",
+        "edge"
+      ]
+    },
+    "kafka": {
+      "environment": {
+        "KAFKA_ADVERTISED_LISTENERS": "INTERNAL://kafka:29092,EXTERNAL://localhost:9092",
+        "KAFKA_CONTROLLER_LISTENER_NAMES": "CONTROLLER",
+        "KAFKA_CONTROLLER_QUORUM_VOTERS": "1@localhost:9093",
+        "KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS": 0,
+        "KAFKA_INTER_BROKER_LISTENER_NAME": "INTERNAL",
+        "KAFKA_LISTENERS": "INTERNAL://:29092,EXTERNAL://:9092,CONTROLLER://:9093",
+        "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP": "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT",
+        "KAFKA_NODE_ID": 1,
+        "KAFKA_NUM_PARTITIONS": 1,
+        "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR": 1,
+        "KAFKA_PROCESS_ROLES": "broker,controller",
+        "KAFKA_TRANSACTION_STATE_LOG_MIN_ISR": 1,
+        "KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR": 1,
+        "KAFKA_HEAP_OPTS": "-Xms128m -Xmx256m"
+      },
+      "healthcheck": {
+        "interval": "10s",
+        "retries": 5,
+        "start_period": "15s",
+        "test": [
+          "CMD-SHELL",
+          "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"
+        ],
+        "timeout": "10s"
+      },
+      "image": "apache/kafka:3.7.0"
+    },
+    "order-service": {
+      "build": {
+        "context": "E:\\quickkart-backend\\backend\\services\\order-service",
+        "dockerfile": "../../../infrastructure/docker/Dockerfile.order-service"
+      },
+      "depends_on": {
+        "kafka": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "postgres": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "migrate": {
+          "condition": "service_completed_successfully"
+        }
+      },
+      "environment": {
+        "DEV_PRODUCTS_ENABLED": "false",
+        "DEV_TOOLS_ENABLED": "false",
+        "JWT_EXPIRATION_MS": "${JWT_EXPIRATION_MS:-86400000}",
+        "JWT_SECRET": "${JWT_SECRET:?Set JWT_SECRET to a random Base64 key of at least 32 bytes}",
+        "KAFKA_BOOTSTRAP_SERVERS": "kafka:29092",
+        "KAFKA_EMBEDDED_ENABLED": "false",
+        "SPRING_DATASOURCE_PASSWORD": "${POSTGRES_PASSWORD:-postgres}",
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://postgres:5432/${POSTGRES_DB:-quickkart}",
+        "SPRING_DATASOURCE_USERNAME": "${POSTGRES_USER:-postgres}",
+        "SPRING_PROFILES_ACTIVE": "prod"
+      },
+      "healthcheck": {
+        "interval": "10s",
+        "retries": 5,
+        "start_period": "30s",
+        "test": [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1"
+        ],
+        "timeout": "5s"
+      },
+      "image": "quickkart-stage-p5/order-service:phase5",
+      "ports": [
+        "127.0.0.1:18083:8083"
+      ],
+      "networks": [
+        "default",
+        "edge"
+      ]
+    },
+    "postgres": {
+      "environment": {
+        "POSTGRES_DB": "${POSTGRES_DB:-quickkart}",
+        "POSTGRES_PASSWORD": "${POSTGRES_PASSWORD:-postgres}",
+        "POSTGRES_USER": "${POSTGRES_USER:-postgres}"
+      },
+      "healthcheck": {
+        "interval": "5s",
+        "retries": 5,
+        "start_period": "10s",
+        "test": [
+          "CMD",
+          "pg_isready",
+          "-h",
+          "127.0.0.1",
+          "-U",
+          "postgres",
+          "-d",
+          "quickkart"
+        ],
+        "timeout": "5s"
+      },
+      "image": "postgres:15-alpine",
+      "volumes": [
+        "postgres_data:/var/lib/postgresql/data",
+        "./.local/staging/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro",
+        "./.local/staging/01-fixture.sql:/docker-entrypoint-initdb.d/01-fixture.sql:ro"
+      ]
+    },
+    "product-service": {
+      "build": {
+        "context": "E:\\quickkart-backend\\backend\\services\\product-service",
+        "dockerfile": "../../../infrastructure/docker/Dockerfile.product-service"
+      },
+      "depends_on": {
+        "postgres": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "redis": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "migrate": {
+          "condition": "service_completed_successfully"
+        }
+      },
+      "environment": {
+        "DEV_PRODUCTS_ENABLED": "false",
+        "DEV_TOOLS_ENABLED": "false",
+        "JWT_EXPIRATION_MS": "${JWT_EXPIRATION_MS:-86400000}",
+        "JWT_SECRET": "${JWT_SECRET:?Set JWT_SECRET to a random Base64 key of at least 32 bytes}",
+        "REDIS_HOST": "redis",
+        "REDIS_PASSWORD": "${REDIS_PASSWORD:-}",
+        "REDIS_PORT": 6379,
+        "SPRING_DATASOURCE_PASSWORD": "${POSTGRES_PASSWORD:-postgres}",
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://postgres:5432/${POSTGRES_DB:-quickkart}",
+        "SPRING_DATASOURCE_USERNAME": "${POSTGRES_USER:-postgres}",
+        "SPRING_PROFILES_ACTIVE": "prod"
+      },
+      "healthcheck": {
+        "interval": "10s",
+        "retries": 5,
+        "start_period": "30s",
+        "test": [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1"
+        ],
+        "timeout": "5s"
+      },
+      "image": "quickkart-stage-p5/product-service:phase5",
+      "ports": [
+        "127.0.0.1:18082:8082"
+      ],
+      "networks": [
+        "default",
+        "edge"
+      ]
+    },
+    "redis": {
+      "healthcheck": {
+        "interval": "5s",
+        "retries": 5,
+        "start_period": "5s",
+        "test": [
+          "CMD-SHELL",
+          "redis-cli ping | grep PONG"
+        ],
+        "timeout": "5s"
+      },
+      "image": "redis:7-alpine",
+      "volumes": [
+        "redis_data:/data"
+      ]
+    },
+    "mailpit": {
+      "image": "axllent/mailpit:v1.31.1",
+      "ports": [
+        "127.0.0.1:18025:8025"
+      ],
+      "volumes": [
+        "./.local/staging/cert.pem:/tls/cert.pem:ro",
+        "./.local/staging/key.pem:/tls/key.pem:ro"
+      ],
+      "environment": {
+        "MP_SMTP_TLS_CERT": "/tls/cert.pem",
+        "MP_SMTP_TLS_KEY": "/tls/key.pem",
+        "MP_SMTP_REQUIRE_STARTTLS": "true",
+        "MP_SMTP_AUTH": "stage:${SMTP_PASSWORD:?Missing staging SMTP password}",
+        "MP_SMTP_ALLOWED_RECIPIENTS": "@example\\.test$",
+        "MP_SMTP_DISABLE_RDNS": "true"
+      },
+      "networks": [
+        "default",
+        "edge"
+      ]
+    },
+    "migrate": {
+      "image": "postgres:15-alpine",
+      "environment": {
+        "PGPASSWORD": "${POSTGRES_PASSWORD:?Missing staging database password}"
+      },
+      "volumes": [
+        "./infrastructure/postgres/migrations/002_commerce_reliability.sql:/migration.sql:ro"
+      ],
+      "command": [
+        "psql",
+        "-h",
+        "postgres",
+        "-U",
+        "postgres",
+        "-d",
+        "quickkart",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "--single-transaction",
+        "-f",
+        "/migration.sql"
+      ],
+      "depends_on": {
+        "postgres": {
+          "condition": "service_healthy"
+        }
+      }
+    }
+  },
+  "volumes": {
+    "postgres_data": {},
+    "redis_data": {}
+  },
+  "networks": {
+    "default": {
+      "internal": true
+    },
+    "edge": {}
+  }
+}
