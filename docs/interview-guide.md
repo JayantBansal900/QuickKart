@@ -14,7 +14,7 @@ How to explain this project in an interview. Every answer here matches the code;
 > - **No lost events:** order events go through a transactional outbox to Kafka, and an idempotent consumer sends the confirmation email.
 > - **Account security:** sign-up and password reset use emailed one-time codes, and a password reset revokes every old JWT.
 >
-> Catalog search is server-side with a Redis cache. I load-tested it: about 687 requests per second with the cache warm versus 324 without, p95 50 ms versus 105 ms. There are about 250 automated tests running in GitHub Actions.
+> Catalog search is server-side with a Redis cache. I load-tested it: about 867 requests per second with the cache warm versus 317 without, p95 50 ms versus 105 ms. There are about 250 automated tests running in GitHub Actions.
 >
 > Payment is cash on delivery only; I didn't integrate a real payment gateway."
 
@@ -24,9 +24,9 @@ How to explain this project in an interview. Every answer here matches the code;
 |---|---|
 | Services | gateway :8080, monolith :8081, product :8082, order :8083, plus PostgreSQL, Redis, Kafka, nginx |
 | Catalog | 535 products, 8 categories |
-| Tests | 92 monolith + 42 order + 40 product + 7 gateway + 73 frontend = **254**, plus a 49-check end-to-end script |
-| Search, cache hit | 687 req/s, p95 49.6 ms (20 concurrent clients, local Docker) |
-| Search, cache miss | 324 req/s, p95 105.2 ms |
+| Tests | 90 monolith + 42 order + 40 product + 7 gateway + 73 frontend = **252**, plus a 49-check end-to-end script |
+| Search, cache hit | 867 req/s, p95 35.6 ms (20 concurrent clients, local Docker) |
+| Search, cache miss | 317 req/s, p95 94.3 ms |
 | Cache TTL | 60 s |
 | OTP | 6 digits, 5 min expiry, 5 attempts, HMAC-stored |
 | JWT | 24 h, re-checked against the DB on every request |
@@ -160,8 +160,8 @@ The product service builds a JPA `Specification` from the filters: text query, c
 A `CacheErrorHandler` logs the error and the request goes straight to PostgreSQL. The site gets slower but keeps working. Also, cache deserialization only allows known DTO and JDK types, so a poisoned cache entry can't make Jackson instantiate an arbitrary class.
 
 **Q: Measured impact?**
-- Throughput: 687 vs 324 requests per second.
-- p95 latency: 49.6 ms vs 105.2 ms.
+- Throughput: 867 vs 317 requests per second (median of three runs).
+- p95 latency: 35.6 ms vs 94.3 ms.
 
 Same query, 20 concurrent clients, on my laptop's Docker. I'd call those comparison numbers, not production capacity.
 
@@ -216,3 +216,4 @@ All jobs pass on `main`.
 6. **Stale frontend after a deploy.** nginx cached `index.html`. Fixed with `no-cache` for `index.html` and `immutable` for the hashed assets.
 7. **Error messages leaking internals.** `500` responses included exception messages. They now return a generic message, and the details go to the log.
 8. **Dead code left behind by the split.** After extracting the order and product services, the monolith still had its own cart, order and product controllers and services. The gateway never routed to them, but their tests kept passing, which hid the problem. I deleted them along with 79 tests that duplicated the order and product services' own tests, and fixed the end-to-end check that was still looking for the old log format.
+9. **A catalog that looked fake.** Walking through the app as a customer showed products like "LG MX Master 3S" and a ₹999 Sony WH-1000XM5: the seed data had rotated brands across product names and ramped prices by row number. I rebuilt all 535 products with matching brands and realistic prices, kept every SKU and its stock so carts and orders stayed valid, and updated the live database with a SKU-keyed SQL refresh instead of reseeding. Order history was unaffected because `order_items` stores its own product name. The walkthrough also showed product images not updating after a deploy, because nginx sent no cache header for them; they now use `no-cache` with ETag revalidation.

@@ -67,12 +67,12 @@ Measured on the local Docker stack (16 vCPU, 8 GB for Docker), 20 concurrent cli
 
 | Scenario | req/s | p50 | p95 | p99 | Errors |
 |---|---:|---:|---:|---:|---:|
-| Catalog search, Redis cache hit | 687 | 26.7 ms | 49.6 ms | 66.7 ms | 0 |
-| Catalog search, cache miss (hits PostgreSQL) | 324 | 56.8 ms | 105.2 ms | 134.2 ms | 0 |
-| Category counts (cached) | 1108 | 16.8 ms | 29.7 ms | 39.4 ms | 0 |
-| Gateway health (routing overhead baseline) | 1495 | 12.3 ms | 23.4 ms | 32.4 ms | 0 |
+| Catalog search, Redis cache hit | 867 | 21.9 ms | 35.6 ms | 45.6 ms | 0 |
+| Catalog search, cache miss (hits PostgreSQL) | 317 | 58.6 ms | 94.3 ms | 196.1 ms | 0 |
+| Category counts (cached) | 1037 | 18.1 ms | 29.8 ms | 43.7 ms | 0 |
+| Gateway health (routing overhead baseline) | 1742 | 10.7 ms | 17.1 ms | 32.4 ms | 0 |
 
-Caching roughly doubles search throughput and halves p95 latency. These are local numbers for comparison, not a production SLA. See [docs/performance.md](docs/performance.md).
+Values are the median of three runs. Caching gives about 2.7× the search throughput and less than half the p95 latency. These are local numbers for comparison, not a production SLA. See [docs/performance.md](docs/performance.md).
 
 ---
 
@@ -85,7 +85,11 @@ cp .env.example .env          # then fill in the secrets (see comments in the fi
 ```
 
 ```bash
-cd backend/services/monolith && mvn -q package -DskipTests && cd ../product-service && mvn -q package -DskipTests && cd ../order-service && mvn -q package -DskipTests && cd ../api-gateway && mvn -q package -DskipTests && cd ../../..
+for s in monolith product-service order-service api-gateway; do (cd backend/services/$s && mvn -q package -DskipTests); done
+```
+
+```bash
+cd frontend && npm ci && npm run build && cd ..
 ```
 
 ```bash
@@ -102,7 +106,7 @@ With `MAIL_TRANSPORT=console` (the default), OTP emails are written to the monol
 
 | Suite | Count | Command |
 |---|---:|---|
-| Monolith (auth, admin, email, Kafka consumer, security) | 92 | `mvn verify` in `backend/services/monolith` |
+| Monolith (auth, admin, email, Kafka consumer, security) | 90 | `mvn verify` in `backend/services/monolith` |
 | Order service (cart, checkout, outbox) | 42 | `mvn verify` in `backend/services/order-service` |
 | Product service (search, cache, admin) | 40 | `mvn verify` in `backend/services/product-service` |
 | API gateway | 7 | `mvn verify` in `backend/services/api-gateway` |

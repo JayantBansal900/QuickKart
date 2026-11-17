@@ -9,7 +9,10 @@
   <circle cx="229" cy="181" r="230" fill="url(#glow)" opacity=".55"/>
   <ellipse cx="300" cy="452" rx="120" ry="14" fill="#0369a1" opacity=".08"/>
   <g transform="translate(180 170) scale(10)" fill="none" stroke="#0369a1" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/>
-    <circle cx="12" cy="13" r="3"/>
+    <path d="M6 20a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2"/>
+    <path d="M8 18V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v14"/>
+    <path d="M10 20h4"/>
+    <circle cx="16" cy="20" r="2"/>
+    <circle cx="8" cy="20" r="2"/>
   </g>
 </svg>

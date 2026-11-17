@@ -37,7 +37,7 @@ public class IsolatedDatabaseContextCustomizerFactory implements ContextCustomiz
                 Map.entry("spring.datasource.username", postgres ? Postgres.DB.getUsername() : "sa"), Map.entry("spring.datasource.password", postgres ? Postgres.DB.getPassword() : ""),
                 Map.entry("spring.jpa.hibernate.ddl-auto", postgres ? "create" : "create-drop"),
                 Map.entry("spring.jpa.database-platform", postgres ? "org.hibernate.dialect.PostgreSQLDialect" : "org.hibernate.dialect.H2Dialect"),
-                Map.entry("app.dev-admin.enabled", "false"), Map.entry("app.dev-products.enabled", "false"),
+                Map.entry("app.dev-admin.enabled", "false"),
                 Map.entry("app.dev-tools.enabled", "false"), Map.entry("app.kafka.embedded.enabled", "false"),
                 Map.entry("spring.kafka.listener.auto-startup", "false"), Map.entry("spring.kafka.admin.auto-create", "false"),
                 Map.entry("spring.data.redis.host", "127.0.0.1"), Map.entry("spring.data.redis.port", "1"),
