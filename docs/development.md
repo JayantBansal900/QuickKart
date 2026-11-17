@@ -18,7 +18,7 @@ The comments in `.env.example` explain each value. The important ones:
 | `JWT_SECRET`, `OTP_HASH_SECRET` | long random secrets, e.g. `openssl rand -base64 48` |
 | `SPRING_PROFILES_ACTIVE` | `dev` locally; `prod` enforces SMTP, `ddl-auto=validate` and no dev tools |
 | `DEV_ADMIN_ENABLED`, `DEV_ADMIN_*` | create an admin account on start-up (dev only) |
-| `DEV_PRODUCTS_ENABLED` | seed the 535-product catalog from `catalog.json` into an empty database |
+| `DEV_PRODUCTS_ENABLED` | `true` by default: seed the 535-product catalog into an empty database (missing SKUs only; never in `prod`) |
 | `MAIL_TRANSPORT` | `console` (codes appear in `docker logs quickkart-monolith`) or `smtp` |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM` | for Gmail: `smtp.gmail.com`, `587`, your address, and a 16-character **App Password** (Google Account → Security → 2-Step Verification → App passwords), not your normal password |
 
@@ -37,7 +37,7 @@ cd frontend && npm ci && npm run build && cd ..
 ```
 
 ```bash
-docker compose up -d --build
+docker compose up -d --build --wait
 ```
 
 ```bash
