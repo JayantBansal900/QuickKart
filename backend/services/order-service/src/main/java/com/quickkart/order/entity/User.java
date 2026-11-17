@@ -31,6 +31,9 @@ public class User {
     private boolean emailVerified = false;
     @Column(name = "account_status", nullable = false)
     private String accountStatus = "PENDING_VERIFICATION";
+    /** Owned by the monolith; mapped here so this service's schema has it (read by AccountAccessService). */
+    @Column(name = "password_changed_at")
+    private java.time.LocalDateTime passwordChangedAt;
     public boolean isEmailVerified() { return emailVerified; }
     public void setEmailVerified(boolean value) { emailVerified = value; }
     public String getAccountStatus() { return accountStatus; }

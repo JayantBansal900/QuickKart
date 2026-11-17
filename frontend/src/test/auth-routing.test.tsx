@@ -64,6 +64,8 @@ function mount(path = "/login") {
           <Route path="/login" element={<AuthPage />} />
           <Route path="/register" element={<AuthPage />} />
           <Route path="/verify-email" element={<AuthPage />} />
+          <Route path="/forgot-password" element={<AuthPage />} />
+          <Route path="/reset-password" element={<AuthPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route element={<ProtectedRoute />}>
             <Route
@@ -482,5 +484,45 @@ describe("dedicated administrator login", () => {
   it("unauthenticated admin URLs redirect to the admin login, not the customer login", async () => {
     mount("/admin");
     await screen.findByRole("heading", { name: "Administrator Sign In" });
+  });
+});
+
+describe("forgot and reset password", () => {
+  it("requests a code, resets the password and returns to sign in without creating a session", async () => {
+    fetchMock.mockImplementation(async (input) => {
+      const path = String(input);
+      if (path.endsWith("/auth/forgot-password"))
+        return response({ message: "If an account exists for this email, a reset code has been sent." });
+      if (path.endsWith("/auth/reset-password"))
+        return response({ message: "Your password has been reset." });
+      return response({ message: "Unexpected" }, 404);
+    });
+    mount("/login");
+    fireEvent.click(await screen.findByRole("link", { name: "Forgot password?" }));
+    await screen.findByRole("heading", { name: "Forgot Password" });
+    fireEvent.change(screen.getByLabelText("Email Address"), { target: { value: "test@example.invalid" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send Reset Code" }));
+
+    await screen.findByRole("heading", { name: "Reset Password" });
+    expect((screen.getByLabelText("Email Address") as HTMLInputElement).value).toBe("test@example.invalid");
+    fireEvent.change(screen.getByLabelText("Reset Code"), { target: { value: "123456" } });
+    fireEvent.change(screen.getByLabelText("New Password"), { target: { value: "brand-new-pass" } });
+    fireEvent.change(screen.getByLabelText("Confirm New Password"), { target: { value: "different-pass" } });
+    fireEvent.click(screen.getByRole("button", { name: "Reset Password" }));
+    expect((await screen.findByRole("alert")).textContent).toMatch(/don't match/);
+    expect(fetchMock).toHaveBeenCalledTimes(1); // mismatch is caught before any request
+
+    fireEvent.change(screen.getByLabelText("Confirm New Password"), { target: { value: "brand-new-pass" } });
+    fireEvent.click(screen.getByRole("button", { name: "Reset Password" }));
+    await screen.findByRole("heading", { name: "Sign In" });
+    expect(screen.getByText(/Password updated/)).toBeTruthy();
+
+    const resetCall = fetchMock.mock.calls.find(([u]) => String(u).endsWith("/auth/reset-password"))!;
+    expect(JSON.parse(String(resetCall[1]?.body))).toEqual({
+      email: "test@example.invalid", otp: "123456", newPassword: "brand-new-pass",
+    });
+    expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
+    // the email address never appears in the URL
+    expect(window.location.search).not.toContain("example.invalid");
   });
 });

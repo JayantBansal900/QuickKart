@@ -149,3 +149,6 @@ CREATE TABLE IF NOT EXISTS email_verifications (
 );
 
 CREATE INDEX IF NOT EXISTS idx_email_verifications_email ON email_verifications(email);
+
+-- Password reset support: JWTs issued before this instant are rejected (see AccountAccessService).
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMP;

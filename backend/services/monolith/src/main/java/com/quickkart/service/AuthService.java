@@ -1,6 +1,8 @@
 package com.quickkart.service;
 
 import com.quickkart.dto.AuthResponse;
+import com.quickkart.dto.ForgotPasswordRequest;
+import com.quickkart.dto.ResetPasswordRequest;
 import com.quickkart.dto.LoginRequest;
 import com.quickkart.dto.RegisterRequest;
 import com.quickkart.dto.ResendOtpRequest;
@@ -20,7 +22,10 @@ import com.quickkart.security.OtpHasher;
 import com.quickkart.security.AuthRateLimiter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 
 
@@ -32,13 +37,22 @@ import java.time.LocalDateTime;
 @Service
 public class AuthService {
 
-    private static final String REGISTRATION_PURPOSE = "REGISTRATION_VERIFICATION";
+    private static final String REGISTRATION_PURPOSE = OtpHasher.REGISTRATION;
+    private static final String RESET_PURPOSE = OtpHasher.PASSWORD_RESET;
     private static final int OTP_EXPIRY_MINUTES = 5;
     private static final int MAX_OTP_ATTEMPTS = 5;
     private static final String NO_ACTIVE_CHALLENGE =
             "Invalid or expired verification code. Please request a new code.";
 
     private volatile String timingDummyHash;
+
+    /** Spring Boot's shared task executor; null in plain unit tests, where mail is sent inline. */
+    private TaskExecutor mailExecutor;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setMailExecutor(@org.springframework.beans.factory.annotation.Qualifier("applicationTaskExecutor") TaskExecutor mailExecutor) {
+        this.mailExecutor = mailExecutor;
+    }
 
     private final UserRepository userRepository;
     private final EmailVerificationRepository emailVerificationRepository;
@@ -237,6 +251,100 @@ public class AuthService {
             timingDummyHash = passwordEncoder.encode("timing-equalisation-" + secureRandom.nextLong());
         }
         return timingDummyHash;
+    }
+
+    // ------------------------------------------------------------------ password reset
+
+    /**
+     * Sends a reset code if — and only if — the email belongs to an active, verified account.
+     * The caller always gets the same response, so this can't be used to discover accounts.
+     */
+    @Transactional
+    public void forgotPassword(ForgotPasswordRequest request) {
+        String normalizedEmail = request.getEmail().trim().toLowerCase(java.util.Locale.ROOT);
+        rateLimiter.check("forgot", normalizedEmail);
+        userRepository.findByEmailForUpdate(normalizedEmail)
+                .filter(user -> user.isEmailVerified() && "ACTIVE".equals(user.getAccountStatus()))
+                .ifPresent(user -> {
+                    String rawOtp = String.format("%06d", secureRandom.nextInt(1_000_000));
+                    // Only the newest reset code is valid.
+                    emailVerificationRepository.findAllByEmailAndPurposeAndVerifiedFalse(normalizedEmail, RESET_PURPOSE)
+                            .forEach(previous -> previous.setVerified(true));
+                    emailVerificationRepository.save(new EmailVerification(
+                            normalizedEmail,
+                            otpHasher.hash(RESET_PURPOSE, normalizedEmail, rawOtp),
+                            RESET_PURPOSE,
+                            LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES)));
+                    sendAfterCommit(() -> emailService.sendPasswordResetOtp(normalizedEmail, user.getName(), rawOtp));
+                });
+    }
+
+    /**
+     * Verifies the reset code (same 5-attempt / 5-minute rules as sign-up) and sets the new password.
+     * passwordChangedAt is updated, which makes every JWT issued before now invalid in all services.
+     */
+    @Transactional(noRollbackFor = {InvalidOtpException.class, OtpExpiredException.class, MaxOtpAttemptsExceededException.class})
+    public void resetPassword(ResetPasswordRequest request) {
+        String normalizedEmail = request.getEmail().trim().toLowerCase(java.util.Locale.ROOT);
+        rateLimiter.check("reset", normalizedEmail);
+
+        User user = userRepository.findByEmailForUpdate(normalizedEmail)
+                .filter(u -> u.isEmailVerified() && "ACTIVE".equals(u.getAccountStatus()))
+                .orElseThrow(() -> new InvalidOtpException(NO_ACTIVE_CHALLENGE));
+        EmailVerification challenge = emailVerificationRepository
+                .findTopByEmailAndPurposeAndVerifiedFalseOrderByCreatedAtDesc(normalizedEmail, RESET_PURPOSE)
+                .orElseThrow(() -> new InvalidOtpException(NO_ACTIVE_CHALLENGE));
+
+        if (challenge.getAttempts() >= MAX_OTP_ATTEMPTS) {
+            challenge.setVerified(true);
+            throw new MaxOtpAttemptsExceededException("Too many incorrect codes. Please request a new reset code.");
+        }
+        challenge.setAttempts(challenge.getAttempts() + 1);
+        if (!challenge.getExpiryAt().isAfter(LocalDateTime.now())) {
+            challenge.setVerified(true);
+            throw new OtpExpiredException("This reset code has expired. Please request a new one.");
+        }
+        if (!otpHasher.matches(RESET_PURPOSE, normalizedEmail, request.getOtp(), challenge.getOtpHash())) {
+            if (challenge.getAttempts() >= MAX_OTP_ATTEMPTS) challenge.setVerified(true);
+            int remaining = MAX_OTP_ATTEMPTS - challenge.getAttempts();
+            throw new InvalidOtpException("Invalid reset code. " + (remaining > 0 ? remaining + " attempt(s) remaining." : "Please request a new code."));
+        }
+
+        challenge.setVerified(true); // one-time use
+        LocalDateTime now = LocalDateTime.now();
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPasswordChangedAt(now);
+        user.setUpdatedAt(now);
+        userRepository.save(user);
+    }
+
+    /**
+     * Sends mail only after the transaction commits, on a background thread. For forgot-password this
+     * matters for security, not just speed: a ~5 s SMTP call that happens only for real accounts would
+     * let anyone detect registered emails by response time. A send failure is logged, never surfaced.
+     */
+    private void sendAfterCommit(Runnable send) {
+        Runnable safeSend = () -> {
+            try {
+                send.run();
+            } catch (RuntimeException ex) {
+                org.slf4j.LoggerFactory.getLogger(AuthService.class)
+                        .warn("Password reset email could not be sent ({})", ex.getClass().getSimpleName());
+            }
+        };
+        Runnable dispatch = () -> {
+            if (mailExecutor != null) mailExecutor.execute(safeSend); else safeSend.run();
+        };
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    dispatch.run();
+                }
+            });
+        } else {
+            dispatch.run();
+        }
     }
 
     private void generateAndSendOtp(String email, String name) {

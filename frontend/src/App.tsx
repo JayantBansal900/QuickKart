@@ -160,7 +160,7 @@ export function ApplicationShell() {
                 }
               />
             ))}
-            {["/login", "/register", "/verify-email"].map((path) => (
+            {["/login", "/register", "/verify-email", "/forgot-password", "/reset-password"].map((path) => (
               <Route key={path} path={path} element={<AuthPage />} />
             ))}
             <Route element={<ProtectedRoute />}>

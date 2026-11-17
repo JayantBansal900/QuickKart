@@ -32,7 +32,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String role = jwtService.extractRole(jwt);
                 // Always consult authoritative account state; never cache suspension or roles.
                 boolean allowed;
-                try { allowed = accounts.isAllowed(email, role, jwtService.extractUserId(jwt)); }
+                try { allowed = accounts.isAllowed(email, role, jwtService.extractUserId(jwt),
+                        jwtService.extractClaim(jwt, io.jsonwebtoken.Claims::getIssuedAt)); }
                 catch (org.springframework.dao.DataAccessException ex) {
                     response.sendError(503, "Account validation unavailable");
                     return;
