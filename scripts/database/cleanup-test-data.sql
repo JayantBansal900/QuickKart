@@ -10,7 +10,7 @@
 --     docker exec -i quickkart-postgres psql -U postgres -d quickkart -v ON_ERROR_STOP=1 -v apply=1 < scripts/database/cleanup-test-data.sql
 --
 -- KEEPS
---   * the 535 catalog products (SKU-<CATEGORY>-NNN, identical to catalog.json)
+--   * the catalog products (SKU-<CATEGORY>-NNN, as listed in catalog.json)
 --   * every ADMIN account
 --   * real-looking customer accounts (anything NOT matching the test patterns below)
 -- REMOVES

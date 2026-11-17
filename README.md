@@ -13,7 +13,7 @@ A full-stack e-commerce app: a React storefront and admin panel on top of Spring
 **Customers**
 - Sign up with email + password, then verify the account with a 6-digit code sent by email (real SMTP, e.g. Gmail).
 - Forgot / reset password by emailed code. A reset signs the account out on every device.
-- Browse 535 products with server-side search, category filter, price range, sort and pagination.
+- Browse 144 hand-picked products (18 per category, each with a photo) with server-side search, category filter, price range, sort and pagination.
 - Cart, then COD checkout with delivery details, order history with a status tracker, and cancellation (stock is restored).
 - Get an order-confirmation email, sent asynchronously through Kafka.
 - Light / dark theme.
@@ -91,7 +91,7 @@ Then edit `.env`:
 | `JWT_SECRET`, `OTP_HASH_SECRET` | two different random keys, e.g. from `openssl rand -base64 48` (required: Compose refuses to start without them) |
 | `DEV_ADMIN_ENABLED`, `DEV_ADMIN_EMAIL`, `DEV_ADMIN_PASSWORD` | `true`, any email, a password of 12+ characters, if you want the admin panel |
 
-Everything else has working defaults. The 535-product catalog is seeded automatically on first start.
+Everything else has working defaults. The 144-product catalog is seeded automatically on first start.
 
 ```bash
 for s in monolith product-service order-service api-gateway; do (cd backend/services/$s && mvn -q package -DskipTests); done

@@ -18,7 +18,7 @@ The comments in `.env.example` explain each value. The important ones:
 | `JWT_SECRET`, `OTP_HASH_SECRET` | long random secrets, e.g. `openssl rand -base64 48` |
 | `SPRING_PROFILES_ACTIVE` | `dev` locally; `prod` enforces SMTP, `ddl-auto=validate` and no dev tools |
 | `DEV_ADMIN_ENABLED`, `DEV_ADMIN_*` | create an admin account on start-up (dev only) |
-| `DEV_PRODUCTS_ENABLED` | `true` by default: seed the 535-product catalog into an empty database (missing SKUs only; never in `prod`) |
+| `DEV_PRODUCTS_ENABLED` | `true` by default: seed the 144-product catalog into an empty database (missing SKUs only; never in `prod`) |
 | `MAIL_TRANSPORT` | `console` (codes appear in `docker logs quickkart-monolith`) or `smtp` |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM` | for Gmail: `smtp.gmail.com`, `587`, your address, and a 16-character **App Password** (Google Account → Security → 2-Step Verification → App passwords), not your normal password |
 
@@ -136,19 +136,19 @@ node scripts/load-test.mjs --duration 15 --concurrency 20
 
 ## 5. Catalog data
 
-The catalog lives in `backend/services/product-service/src/main/resources/catalog.json`: 535 products with real brands, matching product names and approximate Indian street prices. The seeder only inserts SKUs that are missing; it never overwrites existing rows. To push edited names, brands, prices or descriptions into an existing database (stock is left alone), run:
+The catalog lives in `backend/services/product-service/src/main/resources/catalog.json`: 144 products (18 per category) with real brands, matching names, approximate Indian street prices and a product photo each. The seeder only inserts SKUs that are missing; it never overwrites existing rows. To push edited names, brands, prices or descriptions into an existing database (stock is left alone), run:
 
 ```bash
 docker exec -i quickkart-postgres psql -U postgres -d quickkart -v ON_ERROR_STOP=1 < scripts/database/refresh-catalog-details.sql
 ```
 
-Product artwork is generated from the product names, one SVG per SKU:
+Product photos live in `frontend/public/products/photos/` (Pixabay, free licence; see [photo-credits.md](photo-credits.md)). Category tiles use `frontend/public/categories/`. Admins can replace any product photo from the admin panel. Check that every product has a valid image with:
 
 ```bash
-cd frontend && node scripts/generate-product-art.mjs && node scripts/validate-catalog.cjs
+cd frontend && node scripts/validate-catalog.cjs
 ```
 
-nginx serves these SVGs with `Cache-Control: no-cache`, so a regenerated picture shows up without a hard reload.
+To shrink an older database (which had 535 seed products) to the current catalog, run `scripts/database/trim-to-catalog.sql` after a backup. Products that appear in past orders are kept but marked `DISCONTINUED`, which hides them from search and category counts.
 
 ## 6. Cleaning up test data
 
