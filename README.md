@@ -81,8 +81,17 @@ Values are the median of three runs. Caching gives about 2.7× the search throug
 **Needs:** Docker Desktop, JDK 17+, Maven 3.9+, Node 20+.
 
 ```bash
-cp .env.example .env          # then fill in the secrets (see comments in the file)
+cp .env.example .env
 ```
+
+Then edit `.env`:
+
+| Setting | Value |
+|---|---|
+| `JWT_SECRET`, `OTP_HASH_SECRET` | two different random keys, e.g. from `openssl rand -base64 48` (required: Compose refuses to start without them) |
+| `DEV_ADMIN_ENABLED`, `DEV_ADMIN_EMAIL`, `DEV_ADMIN_PASSWORD` | `true`, any email, a password of 12+ characters, if you want the admin panel |
+
+Everything else has working defaults. The 535-product catalog is seeded automatically on first start.
 
 ```bash
 for s in monolith product-service order-service api-gateway; do (cd backend/services/$s && mvn -q package -DskipTests); done
@@ -93,8 +102,10 @@ cd frontend && npm ci && npm run build && cd ..
 ```
 
 ```bash
-docker compose up -d --build
+docker compose up -d --build --wait
 ```
+
+The first start builds the images and takes a few minutes; `--wait` returns when all eight containers are healthy.
 
 - Storefront: http://localhost:3000
 - Admin panel: http://localhost:3000/admin/login (dev admin from `DEV_ADMIN_*` in `.env`)
