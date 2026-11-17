@@ -9,9 +9,9 @@
   <circle cx="451" cy="115" r="230" fill="url(#glow)" opacity=".55"/>
   <ellipse cx="300" cy="452" rx="120" ry="14" fill="#047857" opacity=".08"/>
   <g transform="translate(180 170) scale(10)" fill="none" stroke="#047857" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M10 2v2"/>
-    <path d="M14 2v2"/>
-    <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>
-    <path d="M6 2v2"/>
+    <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/>
+    <path d="M20 2v4"/>
+    <path d="M22 4h-4"/>
+    <circle cx="4" cy="20" r="2"/>
   </g>
 </svg>

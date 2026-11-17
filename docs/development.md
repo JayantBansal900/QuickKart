@@ -26,10 +26,14 @@ The comments in `.env.example` explain each value. The important ones:
 
 ## 2. Build and start
 
-The Dockerfiles copy the already-built JAR, so build with Maven first:
+The Dockerfiles copy already-built artifacts (the JARs and `frontend/dist`), so build them first:
 
 ```bash
 for s in monolith product-service order-service api-gateway; do (cd backend/services/$s && mvn -q package -DskipTests); done
+```
+
+```bash
+cd frontend && npm ci && npm run build && cd ..
 ```
 
 ```bash
@@ -106,7 +110,23 @@ node scripts/e2e-smoke.mjs .
 node scripts/load-test.mjs --duration 15 --concurrency 20
 ```
 
-## 5. Cleaning up test data
+## 5. Catalog data
+
+The catalog lives in `backend/services/product-service/src/main/resources/catalog.json`: 535 products with real brands, matching product names and approximate Indian street prices. The seeder only inserts SKUs that are missing; it never overwrites existing rows. To push edited names, brands, prices or descriptions into an existing database (stock is left alone), run:
+
+```bash
+docker exec -i quickkart-postgres psql -U postgres -d quickkart -v ON_ERROR_STOP=1 < scripts/database/refresh-catalog-details.sql
+```
+
+Product artwork is generated from the product names, one SVG per SKU:
+
+```bash
+cd frontend && node scripts/generate-product-art.mjs && node scripts/validate-catalog.cjs
+```
+
+nginx serves these SVGs with `Cache-Control: no-cache`, so a regenerated picture shows up without a hard reload.
+
+## 6. Cleaning up test data
 
 `scripts/database/cleanup-test-data.sql` removes test accounts (addresses at `example.invalid`, `example.com`, `test.com`, `quickkart.test`, plus old benchmark users) together with their carts and orders, and any products outside the 535-item catalog. Admins and real-looking accounts are kept. By default it only reports what it would delete:
 

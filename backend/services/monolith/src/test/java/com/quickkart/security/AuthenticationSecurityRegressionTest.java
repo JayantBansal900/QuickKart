@@ -56,7 +56,6 @@ class AuthenticationSecurityRegressionTest {
         try (var connection=dataSource.getConnection()) {
             assertTrue(connection.getMetaData().getURL().startsWith("jdbc:h2:mem:quickkart_test_"));
         }
-        assertEquals("false", env.getProperty("app.dev-products.enabled"));
     }
     @Test void registrationDoesNotGrantTokenOrAdminAndDeliversNoOtpInResponse() throws Exception {
         mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(

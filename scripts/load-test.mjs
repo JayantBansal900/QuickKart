@@ -2,7 +2,7 @@
 // Measures latency percentiles and throughput for the public catalog endpoints, with the Redis
 // cache warm (same query repeated) and cold (every request uses a different filter, so it misses).
 //
-// Usage (from project root):  node scripts/load-test.mjs [--duration 15] [--concurrency 20]
+// Usage (from project root):  node scripts/load-test.mjs [--duration 15] [--concurrency 20] [--json]
 // Results depend on the machine; record the hardware next to any numbers you quote.
 
 const GW = process.env.GATEWAY_URL || "http://localhost:8080";
@@ -72,4 +72,5 @@ rows.push(await scenario("search (cache warm)", () => `${GW}/api/products?q=phon
 // A different minPrice per request gives a distinct cache key every time, so each hits PostgreSQL.
 rows.push(await scenario("search (cache miss)", (i) => `${GW}/api/products?q=phone&minPrice=${(i % 100000) / 100}&sort=price-asc&page=0&size=24`));
 rows.push(await scenario("category counts", () => `${GW}/api/products/categories`));
-console.table(rows);
+if (process.argv.includes("--json")) console.log(JSON.stringify(rows));
+else console.table(rows);
