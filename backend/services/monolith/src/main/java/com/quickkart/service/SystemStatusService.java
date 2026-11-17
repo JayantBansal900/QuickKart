@@ -62,7 +62,8 @@ public class SystemStatusService {
                 probe("Redis", "Cache did not answer PING", this::pingRedis),
                 probe("Kafka", "Broker unreachable", this::describeKafka),
                 probe("Product Service", "Health endpoint not UP", () -> serviceHealth(productServiceUrl)),
-                probe("Order Service", "Health endpoint not UP", () -> serviceHealth(orderServiceUrl))
+                probe("Order Service", "Health endpoint not UP", () -> serviceHealth(orderServiceUrl)),
+                outboxBacklog()
         );
         boolean allUp = components.stream().allMatch(c -> "UP".equals(c.status()));
         return new SystemStatus(allUp ? "UP" : "DEGRADED", Instant.now(), components);
@@ -75,6 +76,24 @@ public class SystemStatusService {
             return new ComponentStatus(name, "UP", elapsedMs(start), "Healthy");
         } catch (Exception ex) {
             return new ComponentStatus(name, "DOWN", elapsedMs(start), failure);
+        }
+    }
+
+    /**
+     * Order events waiting in order-service's transactional outbox (shared database). A few pending
+     * rows are normal; rows older than two minutes mean Kafka publishing is stuck.
+     */
+    private ComponentStatus outboxBacklog() {
+        long start = System.nanoTime();
+        try {
+            Long pending = jdbc.queryForObject("SELECT COUNT(*) FROM outbox_events WHERE published_at IS NULL", Long.class);
+            Long stale = jdbc.queryForObject("SELECT COUNT(*) FROM outbox_events WHERE published_at IS NULL AND created_at < ?",
+                    Long.class, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now().minusMinutes(2)));
+            long p = pending == null ? 0 : pending, st = stale == null ? 0 : stale;
+            return new ComponentStatus("Order events (outbox)", st == 0 ? "UP" : "DOWN", elapsedMs(start),
+                    st == 0 ? p + " pending" : st + " event(s) waiting over 2 minutes");
+        } catch (RuntimeException ex) {
+            return new ComponentStatus("Order events (outbox)", "DOWN", elapsedMs(start), "Outbox not readable");
         }
     }
 

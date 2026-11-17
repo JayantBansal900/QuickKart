@@ -1,5 +1,13 @@
 package com.quickkart.kafka;
 
+import com.quickkart.entity.User;
+import com.quickkart.repository.ProcessedEventRepository;
+import com.quickkart.repository.UserRepository;
+import com.quickkart.service.EmailService;
+import org.mockito.Mockito;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.quickkart.consumer.ConsumedOrderEventRecord;
@@ -26,11 +34,11 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@org.junit.jupiter.api.Tag("infrastructure")
-@SpringBootTest(properties = {"app.kafka.embedded.enabled=false"})
+@SpringBootTest(properties = {"app.kafka.embedded.enabled=false", "spring.kafka.listener.auto-startup=true",
+        "spring.kafka.consumer.group-id=monolith-kafka-test-${random.uuid}"})
 @EmbeddedKafka(
         partitions = 1,
-        topics = {"quickkart.order-events"},
+        topics = {"quickkart.order-events", "quickkart.order-events.DLT"},
         bootstrapServersProperty = "spring.kafka.bootstrap-servers"
 )
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
@@ -45,12 +53,18 @@ class OrderKafkaIntegrationTest {
     @Autowired
     private OrderTransactionEventListener orderTransactionEventListener;
 
+    @Autowired private UserRepository users;
+    @Autowired private ProcessedEventRepository processedEvents;
+    @Autowired private EmailService emailService; // Mockito mock registered by the test context
+    @Autowired private EmbeddedKafkaBroker broker;
+
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
         orderNotificationConsumer.reset();
         orderEventProducer.resetStats();
+        Mockito.reset(emailService);
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
@@ -96,90 +110,68 @@ class OrderKafkaIntegrationTest {
         assertEquals("Mechanical Keyboard", deserialized.getItems().get(0).getProductName());
     }
 
+    private User customer() {
+        return users.saveAndFlush(new User("Kafka Customer", "kafka-" + UUID.randomUUID() + "@example.invalid", "hash", "USER", true, "ACTIVE"));
+    }
+
+    private OrderCreatedEvent event(String eventId, Long orderId, Long userId) {
+        return new OrderCreatedEvent(eventId, "ORDER_CREATED", orderId, userId, new BigDecimal("2499.00"), LocalDateTime.now(),
+                List.of(new OrderItemSummary(1L, "Laptop Pro", 1, new BigDecimal("2499.00"))));
+    }
+
     @Test
-    @DisplayName("2. Producer sends OrderCreatedEvent and Consumer processes mock notification")
+    @DisplayName("2. Consumer emails the customer an order confirmation and records the event durably")
     void testProducerSendsEvent_AndConsumerProcessesNotification() throws Exception {
-        String eventId = UUID.randomUUID().toString();
-        OrderCreatedEvent event = new OrderCreatedEvent(
-                eventId,
-                "ORDER_CREATED",
-                123L,
-                5L,
-                new BigDecimal("2499.00"),
-                LocalDateTime.now(),
-                List.of(new OrderItemSummary(1L, "Laptop Pro", 1, new BigDecimal("2499.00")))
-        );
+        User user = customer();
+        String eventId = "ORDER_CREATED-" + UUID.randomUUID();
+        orderEventProducer.sendOrderCreatedEvent(event(eventId, 123L, user.getId()));
 
-        // Publish event to Kafka
-        orderEventProducer.sendOrderCreatedEvent(event);
-
-        // Await consumer reception (max 10 seconds)
-        boolean received = waitForCondition(() -> orderNotificationConsumer.getTotalConsumedCount() >= 1, 10);
-        assertTrue(received, "Consumer should receive the OrderCreatedEvent from topic quickkart.order-events");
-
-        assertEquals(1, orderNotificationConsumer.getTotalConsumedCount());
+        assertTrue(waitForCondition(() -> processedEvents.existsById(eventId), 10), "event must be recorded in processed_events");
+        verify(emailService).sendOrderConfirmation(eq(user.getEmail()), eq(user.getName()), eq(123L), eq(new BigDecimal("2499.00")), anyList());
         assertEquals(1, orderNotificationConsumer.getSimulatedNotificationCount());
-        assertEquals(0, orderNotificationConsumer.getDuplicateCount());
-
-        List<ConsumedOrderEventRecord> recent = orderNotificationConsumer.getRecentConsumedEvents();
-        assertFalse(recent.isEmpty());
-        ConsumedOrderEventRecord record = recent.get(0);
-        assertEquals(eventId, record.getEventId());
-        assertEquals(123L, record.getOrderId());
-        assertEquals(5L, record.getUserId());
-        assertEquals(new BigDecimal("2499.00"), record.getTotalAmount());
+        ConsumedOrderEventRecord record = orderNotificationConsumer.getRecentConsumedEvents().get(0);
         assertEquals("PROCESSED", record.getStatus());
-        assertNotNull(record.getNotificationMessage());
         assertTrue(record.getNotificationMessage().contains("order #123"));
     }
 
     @Test
-    @DisplayName("3. Duplicate event handling does NOT execute mock notification twice (Idempotency)")
+    @DisplayName("3. Duplicate deliveries send ONE email — even after a restart wiped in-memory state")
     void testDuplicateEvent_DoesNotTriggerNotificationTwice() throws Exception {
-        String sharedEventId = "fixed-duplicate-event-" + UUID.randomUUID();
-        OrderCreatedEvent firstEvent = new OrderCreatedEvent(
-                sharedEventId,
-                "ORDER_CREATED",
-                789L,
-                8L,
-                new BigDecimal("49.99"),
-                LocalDateTime.now(),
-                List.of(new OrderItemSummary(3L, "Wireless Mouse", 1, new BigDecimal("49.99")))
-        );
+        User user = customer();
+        String sharedEventId = "ORDER_CREATED-dup-" + UUID.randomUUID();
+        orderEventProducer.sendOrderCreatedEvent(event(sharedEventId, 789L, user.getId()));
+        assertTrue(waitForCondition(() -> processedEvents.existsById(sharedEventId), 10));
 
-        // Send first event
-        orderEventProducer.sendOrderCreatedEvent(firstEvent);
-        boolean firstReceived = waitForCondition(() -> orderNotificationConsumer.getTotalConsumedCount() >= 1, 10);
-        assertTrue(firstReceived);
-        assertEquals(1, orderNotificationConsumer.getSimulatedNotificationCount());
+        // Simulate a restart: in-memory statistics are gone, the database record is not.
+        orderNotificationConsumer.reset();
+        orderEventProducer.sendOrderCreatedEvent(event(sharedEventId, 789L, user.getId()));
+        assertTrue(waitForCondition(() -> orderNotificationConsumer.getDuplicateCount() >= 1, 10));
 
-        // Send exact same event again (duplicate)
-        OrderCreatedEvent duplicateEvent = new OrderCreatedEvent(
-                sharedEventId,
-                "ORDER_CREATED",
-                789L,
-                8L,
-                new BigDecimal("49.99"),
-                LocalDateTime.now(),
-                List.of(new OrderItemSummary(3L, "Wireless Mouse", 1, new BigDecimal("49.99")))
-        );
-        orderEventProducer.sendOrderCreatedEvent(duplicateEvent);
+        verify(emailService, times(1)).sendOrderConfirmation(eq(user.getEmail()), any(), eq(789L), any(), anyList());
+        assertEquals("DUPLICATE", orderNotificationConsumer.getRecentConsumedEvents().get(0).getStatus());
+    }
 
-        // Wait for consumer to process the duplicate message
-        boolean secondReceived = waitForCondition(() -> orderNotificationConsumer.getTotalConsumedCount() >= 2, 10);
-        assertTrue(secondReceived);
+    @Test
+    @DisplayName("5. A notification that keeps failing is retried, then parked on the dead-letter topic")
+    void failingNotificationGoesToDeadLetterTopic() throws Exception {
+        User user = customer();
+        String eventId = "ORDER_CREATED-dlt-" + UUID.randomUUID();
+        doThrow(new org.springframework.mail.MailSendException("smtp down"))
+                .when(emailService).sendOrderConfirmation(eq(user.getEmail()), any(), any(), any(), anyList());
 
-        // Notification must NOT be simulated again
-        assertEquals(1, orderNotificationConsumer.getSimulatedNotificationCount(),
-                "Notification must only be simulated once for identical eventId");
-        assertEquals(1, orderNotificationConsumer.getDuplicateCount(),
-                "Duplicate event count must be exactly 1");
+        try (org.apache.kafka.clients.consumer.Consumer<String, String> dlt = new org.springframework.kafka.core.DefaultKafkaConsumerFactory<>(
+                org.springframework.kafka.test.utils.KafkaTestUtils.consumerProps("dlt-" + UUID.randomUUID(), "true", broker),
+                new org.apache.kafka.common.serialization.StringDeserializer(),
+                new org.apache.kafka.common.serialization.StringDeserializer()).createConsumer()) {
+            broker.consumeFromAnEmbeddedTopic(dlt, "quickkart.order-events.DLT");
+            orderEventProducer.sendOrderCreatedEvent(event(eventId, 555L, user.getId()));
 
-        List<ConsumedOrderEventRecord> events = orderNotificationConsumer.getRecentConsumedEvents();
-        assertTrue(events.size() >= 2);
-        ConsumedOrderEventRecord duplicateRecord = events.get(0);
-        assertTrue(duplicateRecord.isDuplicate());
-        assertEquals("SKIPPED_DUPLICATE", duplicateRecord.getStatus());
+            var record = org.springframework.kafka.test.utils.KafkaTestUtils.getSingleRecord(dlt, "quickkart.order-events.DLT", java.time.Duration.ofSeconds(30));
+            assertTrue(record.value().contains(eventId), "the original event is preserved on the DLT");
+        }
+        // 1 attempt + 3 retries, and the event is NOT marked processed (so it can be replayed later)
+        verify(emailService, times(4)).sendOrderConfirmation(eq(user.getEmail()), any(), eq(555L), any(), anyList());
+        assertFalse(processedEvents.existsById(eventId));
     }
 
     @Test

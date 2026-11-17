@@ -35,7 +35,7 @@ spring:
         - id: order-service-route
           uri: ${ORDER_SERVICE_URL:http://localhost:8083}
           predicates:
-            - Path=/api/cart/**,/api/orders/**,/api/admin/orders/**,/api/kafka/**
+            - Path=/api/cart/**,/api/orders/**,/api/admin/orders/**
 
         - id: monolith-auth-payment-route
           uri: ${MONOLITH_SERVICE_URL:http://localhost:8081}

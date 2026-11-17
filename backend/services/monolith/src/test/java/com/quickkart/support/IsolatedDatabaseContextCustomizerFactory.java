@@ -27,7 +27,10 @@ public class IsolatedDatabaseContextCustomizerFactory implements ContextCustomiz
         return (context, merged) -> {
             boolean postgres = Boolean.getBoolean("quickkart.test.postgres");
             String url = postgres ? Postgres.DB.getJdbcUrl() : "jdbc:h2:mem:quickkart_test_" + UUID.randomUUID() + ";MODE=PostgreSQL;DB_CLOSE_DELAY=-1";
-            context.getEnvironment().getPropertySources().addFirst(new MapPropertySource("isolated-test-database", Map.ofEntries(
+            // Tests that start an embedded broker keep its address and their listeners.
+            boolean embeddedKafka = org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation(
+                    testClass, org.springframework.kafka.test.context.EmbeddedKafka.class);
+            java.util.Map<String, Object> isolated = new java.util.HashMap<>(Map.ofEntries(
                 Map.entry("spring.datasource.url", url),
                 Map.entry("spring.datasource.hikari.jdbc-url", url),
                 Map.entry("spring.datasource.driver-class-name", postgres ? "org.postgresql.Driver" : "org.h2.Driver"),
@@ -44,11 +47,17 @@ public class IsolatedDatabaseContextCustomizerFactory implements ContextCustomiz
                 Map.entry("jwt.secret", "dGVzdC1vbmx5LWtleS0zMi1ieXRlcy1taW5pbXVtLTEyMzQ1Njc4OTA="),
                 Map.entry("otp.secret", "b3RwLXRlc3Qtb25seS1zZXBhcmF0ZS1rZXktMzItYnl0ZXMtMTIzNA=="),
                 Map.entry("app.mail.from", "test@example.invalid"), Map.entry("spring.mail.host", "localhost")
-        )));
+        ));
+            if (embeddedKafka) {
+                isolated.remove("spring.kafka.bootstrap-servers");
+                isolated.remove("spring.kafka.listener.auto-startup");
+                isolated.remove("spring.kafka.admin.auto-create");
+            }
+            context.getEnvironment().getPropertySources().addFirst(new MapPropertySource("isolated-test-database", isolated));
             context.addBeanFactoryPostProcessor(factory -> {
                 if (!factory.containsSingleton("smtpEmailService")) factory.registerSingleton("smtpEmailService",
                     org.mockito.Mockito.mock(com.quickkart.service.EmailService.class));
-                if (!factory.containsSingleton("orderEventProducer")) factory.registerSingleton("orderEventProducer",
+                if (!embeddedKafka && !factory.containsSingleton("orderEventProducer")) factory.registerSingleton("orderEventProducer",
                     org.mockito.Mockito.mock(com.quickkart.producer.OrderEventProducer.class));
                 if (!context.getEnvironment().getRequiredProperty("spring.datasource.url").equals(url) ||
                     !context.getEnvironment().getRequiredProperty("spring.datasource.hikari.jdbc-url").equals(url))

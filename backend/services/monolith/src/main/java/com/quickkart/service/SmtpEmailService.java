@@ -52,7 +52,62 @@ public class SmtpEmailService implements EmailService {
                         "This code expires in <b>5 minutes</b>. If you didn't request a reset, you can ignore this email — your password won't change."));
     }
 
+    @Override
+    public void sendOrderConfirmation(String email, String name, Long orderId, java.math.BigDecimal total,
+                                      java.util.List<com.quickkart.dto.OrderItemSummary> items) {
+        java.util.List<com.quickkart.dto.OrderItemSummary> lines = items == null ? java.util.List.of() : items;
+        StringBuilder text = new StringBuilder("Hi " + displayName(name) + ",\n\nThanks for your order! Order #" + orderId + " is confirmed.\n\n");
+        StringBuilder rows = new StringBuilder();
+        for (var item : lines) {
+            String lineTotal = money(item.getPrice() == null ? null : item.getPrice().multiply(java.math.BigDecimal.valueOf(item.getQuantity() == null ? 1 : item.getQuantity())));
+            text.append("  ").append(item.getQuantity()).append(" x ").append(item.getProductName()).append("  ").append(lineTotal).append('\n');
+            rows.append("<tr><td style=\"padding:8px 0;font-size:14px;color:#09090b\">")
+                .append(item.getQuantity()).append(" &times; ").append(HtmlUtils.htmlEscape(String.valueOf(item.getProductName())))
+                .append("</td><td align=\"right\" style=\"padding:8px 0;font-size:14px;color:#09090b\">")
+                .append(HtmlUtils.htmlEscape(lineTotal)).append("</td></tr>");
+        }
+        text.append("\nTotal: ").append(money(total)).append("\nPayment: cash on delivery — pay when your order arrives.\n");
+        String html = """
+                <!doctype html>
+                <html><body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#09090b">
+                  <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="padding:32px 12px"><tr><td align="center">
+                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:20px;padding:36px">
+                      <tr><td style="font-size:18px;font-weight:700">quick<span style="color:#4f46e5">kart</span></td></tr>
+                      <tr><td style="padding-top:28px;font-size:22px;font-weight:600">Order #%s is confirmed</td></tr>
+                      <tr><td style="padding-top:10px;font-size:15px;line-height:22px;color:#52525b">Hi %s, thanks for shopping with QuickKart.</td></tr>
+                      <tr><td style="padding-top:20px"><table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="border-top:1px solid #e4e4e7">%s
+                        <tr><td style="padding-top:12px;border-top:1px solid #e4e4e7;font-size:15px;font-weight:600">Total</td>
+                            <td align="right" style="padding-top:12px;border-top:1px solid #e4e4e7;font-size:15px;font-weight:600">%s</td></tr>
+                      </table></td></tr>
+                      <tr><td style="padding-top:20px;font-size:13px;line-height:20px;color:#71717a">Payment: <b>cash on delivery</b> — pay when your order arrives.</td></tr>
+                    </table>
+                  </td></tr></table>
+                </body></html>
+                """.formatted(orderId, HtmlUtils.htmlEscape(displayName(name)), rows, HtmlUtils.htmlEscape(money(total)));
+        send(email, "Order #" + orderId + " confirmed", text.toString(), html);
+    }
+
+    private static String money(java.math.BigDecimal amount) {
+        return java.text.NumberFormat.getCurrencyInstance(java.util.Locale.forLanguageTag("en-IN"))
+                .format(amount == null ? java.math.BigDecimal.ZERO : amount);
+    }
+
+    /**
+     * RFC 2606/6761 reserved names (example.com, *.invalid, *.test, ...) can never be real inboxes.
+     * Test accounts use them, so we never hand such mail to the provider (avoids bounces and
+     * damaging the sender's reputation).
+     */
+    static boolean isReservedRecipient(String email) {
+        String domain = email == null ? "" : email.substring(email.lastIndexOf('@') + 1).toLowerCase(java.util.Locale.ROOT);
+        return domain.matches("(.+\\.)?(invalid|test|example|localhost)") || domain.matches("(.+\\.)?example\\.(com|org|net)");
+    }
+
     private void send(String to, String subject, String text, String html) {
+        if (isReservedRecipient(to)) {
+            org.slf4j.LoggerFactory.getLogger(SmtpEmailService.class)
+                    .info("Skipping email to reserved test domain ({})", to.substring(to.lastIndexOf('@') + 1));
+            return;
+        }
         MimeMessage message = sender.createMimeMessage();
         try {
             // multipart=true: plain-text and HTML alternatives, so every mail client can show it.

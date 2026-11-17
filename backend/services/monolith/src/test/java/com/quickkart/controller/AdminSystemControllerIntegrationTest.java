@@ -35,7 +35,7 @@ class AdminSystemControllerIntegrationTest {
     void adminSeesComponentStatusWithoutInternalDetails() throws Exception {
         String body = mvc.perform(get("/api/admin/system/status").header("Authorization", "Bearer " + token("ADMIN")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.components.length()").value(5))
+                .andExpect(jsonPath("$.components.length()").value(6))
                 .andExpect(jsonPath("$.components[0].name").value("PostgreSQL"))
                 .andExpect(jsonPath("$.components[0].status").value("UP"))
                 .andReturn().getResponse().getContentAsString();
