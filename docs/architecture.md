@@ -60,6 +60,7 @@ sequenceDiagram
   - IP-wide: 60 per minute
 - **Client IP.** The gateway sets `X-Client-IP` from the real peer address. Services trust that header only when the request comes from a private or loopback address, so a client can't spoof its IP.
 - **JWT revocation without a blacklist.** Each service's JWT filter checks the account in the database on every request: it must exist, be `ACTIVE` and verified, and keep the same role. A password reset sets `users.password_changed_at`, and any token whose `iat` is earlier is rejected (`401`) by the monolith *and* the order and product services.
+- **Abandoned signups.** If someone registers but never verifies, registering again with the same email reuses that account, saves the new details and emails a fresh code (all older codes are voided). Verified accounts and admin accounts are never touched this way.
 - **Roles.** `USER` and `ADMIN`. `/api/admin/**` requires `ADMIN` in every service. An admin can't suspend themselves or another admin (`409`).
 - **Email.** `MAIL_TRANSPORT=console` logs emails in dev; `smtp` sends multipart HTML and text emails. The `prod` profile forces SMTP. Reserved test domains (`.invalid`, `.test`, `example.com`, …) are never emailed.
 

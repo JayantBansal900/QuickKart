@@ -25,7 +25,7 @@ Errors share one shape:
 
 | Method | Path | Auth | Body | Result |
 |---|---|---|---|---|
-| POST | `/api/auth/register` | – | `name, email, password, phoneNumber?` | `201`, account `PENDING_VERIFICATION`, code emailed. No token. |
+| POST | `/api/auth/register` | – | `name, email, password, phoneNumber?` | `201`, account `PENDING_VERIFICATION`, code emailed. No token. Registering again with an email that was never verified restarts the signup with a fresh code; a verified email gives `409`. |
 | POST | `/api/auth/verify-otp` | – | `email, otp` | `200` account active |
 | POST | `/api/auth/resend-otp` | – | `email` | `200` generic message |
 | POST | `/api/auth/login` | – | `email, password` | `200 { token, id, name, email, role, emailVerified, accountStatus }` |
@@ -53,6 +53,7 @@ Rate limits are listed in [architecture.md](architecture.md#authentication-and-a
 | GET | `/api/products` | – | Search. See parameters below. Returns `{ content, page, size, totalElements, totalPages, last }` |
 | GET | `/api/products/categories` | – | `[{ category, count }]` |
 | GET | `/api/products/{id}` | – | one product |
+| GET | `/api/products/images/{name}` | – | an uploaded product photo (cached for a year; names are random UUIDs) |
 
 Search parameters (all optional):
 
@@ -138,7 +139,8 @@ Checkout body:
 | POST | `/api/admin/products` | product service | create a product (fields as above) |
 | PUT | `/api/admin/products/{id}` | product service | update a product |
 | PATCH | `/api/admin/products/{id}/stock` | product service | `{ adjustment: -100000…100000, non-zero }`. The row is locked during the update, and stock can't go below 0 (`400`). |
-| DELETE | `/api/admin/products/{id}` | product service | `409` if the product is in an order or cart |
+| POST | `/api/admin/products/{id}/image` | product service | multipart field `file`: JPEG, PNG or WebP up to 3 MB. The type is checked from the file's bytes, not its name. Replaces (and deletes) the previous uploaded photo. |
+| DELETE | `/api/admin/products/{id}` | product service | `409` if the product is in an order or cart; also deletes its uploaded photo |
 
 ## Health
 

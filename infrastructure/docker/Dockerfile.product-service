@@ -1,7 +1,7 @@
 ARG JAVA_RUNTIME=eclipse-temurin:17-jre-alpine
 FROM ${JAVA_RUNTIME}
 WORKDIR /app
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup \n    && mkdir -p /app/uploads && chown appuser:appgroup /app/uploads
 COPY --chown=appuser:appgroup target/*.jar app.jar
 USER appuser
 EXPOSE 8082

@@ -19,8 +19,8 @@ export function AdminPageHeader({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-2xl font-black tracking-tight text-slate-900">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+        <h1 className="qk-display text-4xl text-fg">{title}</h1>
+        {subtitle && <p className="mt-1.5 text-sm text-muted">{subtitle}</p>}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         {onRefresh && (
@@ -29,7 +29,7 @@ export function AdminPageHeader({
             onClick={onRefresh}
             disabled={refreshing}
             aria-label="Refresh"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className="qk-btn qk-btn-ghost h-9 px-3.5 text-xs"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
             Refresh
@@ -55,51 +55,57 @@ export function StatCard({
   icon?: React.ReactNode;
 }) {
   const toneClass = {
-    default: "text-slate-900",
-    good: "text-emerald-700",
-    warn: "text-amber-700",
-    bad: "text-rose-700",
+    default: "text-fg",
+    good: "text-success",
+    warn: "text-amber-600 dark:text-amber-400",
+    bad: "text-sale",
   }[tone];
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between text-slate-500">
-        <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
+    <div className="rounded-2xl border border-line bg-surface p-5 transition-shadow hover:shadow-card">
+      <div className="flex items-center justify-between text-muted">
+        <span className="qk-eyebrow">{label}</span>
         {icon}
       </div>
-      <div className={`mt-2 text-2xl font-black tabular-nums ${toneClass}`}>{value}</div>
-      {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+      <div className={`mt-3 text-3xl font-semibold tracking-tight tabular-nums ${toneClass}`}>{value}</div>
+      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
     </div>
   );
 }
 
+const NEUTRAL = "bg-subtle text-muted";
+const GOOD = "bg-success-soft text-success";
+const WARN = "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300";
+const BAD = "bg-sale-soft text-sale";
+const INFO = "bg-accent-soft text-accent";
+
 const BADGE_TONES: Record<string, string> = {
   // order statuses
-  PENDING: "bg-slate-100 text-slate-700",
-  CONFIRMED: "bg-indigo-50 text-indigo-700",
-  PROCESSING: "bg-amber-50 text-amber-800",
-  SHIPPED: "bg-sky-50 text-sky-700",
-  DELIVERED: "bg-emerald-50 text-emerald-700",
-  CANCELLED: "bg-rose-50 text-rose-700",
+  PENDING: NEUTRAL,
+  CONFIRMED: INFO,
+  PROCESSING: WARN,
+  SHIPPED: INFO,
+  DELIVERED: GOOD,
+  CANCELLED: BAD,
   // payment / account / health
-  COLLECTED: "bg-emerald-50 text-emerald-700",
-  COLLECTION_PENDING: "bg-amber-50 text-amber-800",
-  ACTIVE: "bg-emerald-50 text-emerald-700",
-  SUSPENDED: "bg-rose-50 text-rose-700",
-  DISABLED: "bg-slate-200 text-slate-700",
-  PENDING_VERIFICATION: "bg-amber-50 text-amber-800",
-  UP: "bg-emerald-50 text-emerald-700",
-  DOWN: "bg-rose-50 text-rose-700",
-  DEGRADED: "bg-amber-50 text-amber-800",
-  ADMIN: "bg-slate-900 text-white",
-  USER: "bg-slate-100 text-slate-700",
+  COLLECTED: GOOD,
+  COLLECTION_PENDING: WARN,
+  ACTIVE: GOOD,
+  SUSPENDED: BAD,
+  DISABLED: NEUTRAL,
+  PENDING_VERIFICATION: WARN,
+  UP: GOOD,
+  DOWN: BAD,
+  DEGRADED: WARN,
+  ADMIN: "bg-fg text-bg",
+  USER: NEUTRAL,
 };
 
 export function StatusBadge({ value }: { value?: string | null }) {
   const text = value || "UNKNOWN";
   return (
     <span
-      className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-        BADGE_TONES[text] ?? "bg-slate-100 text-slate-700"
+      className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+        BADGE_TONES[text] ?? NEUTRAL
       }`}
     >
       {text.replace(/_/g, " ")}
@@ -110,7 +116,7 @@ export function StatusBadge({ value }: { value?: string | null }) {
 export function ErrorBanner({ message }: { message: string | null }) {
   if (!message) return null;
   return (
-    <div role="alert" className="flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
+    <div role="alert" className="flex items-start gap-2 rounded-2xl bg-sale-soft p-3.5 text-sm text-sale">
       <AlertCircle className="mt-0.5 h-4 w-4 flex-none" />
       <span>{message}</span>
     </div>
@@ -120,7 +126,7 @@ export function ErrorBanner({ message }: { message: string | null }) {
 export function LoadingRow({ colSpan, text = "Loading…" }: { colSpan: number; text?: string }) {
   return (
     <tr>
-      <td colSpan={colSpan} className="p-8 text-center text-sm text-slate-500" role="status">
+      <td colSpan={colSpan} className="p-10 text-center text-sm text-muted" role="status">
         {text}
       </td>
     </tr>
@@ -129,14 +135,14 @@ export function LoadingRow({ colSpan, text = "Loading…" }: { colSpan: number; 
 
 export function TableShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-2xl border border-line bg-surface">
       <table className="w-full min-w-[640px] border-collapse text-left text-sm">{children}</table>
     </div>
   );
 }
 
-export const thClass = "border-b border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500";
-export const tdClass = "border-b border-slate-100 px-4 py-3 align-top";
+export const thClass = "border-b border-line bg-subtle/60 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted";
+export const tdClass = "border-b border-line/70 px-4 py-3.5 align-middle text-fg";
 
 export function errorMessage(err: unknown, fallback: string): string {
   return err instanceof Error && err.message ? err.message : fallback;

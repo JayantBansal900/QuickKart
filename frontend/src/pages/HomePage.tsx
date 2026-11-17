@@ -61,6 +61,11 @@ interface HomePageProps {
   onSelectView: (view: AppView) => void;
 }
 
+/** Cover photo for a category tile (falls back to the icon if the file is missing). */
+function categoryImage(id: string): string {
+  return `/categories/${id === 'ALL' ? 'all' : id.toLowerCase().replace(/ & /g, '-').replace(/\s+/g, '-')}.webp`;
+}
+
 const categories: Category[] = [
   { id: 'ALL', label: 'All products', icon: LayoutGrid },
   { id: 'ELECTRONICS', label: 'Electronics', icon: Laptop },
@@ -308,58 +313,54 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
       {/* ---------- Hero ---------- */}
       {isBrowsing && (
         <section className="qk-container pt-6 md:pt-10">
-          <div className="grid items-center gap-8 overflow-hidden rounded-[28px] border border-line bg-surface p-6 md:p-12 lg:grid-cols-[1.05fr_1fr]">
-            <div className="animate-rise">
-              <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold text-accent">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                Cash on delivery on every order
-              </span>
-              <h1 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight text-fg sm:text-5xl lg:text-6xl">
-                Everything you need,
-                <span className="block text-muted">in one place.</span>
+          <div className="relative grid items-stretch gap-8 overflow-hidden rounded-[32px] bg-surface p-6 ring-1 ring-line md:p-10 lg:grid-cols-[1.1fr_1fr] lg:p-14">
+            <div className="flex animate-rise flex-col justify-center">
+              <p className="qk-eyebrow">New season · Free cash on delivery</p>
+              <h1 className="qk-display mt-5 text-[52px] text-fg sm:text-7xl lg:text-[88px]">
+                Good things,
+                <span className="block italic text-muted">delivered.</span>
               </h1>
-              <p className="mt-5 max-w-md text-base leading-relaxed text-muted">
-                Electronics, fashion, books, home essentials and more — with live stock and simple checkout.
+              <p className="mt-6 max-w-md text-base leading-relaxed text-muted">
+                Headphones to handlooms, cookware to cricket bats — {totalProducts > 0 ? `${totalProducts} hand-picked products` : 'hand-picked products'} from brands you already trust. Pay when it reaches you.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <button type="button" onClick={scrollToCatalog} className="qk-btn qk-btn-primary h-12 px-6">
-                  Shop now <ArrowRight className="h-4 w-4" />
+              <div className="mt-9 flex flex-wrap gap-3">
+                <button type="button" onClick={scrollToCatalog} className="qk-btn qk-btn-primary h-12 px-7">
+                  Start shopping <ArrowRight className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
                   onClick={() => { setSortBy('discount-desc'); scrollToCatalog(); }}
-                  className="qk-btn qk-btn-ghost h-12 px-6"
+                  className="qk-btn qk-btn-ghost h-12 px-7"
                 >
                   Today’s deals
                 </button>
               </div>
-              {totalProducts > 0 && (
-                <dl className="mt-10 flex gap-8 text-sm">
-                  <div><dt className="text-muted">Products</dt><dd className="mt-0.5 text-xl font-semibold text-fg">{totalProducts}</dd></div>
-                  <div><dt className="text-muted">Categories</dt><dd className="mt-0.5 text-xl font-semibold text-fg">{categoryCounts.length}</dd></div>
-                  <div><dt className="text-muted">Payment</dt><dd className="mt-0.5 text-xl font-semibold text-fg">COD</dd></div>
-                </dl>
-              )}
+              <dl className="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-line pt-6 text-sm">
+                <div><dt className="text-muted">Brands</dt><dd className="mt-1 text-lg font-semibold text-fg">300+</dd></div>
+                <div><dt className="text-muted">Payment</dt><dd className="mt-1 text-lg font-semibold text-fg">On delivery</dd></div>
+                <div><dt className="text-muted">Returns</dt><dd className="mt-1 text-lg font-semibold text-fg">Easy cancel</dd></div>
+              </dl>
             </div>
 
-            <div className="grid grid-cols-2 grid-rows-2 gap-3 md:gap-4">
+            <div className="grid min-h-[360px] grid-cols-2 grid-rows-2 gap-3 md:gap-4">
               {heroProducts.length === 0
                 ? [0, 1, 2].map((i) => (
-                    <div key={i} className={`animate-pulse rounded-2xl bg-subtle ${i === 0 ? 'row-span-2' : 'aspect-square'}`} />
+                    <div key={i} className={`animate-pulse rounded-3xl bg-subtle ${i === 0 ? 'row-span-2' : ''}`} />
                   ))
                 : heroProducts.map((p, i) => (
                     <button
                       key={p.id}
                       type="button"
                       onClick={() => setSelectedProduct(p)}
-                      className={`group relative overflow-hidden rounded-2xl bg-subtle text-left ${i === 0 ? 'row-span-2' : 'aspect-square'}`}
+                      className={`group relative overflow-hidden rounded-3xl bg-subtle text-left ${i === 0 ? 'row-span-2' : ''}`}
                     >
                       {p.imageUrl && (
-                        <img src={p.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform dark:brightness-[0.88] duration-700 group-hover:scale-105" />
+                        <img src={p.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 dark:brightness-[0.9]" />
                       )}
-                      <span className="absolute inset-x-2 bottom-2 flex items-center justify-between gap-2 rounded-xl bg-surface/90 px-3 py-2 text-xs backdrop-blur-md md:inset-x-3 md:bottom-3">
-                        <span className="truncate font-medium text-fg">{p.name}</span>
-                        <span className="shrink-0 font-semibold text-fg">{formatPrice(p.price)}</span>
+                      <span className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/0 to-transparent" />
+                      <span className="absolute inset-x-4 bottom-4 text-white">
+                        <span className="block truncate text-sm font-medium">{p.name}</span>
+                        <span className="mt-0.5 block text-sm font-semibold opacity-90">{formatPrice(p.price)}</span>
                       </span>
                     </button>
                   ))}
@@ -369,9 +370,12 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
       )}
 
       {/* ---------- Category rail ---------- */}
-      <section className="qk-container pt-10" aria-labelledby="categories-heading">
-        <div className="mb-4 flex items-end justify-between">
-          <h2 id="categories-heading" className="text-xl font-semibold tracking-tight text-fg">Shop by category</h2>
+      <section className="qk-container pt-16" aria-labelledby="categories-heading">
+        <div className="mb-6 flex items-end justify-between">
+          <div>
+            <p className="qk-eyebrow">Browse</p>
+            <h2 id="categories-heading" className="qk-display mt-1 text-4xl text-fg">Shop by category</h2>
+          </div>
         </div>
         <div className="qk-scrollbar-none -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-9 md:overflow-visible md:px-0">
           {categories.map((cat) => {
@@ -383,14 +387,21 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
                 type="button"
                 onClick={() => { setSelectedCategory(cat.id); scrollToCatalog(); }}
                 aria-pressed={active}
-                className={`flex w-28 shrink-0 flex-col items-start gap-6 rounded-2xl border p-3.5 text-left transition-all md:w-auto ${
-                  active ? 'border-fg bg-fg text-bg' : 'border-line bg-surface text-fg hover:-translate-y-0.5 hover:shadow-card'
-                }`}
+                className="group flex w-32 shrink-0 flex-col gap-2.5 text-left md:w-auto"
               >
-                <Icon className={`h-5 w-5 ${active ? 'text-bg' : 'text-muted'}`} />
-                <span>
-                  <span className="block text-sm font-semibold leading-tight">{cat.label}</span>
-                  <span className={`mt-0.5 block text-xs ${active ? 'text-bg/70' : 'text-muted'}`}>{countFor(cat.id)} items</span>
+                <span className={`relative grid aspect-square w-full place-items-center overflow-hidden rounded-2xl bg-subtle ring-2 transition-all ${active ? 'ring-fg' : 'ring-transparent group-hover:ring-line'}`}>
+                  <Icon className="h-6 w-6 text-muted" />
+                  <img
+                    src={categoryImage(cat.id)}
+                    alt=""
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 dark:brightness-[0.9]"
+                  />
+                </span>
+                <span className="px-0.5">
+                  <span className={`block text-sm font-semibold leading-tight ${active ? 'text-fg' : 'text-fg/90'}`}>{cat.label}</span>
+                  <span className="mt-0.5 block text-xs text-muted">{countFor(cat.id)} items</span>
                 </span>
               </button>
             );
@@ -403,7 +414,8 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
         <section className="qk-container pt-14" aria-labelledby="deals-heading">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <h2 id="deals-heading" className="text-xl font-semibold tracking-tight text-fg">Today’s best deals</h2>
+              <p className="qk-eyebrow">Limited time</p>
+              <h2 id="deals-heading" className="qk-display mt-1 text-4xl text-fg">Today’s best deals</h2>
               <p className="mt-1 text-sm text-muted">The biggest discounts in the store right now.</p>
             </div>
             <button
@@ -426,7 +438,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
       <section id="catalog-results" className="qk-container scroll-mt-20 pb-20 pt-14" aria-labelledby="catalog-heading">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 id="catalog-heading" className="text-2xl font-semibold tracking-tight text-fg">
+            <h2 id="catalog-heading" className="qk-display text-4xl text-fg">
               {searchQuery.trim() ? 'Search results' : activeCategory.label}
             </h2>
             <p className="mt-1 text-sm text-muted" aria-live="polite">

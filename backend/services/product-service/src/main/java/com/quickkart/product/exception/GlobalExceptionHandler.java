@@ -71,6 +71,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleTooLarge(Exception ex, HttpServletRequest request) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.PAYLOAD_TOO_LARGE.value(), "Payload Too Large",
+                "Image is too large. The limit is 3 MB.", request.getRequestURI()), HttpStatus.PAYLOAD_TOO_LARGE);
+    }
+
+    @ExceptionHandler({org.springframework.web.multipart.support.MissingServletRequestPartException.class,
+            org.springframework.web.multipart.MultipartException.class})
+    public ResponseEntity<ErrorResponse> handleBadUpload(Exception ex, HttpServletRequest request) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Bad Request",
+                "Send the image as multipart form data in a field named 'file'.", request.getRequestURI()), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(

@@ -127,6 +127,27 @@ check("admin stock -1 (restore)", minus.json?.stockQuantity === target.stockQuan
 const neg = await call("PATCH", `/admin/products/${target.id}/stock`, { token: A, body: { adjustment: -(target.stockQuantity + 5) } });
 check("stock cannot go negative → 400", neg.status === 400, `status=${neg.status}`);
 
+// ---------- 4b. Admin product with photo upload ----------
+const created = await call("POST", "/admin/products", { token: A, body: { name: `E2E Photo Product ${stamp}`, description: "temporary", price: 499, stockQuantity: 3, category: "Accessories", sku: `E2E-PHOTO-${stamp}` } });
+check("admin creates a product", created.status === 201, `status=${created.status}`);
+const PNG = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52]);
+async function upload(bytes, name, type, token = A) {
+  const form = new FormData();
+  form.append("file", new Blob([bytes], { type }), name);
+  const res = await fetch(`${GW}/admin/products/${created.json?.id}/image`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: form });
+  const text = await res.text(); let json; try { json = JSON.parse(text); } catch {}
+  return { status: res.status, json };
+}
+const up = await upload(PNG, "photo.png", "image/png");
+check("admin uploads a product photo", up.status === 200 && /^\/api\/products\/images\/[0-9a-f-]{36}\.png$/.test(up.json?.imageUrl ?? ""), `status=${up.status} ${up.json?.imageUrl}`);
+const img = await fetch(`http://localhost:8080${up.json?.imageUrl}`);
+check("uploaded photo is served publicly as image/png", img.status === 200 && img.headers.get("content-type") === "image/png", `status=${img.status}`);
+const fake = await upload(new TextEncoder().encode("<html>not an image</html>"), "evil.jpg", "image/jpeg");
+check("a non-image renamed to .jpg is rejected", fake.status === 400, `status=${fake.status}`);
+const del = await call("DELETE", `/admin/products/${created.json?.id}`, { token: A });
+const gone = await fetch(`http://localhost:8080${up.json?.imageUrl}`);
+check("deleting the product removes its photo", del.status === 204 && gone.status === 404, `delete=${del.status} image=${gone.status}`);
+
 // ---------- 5. Registration + OTP ----------
 const email = `e2e-${stamp}@example.invalid`;
 const password = "E2e-Passw0rd-" + stamp;
@@ -135,8 +156,8 @@ check("register → 201 without token", reg.status === 201 && !reg.json?.token, 
 check("register response has no OTP", !/\b\d{6}\b/.test(JSON.stringify({ ...reg.json, id: 0 })));
 const early = await call("POST", "/auth/login", { body: { email, password } });
 check("login before verification rejected", early.status >= 400 && !early.json?.token, `status=${early.status}`);
-const dup = await call("POST", "/auth/register", { body: { name: "Dup", email, password } });
-check("duplicate registration → 409, email not echoed", dup.status === 409 && !dup.text.includes(email), `status=${dup.status}`);
+const restart = await call("POST", "/auth/register", { body: { name: "E2E Customer", email, password } });
+check("re-registering an unverified email restarts signup (fresh code)", restart.status === 201 && !restart.json?.token, `status=${restart.status}`);
 await sleep(500);
 const otp = otpFor(email);
 check("OTP delivered via dev console email", !!otp);
@@ -148,6 +169,8 @@ const ver = await call("POST", "/auth/verify-otp", { body: { email, otp } });
 check("correct OTP verifies and returns JWT", ver.status === 200 && !!ver.json?.token, `status=${ver.status}`);
 const replay = await call("POST", "/auth/verify-otp", { body: { email, otp } });
 check("OTP replay rejected", replay.status === 400, `status=${replay.status}`);
+const dup = await call("POST", "/auth/register", { body: { name: "Dup", email, password } });
+check("registering a verified email → 409, email not echoed", dup.status === 409 && !dup.text.includes(email), `status=${dup.status}`);
 const login = await call("POST", "/auth/login", { body: { email, password } });
 check("verified customer login", login.status === 200 && login.json?.role === "USER");
 const C = login.json?.token;

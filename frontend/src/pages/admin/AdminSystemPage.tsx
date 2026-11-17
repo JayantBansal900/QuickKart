@@ -35,23 +35,23 @@ export function AdminSystemPage() {
       />
       <ErrorBanner message={error} />
       {status && (
-        <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <span className="text-sm font-semibold text-slate-600">Overall</span>
+        <div className="flex items-center gap-3 rounded-xl border border-line bg-surface p-5 ">
+          <span className="text-sm font-semibold text-muted">Overall</span>
           <StatusBadge value={status.overall} />
         </div>
       )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {(status?.components ?? []).map((c) => (
-          <div key={c.name} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div key={c.name} className="rounded-xl border border-line bg-surface p-5 ">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold">{c.name}</h2>
+              <h2 className="font-semibold">{c.name}</h2>
               <StatusBadge value={c.status} />
             </div>
-            <p className="mt-2 text-sm text-slate-600">{c.detail}</p>
-            <p className="mt-1 text-xs text-slate-400 tabular-nums">{c.latencyMs} ms</p>
+            <p className="mt-2 text-sm text-muted">{c.detail}</p>
+            <p className="mt-1 text-xs text-muted tabular-nums">{c.latencyMs} ms</p>
           </div>
         ))}
-        {!status && loading && <p role="status" className="text-sm text-slate-500">Checking services…</p>}
+        {!status && loading && <p role="status" className="text-sm text-muted">Checking services…</p>}
       </div>
     </>
   );

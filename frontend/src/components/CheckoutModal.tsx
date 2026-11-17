@@ -111,7 +111,7 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
         className="relative flex max-h-[92vh] w-full animate-rise flex-col overflow-hidden rounded-t-[28px] bg-surface shadow-2xl outline-none sm:max-w-3xl sm:animate-scale-in sm:rounded-[28px]"
       >
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-line px-6">
-          <h2 id="checkout-title" className="text-lg font-semibold text-fg">Checkout</h2>
+          <h2 id="checkout-title" className="qk-display text-3xl text-fg">Checkout</h2>
           <button type="button" onClick={onClose} disabled={busy} aria-label="Close checkout" className="grid h-10 w-10 place-items-center rounded-full hover:bg-subtle disabled:opacity-40">
             <X className="h-5 w-5" />
           </button>

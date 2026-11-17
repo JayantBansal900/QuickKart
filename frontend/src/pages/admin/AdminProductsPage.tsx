@@ -58,10 +58,13 @@ export function AdminProductsPage() {
     );
   }, [products, query, category]);
 
-  const save = async (data: ProductRequest) => {
-    if (editing) await api.updateProduct(editing.id, data);
-    else await api.createProduct(data);
-    await load();
+  const save = async (data: ProductRequest, photo: File | null) => {
+    const saved = editing ? await api.updateProduct(editing.id, data) : await api.createProduct(data);
+    try {
+      if (photo) await api.uploadProductImage(saved.id, photo);
+    } finally {
+      await load(); // the product itself is saved even if the photo upload failed
+    }
   };
 
   const remove = async (product: Product) => {
@@ -90,7 +93,7 @@ export function AdminProductsPage() {
               setEditing(null);
               setModalOpen(true);
             }}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800"
+            className="qk-btn qk-btn-primary h-9 px-4 text-xs"
           >
             <Plus className="h-3.5 w-3.5" /> Add product
           </button>
@@ -101,19 +104,19 @@ export function AdminProductsPage() {
       <div className="flex flex-col gap-3 sm:flex-row">
         <label className="relative flex-1">
           <span className="sr-only">Search products</span>
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by name, brand, SKU or ID"
-            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-slate-900 focus:outline-none"
+            className="w-full rounded-lg border border-line bg-surface py-2 pl-9 pr-3 text-sm focus:border-accent focus:outline-none"
           />
         </label>
         <select
           aria-label="Filter by category"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+          className="rounded-lg border border-line bg-surface px-3 py-2 text-sm"
         >
           <option value="ALL">All categories</option>
           {categories.map((c) => (
@@ -141,24 +144,24 @@ export function AdminProductsPage() {
             <LoadingRow colSpan={7} text="No products match your filters." />
           ) : (
             visible.map((p) => (
-              <tr key={p.id} className="hover:bg-slate-50">
+              <tr key={p.id} className="hover:bg-subtle">
                 <td className={tdClass}>
                   <div className="flex items-center gap-3">
                     {p.thumbnailUrl || p.imageUrl ? (
-                      <img src={p.thumbnailUrl || p.imageUrl} alt="" className="h-9 w-9 flex-none rounded-md object-cover" loading="lazy" />
+                      <img src={p.thumbnailUrl || p.imageUrl} alt="" className="h-12 w-12 flex-none rounded-xl bg-subtle object-cover" loading="lazy" />
                     ) : (
-                      <div className="h-9 w-9 flex-none rounded-md bg-slate-100" />
+                      <div className="h-9 w-9 flex-none rounded-md bg-subtle" />
                     )}
                     <div className="min-w-0">
                       <p className="truncate font-semibold">{p.name}</p>
-                      <p className="text-xs text-slate-500">#{p.id}{p.sku ? ` · ${p.sku}` : ""}</p>
+                      <p className="text-xs text-muted">#{p.id}{p.sku ? ` · ${p.sku}` : ""}</p>
                     </div>
                   </div>
                 </td>
                 <td className={tdClass}>{p.category || "—"}</td>
                 <td className={`${tdClass} font-semibold tabular-nums`}>{formatINR(p.price)}</td>
                 <td className={`${tdClass} tabular-nums`}>{p.discountPercentage ? `${p.discountPercentage}%` : "—"}</td>
-                <td className={`${tdClass} tabular-nums ${p.stockQuantity <= 0 ? "text-rose-700 font-bold" : p.stockQuantity < 5 ? "text-amber-700 font-bold" : ""}`}>
+                <td className={`${tdClass} tabular-nums ${p.stockQuantity <= 0 ? "text-sale font-semibold" : p.stockQuantity < 5 ? "text-amber-700 dark:text-amber-400 font-semibold" : ""}`}>
                   {p.stockQuantity}
                 </td>
                 <td className={tdClass}><StatusBadge value={p.availability} /></td>
@@ -170,7 +173,7 @@ export function AdminProductsPage() {
                       setEditing(p);
                       setModalOpen(true);
                     }}
-                    className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                    className="rounded-md p-1.5 text-muted hover:bg-subtle hover:text-fg"
                   >
                     <Edit2 className="h-4 w-4" />
                   </button>
@@ -178,7 +181,7 @@ export function AdminProductsPage() {
                     type="button"
                     aria-label={`Delete ${p.name}`}
                     onClick={() => void remove(p)}
-                    className="rounded-md p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-700"
+                    className="rounded-md p-1.5 text-muted hover:bg-sale-soft hover:text-sale"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

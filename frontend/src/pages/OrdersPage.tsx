@@ -110,7 +110,7 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
 
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-fg">Your orders</h1>
+          <h1 className="qk-display text-5xl text-fg">Your orders</h1>
           <p className="mt-1 text-sm text-muted">Track deliveries and review past purchases.</p>
         </div>
         <button type="button" onClick={() => void fetchOrders()} className="qk-btn qk-btn-ghost h-10 px-4">

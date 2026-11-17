@@ -128,7 +128,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
             <p className="text-sm text-muted">
               {[product.brand, product.category].filter(Boolean).join(' · ')}
             </p>
-            <h2 id="product-title" className="mt-1.5 pr-10 text-2xl font-semibold leading-tight tracking-tight text-fg sm:text-[28px]">
+            <h2 id="product-title" className="qk-display mt-1.5 pr-10 text-3xl text-fg sm:text-4xl">
               {product.name}
             </h2>
 
