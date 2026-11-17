@@ -30,7 +30,7 @@ A full-stack e-commerce app: a React storefront and admin panel on top of Spring
 ## Architecture
 
 ```mermaid
-flowchart LR
+flowchart TD
     B["Browser"] -->|":3000"| N["nginx + React SPA"]
     N -->|"/api"| G["API Gateway :8080<br/>routing, CORS, correlation id"]
     G -->|"products"| P["Product service :8082<br/>catalog, search"]
