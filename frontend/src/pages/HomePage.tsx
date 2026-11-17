@@ -19,7 +19,7 @@ import {
   X,
 } from 'lucide-react';
 
-import { CategoryCount, PageResponse, Product, ProductSort } from '../types';
+import { Category as ApiCategory, CategoryCount, PageResponse, Product, ProductSort } from '../types';
 import { api } from '../services/api';
 import { ProductCard } from '../components/ProductCard';
 import { ProductDetailsModal } from '../components/ProductDetailsModal';
@@ -29,7 +29,7 @@ import type { AppView } from '../components/Header';
 type SortOption = ProductSort;
 
 const PAGE_SIZE = 24;
-const SORT_VALUES: SortOption[] = ['featured', 'price-asc', 'price-desc', 'discount-desc', 'rating-desc', 'name', 'newest'];
+const SORT_VALUES: SortOption[] = ['featured', 'price-asc', 'price-desc', 'discount-desc', 'rating-desc', 'popular', 'name', 'newest'];
 
 /** Reads a non-negative number from the URL, ignoring anything malformed. */
 function numberParam(value: string | null): number | undefined {
@@ -52,6 +52,7 @@ type Category = {
   id: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  imageUrl?: string | null;
 };
 
 interface HomePageProps {
@@ -66,7 +67,8 @@ function categoryImage(id: string): string {
   return `/categories/${id === 'ALL' ? 'all' : id.toLowerCase().replace(/ & /g, '-').replace(/\s+/g, '-')}.webp`;
 }
 
-const categories: Category[] = [
+/** Shown until /api/categories answers (and as a fallback if it fails). */
+const DEFAULT_CATEGORIES: Category[] = [
   { id: 'ALL', label: 'All products', icon: LayoutGrid },
   { id: 'ELECTRONICS', label: 'Electronics', icon: Laptop },
   { id: 'FASHION', label: 'Fashion', icon: Shirt },
@@ -84,6 +86,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'price-desc', label: 'Price: High to Low' },
   { value: 'discount-desc', label: 'Biggest discount' },
   { value: 'rating-desc', label: 'Top rated' },
+  { value: 'popular', label: 'Most popular' },
   { value: 'name', label: 'Name: A–Z' },
   { value: 'newest', label: 'Newest first' },
 ];
@@ -193,8 +196,14 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
   const [heroProducts, setHeroProducts] = useState<Product[]>([]);
   const [dealProducts, setDealProducts] = useState<Product[]>([]);
   const [categoryCounts, setCategoryCounts] = useState<CategoryCount[]>([]);
+  const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
+  const [apiCategories, setApiCategories] = useState<ApiCategory[] | null>(null);
   useEffect(() => {
     let active = true;
+    api.searchProducts({ sort: 'popular', size: 4 })
+      .then((p) => active && setTrendingProducts(p.content)).catch(() => {});
+    api.getCategories()
+      .then((c) => active && setApiCategories(c)).catch(() => {});
     api.searchProducts({ sort: 'rating-desc', size: 3 })
       .then((p) => active && setHeroProducts(p.content)).catch(() => {});
     api.searchProducts({ sort: 'discount-desc', size: 8 })
@@ -204,6 +213,15 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
       .then((c) => active && setCategoryCounts(c)).catch(() => {});
     return () => { active = false; };
   }, []);
+  // Admin-managed categories (order, names, images) with the default icons where they match.
+  const categories: Category[] = useMemo(() => {
+    if (!apiCategories || apiCategories.length === 0) return DEFAULT_CATEGORIES;
+    const icons = new Map(DEFAULT_CATEGORIES.map((c) => [c.id, c.icon]));
+    return [
+      DEFAULT_CATEGORIES[0],
+      ...apiCategories.map((c) => ({ id: c.key, label: c.name, icon: icons.get(c.key) ?? LayoutGrid, imageUrl: c.imageUrl })),
+    ];
+  }, [apiCategories]);
   const countFor = (categoryId: string) =>
     categoryId === 'ALL'
       ? categoryCounts.reduce((sum, c) => sum + c.count, 0)
@@ -377,7 +395,10 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
             <h2 id="categories-heading" className="qk-display mt-1 text-4xl text-fg">Shop by category</h2>
           </div>
         </div>
-        <div className="qk-scrollbar-none -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-9 md:overflow-visible md:px-0">
+        <div
+          className="qk-scrollbar-none -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:overflow-visible md:px-0"
+          style={{ gridTemplateColumns: `repeat(${Math.min(categories.length, 9)}, minmax(0, 1fr))` }}
+        >
           {categories.map((cat) => {
             const Icon = cat.icon;
             const active = selectedCategory === cat.id;
@@ -392,7 +413,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
                 <span className={`relative grid aspect-square w-full place-items-center overflow-hidden rounded-2xl bg-subtle ring-2 transition-all ${active ? 'ring-fg' : 'ring-transparent group-hover:ring-line'}`}>
                   <Icon className="h-6 w-6 text-muted" />
                   <img
-                    src={categoryImage(cat.id)}
+                    src={cat.imageUrl || categoryImage(cat.id)}
                     alt=""
                     loading="lazy"
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
@@ -429,6 +450,31 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-6">
             {dealProducts.map((p) => (
               <ProductCard key={`deal-${p.id}`} product={p} onViewDetails={setSelectedProduct} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ---------- Trending ---------- */}
+      {isBrowsing && sortBy === 'featured' && trendingProducts.length > 0 && (
+        <section className="qk-container pt-14" aria-labelledby="trending-heading">
+          <div className="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <p className="qk-eyebrow">Trending</p>
+              <h2 id="trending-heading" className="qk-display mt-1 text-4xl text-fg">Popular right now</h2>
+              <p className="mt-1 text-sm text-muted">The products shoppers review and buy the most.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setSortBy('popular'); scrollToCatalog(); }}
+              className="flex shrink-0 items-center gap-1 text-sm font-medium text-fg hover:text-accent"
+            >
+              View all <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-6">
+            {trendingProducts.map((p) => (
+              <ProductCard key={`trend-${p.id}`} product={p} onViewDetails={setSelectedProduct} />
             ))}
           </div>
         </section>
@@ -635,6 +681,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
         onDirectCheckout={() => navigate('/checkout')}
+        onSelectProduct={(p) => setSelectedProduct(p)}
       />
     </div>
   );

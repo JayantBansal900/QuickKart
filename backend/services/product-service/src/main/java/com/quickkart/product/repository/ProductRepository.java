@@ -29,4 +29,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     List<Product> findByCategoryIgnoreCase(String category);
 
     Optional<Product> findBySku(String sku);
+
+    long countByCategoryIgnoreCase(String category);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("update Product p set p.category = :newName where upper(p.category) = upper(:oldName)")
+    int renameCategory(@Param("oldName") String oldName, @Param("newName") String newName);
 }

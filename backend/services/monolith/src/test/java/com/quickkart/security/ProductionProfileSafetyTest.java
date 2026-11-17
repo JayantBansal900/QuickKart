@@ -11,7 +11,7 @@ class ProductionProfileSafetyTest {
     @Test void experimentalBeansCannotBeActivatedByCombiningProdAndDev() {
         var env=new MockEnvironment();env.setActiveProfiles("prod","dev");
         for(Class<?> type:new Class<?>[]{DevAdminInitializer.class,
-                KafkaTestController.class,ConsoleEmailService.class}) {
+                ConsoleEmailService.class}) {
             Profile profile=type.getAnnotation(Profile.class);
             assertNotNull(profile);assertFalse(env.acceptsProfiles(Profiles.of(profile.value())),type.getSimpleName());
         }

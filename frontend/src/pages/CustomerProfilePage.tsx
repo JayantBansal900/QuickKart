@@ -17,6 +17,7 @@ export const CustomerProfilePage: React.FC<CustomerProfilePageProps> = ({ onNavi
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [savedAddress, setSavedAddress] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -29,6 +30,7 @@ export const CustomerProfilePage: React.FC<CustomerProfilePageProps> = ({ onNavi
       setProfile(data);
       setName(data.name || '');
       setPhoneNumber(data.phoneNumber || '');
+      setSavedAddress(data.savedAddress || '');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile details.');
     } finally {
@@ -56,7 +58,7 @@ export const CustomerProfilePage: React.FC<CustomerProfilePageProps> = ({ onNavi
     setError(null);
     setSuccessMsg(null);
     try {
-      const updated = await api.updateMyProfile({ name, phoneNumber });
+      const updated = await api.updateMyProfile({ name, phoneNumber, savedAddress: savedAddress.trim() });
       setProfile(updated);
       setIsEditing(false);
       setSuccessMsg('Your profile has been updated.');
@@ -82,6 +84,7 @@ export const CustomerProfilePage: React.FC<CustomerProfilePageProps> = ({ onNavi
       </span>
     )],
     ['Phone', profile?.phoneNumber || <span className="text-muted">Not added</span>],
+    ['Delivery address', profile?.savedAddress ? <span className="whitespace-pre-line">{profile.savedAddress}</span> : <span className="text-muted">Not saved. It’s saved at checkout, or add it here.</span>],
   ];
 
   return (
@@ -158,6 +161,11 @@ export const CustomerProfilePage: React.FC<CustomerProfilePageProps> = ({ onNavi
             <label className="qk-label" htmlFor="profile-phone">
               Phone Number
               <input id="profile-phone" className="qk-input" type="tel" autoComplete="tel" placeholder="+91 98765 43210" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+            </label>
+            <label className="qk-label" htmlFor="profile-address">
+              Default delivery address
+              <textarea id="profile-address" className="qk-input" rows={3} maxLength={1000} autoComplete="street-address" placeholder="House no., street, area, city, PIN code" value={savedAddress} onChange={(e) => setSavedAddress(e.target.value)} />
+              <span className="mt-1 block text-xs font-normal text-muted">Filled in for you at checkout. Leave empty to remove it.</span>
             </label>
             <div className="flex gap-3 pt-2">
               <button type="submit" disabled={isSaving} className="qk-btn qk-btn-primary">{isSaving ? 'Saving…' : 'Save changes'}</button>

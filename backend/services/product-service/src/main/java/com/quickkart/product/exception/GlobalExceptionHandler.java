@@ -117,6 +117,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
+    /** Deliberate business errors (409 duplicate category, 403 not eligible to review, ...). */
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleStatus(org.springframework.web.server.ResponseStatusException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+        ErrorResponse body = new ErrorResponse(status.value(), status.getReasonPhrase(),
+                ex.getReason() != null ? ex.getReason() : status.getReasonPhrase(), request.getRequestURI());
+        return new ResponseEntity<>(body, status);
+    }
+
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
     public org.springframework.http.ResponseEntity<Void> handleMissingResource(org.springframework.web.servlet.resource.NoResourceFoundException ex) {
         return org.springframework.http.ResponseEntity.notFound().build();

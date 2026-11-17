@@ -79,6 +79,18 @@ class OtpAndAdminUserSecurityIntegrationTest {
     }
 
     @Test
+    void adminUserListIsPagedAndSearchable() throws Exception {
+        mockMvc.perform(get("/api/admin/users").param("q", "suite customer").header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].role").value("USER"));
+        mockMvc.perform(get("/api/admin/users").param("role", "ADMIN").param("size", "1").header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].role").value("ADMIN"))
+                .andExpect(jsonPath("$.size").value(1));
+    }
+
+    @Test
     void customerCannotAccessAdminUsersApi_ReturnsForbidden() throws Exception {
         mockMvc.perform(get("/api/admin/users")
                         .header("Authorization", "Bearer " + customerToken))
@@ -96,11 +108,25 @@ class OtpAndAdminUserSecurityIntegrationTest {
         mockMvc.perform(get("/api/admin/users")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].password").doesNotExist())
-                .andExpect(jsonPath("$[0].otpHash").doesNotExist())
-                .andExpect(jsonPath("$[0].email").exists())
-                .andExpect(jsonPath("$[0].role").exists());
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].password").doesNotExist())
+                .andExpect(jsonPath("$.content[0].otpHash").doesNotExist())
+                .andExpect(jsonPath("$.content[0].email").exists())
+                .andExpect(jsonPath("$.content[0].role").exists());
+    }
+
+    @Test
+    void analyticsInsightsReturnOneDataPointPerDay() throws Exception {
+        mockMvc.perform(get("/api/admin/analytics/insights").param("days", "14").header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.days").value(14))
+                .andExpect(jsonPath("$.daily.length()").value(14))
+                .andExpect(jsonPath("$.topProducts").isArray())
+                .andExpect(jsonPath("$.categories").isArray());
+        mockMvc.perform(get("/api/admin/analytics/insights").param("days", "1000").header("Authorization", "Bearer " + adminToken))
+                .andExpect(jsonPath("$.days").value(365));
+        mockMvc.perform(get("/api/admin/analytics/insights").header("Authorization", "Bearer " + customerToken))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -138,6 +164,18 @@ class OtpAndAdminUserSecurityIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Updated Customer Name"))
                 .andExpect(jsonPath("$.phoneNumber").value("+919876543210"));
+
+        // Saved delivery address: set, kept when omitted, cleared with an empty string.
+        mockMvc.perform(put("/api/user/profile").header("Authorization", "Bearer " + customerToken).contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("name", "Updated Customer Name", "savedAddress", "  12 MG Road, Bengaluru 560001 "))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.savedAddress").value("12 MG Road, Bengaluru 560001"));
+        mockMvc.perform(put("/api/user/profile").header("Authorization", "Bearer " + customerToken).contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("name", "Updated Customer Name"))))
+                .andExpect(jsonPath("$.savedAddress").value("12 MG Road, Bengaluru 560001"));
+        mockMvc.perform(put("/api/user/profile").header("Authorization", "Bearer " + customerToken).contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("name", "Updated Customer Name", "savedAddress", ""))))
+                .andExpect(jsonPath("$.savedAddress").doesNotExist());
     }
 
     @Test

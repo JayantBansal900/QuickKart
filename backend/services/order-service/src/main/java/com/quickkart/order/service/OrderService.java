@@ -4,11 +4,14 @@ import com.quickkart.order.entity.*;
 import com.quickkart.order.repository.*;
 import com.quickkart.order.exception.*;
 import com.quickkart.order.event.OrderCreatedInternalEvent;
+import com.quickkart.order.event.OrderLifecycleInternalEvent;
 import jakarta.persistence.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
@@ -23,9 +26,14 @@ public class OrderService {
     private final UserRepository users;
     private final PaymentRepository payments;
     private final ApplicationEventPublisher events;
+    private final StockMovementRepository stockMovements;
     @PersistenceContext private EntityManager entityManager;
+    static final Set<String> PAYMENT_METHODS=Set.of("COD","UPI","CARD");
+    static final Set<String> STATUSES=Set.of("PENDING","PLACED","CONFIRMED","PROCESSING","SHIPPED","OUT_FOR_DELIVERY","DELIVERED","CANCELLED");
     public OrderService(OrderRepository orders, CartRepository carts, CartItemRepository cartItems,
-                        ProductRepository products, UserRepository users, PaymentRepository payments, ApplicationEventPublisher events) {
+                        ProductRepository products, UserRepository users, PaymentRepository payments, ApplicationEventPublisher events,
+                        StockMovementRepository stockMovements) {
+        this.stockMovements=stockMovements;
         this.orders=orders;this.carts=carts;this.cartItems=cartItems;this.products=products;
         this.users=users;this.payments=payments;this.events=events;
     }
@@ -41,13 +49,15 @@ public class OrderService {
     @Transactional
     public OrderResponse checkout(String email,CheckoutRequest request) {
         if(request==null) throw bad("Checkout details are required");
-        if(!"COD".equals(request.getPaymentMethod())) throw bad("Online payments are unavailable. Only cash on delivery is supported.");
+        String method=request.getPaymentMethod()==null ? "" : request.getPaymentMethod().trim().toUpperCase(Locale.ROOT);
+        if(!PAYMENT_METHODS.contains(method)) throw bad("Unsupported payment method. Choose COD, UPI or CARD.");
+        boolean online=!"COD".equals(method);
         String key=required(request.getIdempotencyKey(),1,80,"idempotency key");
         String quote=required(request.getCartFingerprint(),1,64,"cart confirmation");
         String name=required(request.getRecipientName(),1,120,"recipient name");
         String address=required(request.getDeliveryAddress(),8,1000,"delivery address");
         String phone=required(request.getDeliveryPhone(),5,40,"delivery phone");
-        String payload=CartQuote.hash(String.join("|", "COD",quote,CartQuote.hash(name),CartQuote.hash(address),CartQuote.hash(phone)));
+        String payload=CartQuote.hash(String.join("|", method,quote,CartQuote.hash(name),CartQuote.hash(address),CartQuote.hash(phone)));
         // Shared account lock serializes cart creation, mutation and checkout, even across the two services.
         User user=users.findByEmailForUpdate(email).orElseThrow(()->new ResourceNotFoundException("Account not found"));
         entityManager.refresh(user,LockModeType.PESSIMISTIC_WRITE);
@@ -70,7 +80,8 @@ public class OrderService {
                 throw new InsufficientStockException("Product unavailable or insufficient stock: "+product.getName());
         }
         if(!quote.equals(CartQuote.fingerprint(lines))) throw conflict("Cart contents or prices changed. Refresh and confirm the updated total before placing the order.");
-        Order order=new Order(user,BigDecimal.ZERO,"CONFIRMED",LocalDateTime.now());
+        // COD orders are placed straight away; online orders wait in PENDING until the payment succeeds.
+        Order order=new Order(user,BigDecimal.ZERO,online ? "PENDING" : "PLACED",LocalDateTime.now());
         order.setCheckoutKey(key);order.setRequestFingerprint(payload);order.setRecipientName(name);order.setDeliveryAddress(address);order.setDeliveryPhone(phone);
         BigDecimal total=BigDecimal.ZERO;
         for(CartItem line:lines) {
@@ -81,12 +92,18 @@ public class OrderService {
         }
         order.setTotalAmount(total);
         orders.saveAndFlush(order);
-        // This reference identifies an unpaid collection record; it is not a provider transaction.
-        payments.save(new Payment(order,total,"COLLECTION_PENDING","COD","COD-"+UUID.randomUUID(),LocalDateTime.now()));
+        for(OrderItem item:order.getItems())
+            stockMovements.save(new StockMovement(item.getProduct().getId(),-item.getQuantity(),item.getProduct().getStockQuantity(),"ORDER_PLACED","Order #"+order.getId(),email));
+        // COD: an unpaid collection record. Online: a simulated gateway payment awaiting the customer.
+        Payment payment=online
+            ? new Payment(order,total,"PENDING",method,"SIM-"+UUID.randomUUID(),LocalDateTime.now())
+            : new Payment(order,total,"COLLECTION_PENDING","COD","COD-"+UUID.randomUUID(),LocalDateTime.now());
+        payments.save(payment);
         cartItems.deleteByCartId(cart.getId());
         entityManager.flush();
         events.publishEvent(new OrderCreatedInternalEvent(order.getId(),user.getId(),total,order.getCreatedAt(),
-            order.getItems().stream().map(i->new OrderItemSummary(i.getProduct().getId(),i.getProductName(),i.getQuantity(),i.getPrice())).toList()));
+            order.getItems().stream().map(i->new OrderItemSummary(i.getProduct().getId(),i.getProductName(),i.getQuantity(),i.getPrice())).toList(),
+            order.getStatus(),payment.getPaymentMethod(),payment.getStatus()));
         return response(order);
     }
     @Transactional(readOnly=true)
@@ -101,8 +118,62 @@ public class OrderService {
     public OrderResponse getOrderById(Long id,String email) { return getOrderById(email,id); }
     @Transactional(readOnly=true)
     public List<OrderResponse> getAllOrders() { return orders.findAll(Sort.by(Sort.Direction.DESC,"createdAt")).stream().map(this::response).toList(); }
+    /** Admin list: newest first, optional status filter and search by order id, customer email or recipient. */
+    @Transactional(readOnly=true)
+    public PageResponse<OrderResponse> searchForAdmin(String query,String status,int page,int size) {
+        String q=query==null ? "" : query.trim().toLowerCase(Locale.ROOT).replaceFirst("^#","");
+        String st=status==null || status.isBlank() || "ALL".equalsIgnoreCase(status) ? null : status.trim().toUpperCase(Locale.ROOT);
+        Specification<Order> spec=(root,cq,cb)->{
+            List<jakarta.persistence.criteria.Predicate> where=new ArrayList<>();
+            if(st!=null) where.add(cb.equal(root.get("status"),st));
+            if(!q.isEmpty()) {
+                var user=root.join("user");
+                String like="%"+q.replace("\\","\\\\").replace("%","\\%").replace("_","\\_")+"%";
+                List<jakarta.persistence.criteria.Predicate> any=new ArrayList<>(List.of(
+                    cb.like(cb.lower(user.get("email")),like,'\\'),
+                    cb.like(cb.lower(cb.coalesce(root.get("recipientName"),"")),like,'\\')));
+                if(q.matches("\\d{1,18}")) any.add(cb.equal(root.get("id"),Long.parseLong(q)));
+                where.add(cb.or(any.toArray(jakarta.persistence.criteria.Predicate[]::new)));
+            }
+            return cb.and(where.toArray(jakarta.persistence.criteria.Predicate[]::new));
+        };
+        var pageable=PageRequest.of(Math.max(0,page),Math.min(Math.max(1,size),100),Sort.by(Sort.Direction.DESC,"createdAt").and(Sort.by(Sort.Direction.DESC,"id")));
+        return PageResponse.from(orders.findAll(spec,pageable),this::response);
+    }
     @Transactional(readOnly=true)
     public OrderResponse getOrderByIdForAdmin(Long id) { return response(orders.findById(id).orElseThrow(()->new OrderNotFoundException(id))); }
+    /**
+     * Simulated payment gateway (test mode). A real integration would verify a provider callback
+     * signature here; the state changes are the same: PENDING -> PAID moves the order to PLACED,
+     * a failure leaves it PENDING so the customer can retry or cancel.
+     */
+    @Transactional
+    public OrderResponse pay(String email,Long id,boolean succeed) {
+        Order order=lockedOrder(id);
+        if(!order.getUser().getId().equals(user(email).getId())) throw new OrderNotFoundException(id);
+        Payment payment=payments.findByOrderId(order.getId()).orElseThrow(()->conflict("Order has no payment record"));
+        if("COD".equals(payment.getPaymentMethod())) throw conflict("Cash on delivery orders are paid when they arrive");
+        if("PAID".equals(payment.getStatus())) return response(order); // repeated success callback: idempotent
+        if(!"PENDING".equals(order.getStatus())) throw conflict("Order is not awaiting payment");
+        if(succeed) {
+            payment.setStatus("PAID");
+            payment.setTransactionId("SIM-"+UUID.randomUUID());
+            order.setStatus("PLACED");
+            publish(order,payment,"PAYMENT_SUCCEEDED","PAYMENT_SUCCEEDED-"+order.getId());
+        } else {
+            payment.setStatus("FAILED");
+            publish(order,payment,"PAYMENT_FAILED","PAYMENT_FAILED-"+order.getId()+"-"+UUID.randomUUID());
+        }
+        return response(order);
+    }
+    /** Releases the stock of an online order that was never paid. Called by UnpaidOrderExpiry. */
+    @Transactional
+    public boolean expireUnpaid(Long id,LocalDateTime createdBefore) {
+        Order order=lockedOrder(id);
+        if(!"PENDING".equals(order.getStatus()) || !order.getCreatedAt().isBefore(createdBefore)) return false;
+        transition(order,"CANCELLED","SYSTEM");
+        return true;
+    }
     @Transactional
     public OrderResponse cancelOrder(String email,Long id) {
         Order order=lockedOrder(id);
@@ -118,17 +189,21 @@ public class OrderService {
     private OrderResponse transition(Order order,String next,String actor) {
         if(next==null) throw new InvalidOrderStatusException("Order status is required");
         next=next.trim().toUpperCase(Locale.ROOT);
-        if(!Set.of("PENDING","CONFIRMED","PROCESSING","SHIPPED","DELIVERED","CANCELLED").contains(next)) throw new InvalidOrderStatusException("Invalid order status");
+        if(!STATUSES.contains(next)) throw new InvalidOrderStatusException("Invalid order status");
         if(next.equals(order.getStatus())) return response(order);
+        Payment payment=payments.findByOrderId(order.getId()).orElse(null);
+        boolean cod=payment!=null && "COD".equals(payment.getPaymentMethod());
         Set<String> allowed=switch(order.getStatus()) {
-            case "PENDING" -> Set.of("CONFIRMED","CANCELLED");
+            // PENDING -> PLACED happens only through a successful payment. Old COD rows in PENDING may still be confirmed.
+            case "PENDING" -> cod ? Set.of("CONFIRMED","CANCELLED") : Set.of("CANCELLED");
+            case "PLACED" -> Set.of("CONFIRMED","CANCELLED");
             case "CONFIRMED" -> Set.of("PROCESSING","CANCELLED");
             case "PROCESSING" -> Set.of("SHIPPED","CANCELLED");
-            case "SHIPPED" -> Set.of("DELIVERED");
+            case "SHIPPED" -> Set.of("OUT_FOR_DELIVERY");
+            case "OUT_FOR_DELIVERY" -> Set.of("DELIVERED");
             default -> Set.of();
         };
         if(!allowed.contains(next)) throw conflict("Order cannot transition from "+order.getStatus()+" to "+next);
-        Payment payment=payments.findByOrderId(order.getId()).orElse(null);
         if("CANCELLED".equals(next)) {
             // Historical stock provenance is unknown: do not guess whether legacy orders need restocking.
             if(order.getCheckoutKey()==null) throw conflict("Legacy order cancellation requires manual inventory review");
@@ -136,16 +211,30 @@ public class OrderService {
                 Product product=products.findByIdForUpdate(item.getProduct().getId()).orElseThrow(()->new ProductNotFoundException(item.getProduct().getId()));
                 entityManager.refresh(product,LockModeType.PESSIMISTIC_WRITE);
                 product.setStockQuantity(Math.addExact(product.getStockQuantity(),item.getQuantity()));
+                stockMovements.save(new StockMovement(product.getId(),item.getQuantity(),product.getStockQuantity(),"ORDER_CANCELLED","Order #"+order.getId(),actor));
             }
             order.setCancelledAt(LocalDateTime.now());order.setCancelledBy(actor);
-            if(payment!=null) payment.setStatus("COLLECTION_PENDING".equals(payment.getStatus()) ? "CANCELLED" : "MANUAL_REVIEW_REQUIRED");
-        } else if(order.getCheckoutKey()==null || payment==null || !"COD".equals(payment.getPaymentMethod()) || !"COLLECTION_PENDING".equals(payment.getStatus())) {
+            if(payment!=null) payment.setStatus(switch(payment.getStatus()) {
+                case "COLLECTION_PENDING","PENDING","FAILED" -> "CANCELLED";
+                case "PAID" -> "REFUNDED"; // simulated gateway: the refund is immediate
+                default -> "MANUAL_REVIEW_REQUIRED";
+            });
+        } else if(order.getCheckoutKey()==null || payment==null || !isSettledForFulfilment(payment)) {
             throw conflict("Payment requires manual review before fulfillment");
-        } else if("DELIVERED".equals(next)) {
+        } else if("DELIVERED".equals(next) && cod) {
             // Cash on delivery: the courier collects the money at hand-over, so delivery settles the payment.
             payment.setStatus("COLLECTED");
         }
-        order.setStatus(next);return response(order);
+        order.setStatus(next);
+        publish(order,payment,"ORDER_STATUS_CHANGED","ORDER_STATUS-"+order.getId()+"-"+next);
+        return response(order);
+    }
+    private static boolean isSettledForFulfilment(Payment payment) {
+        return "COD".equals(payment.getPaymentMethod()) ? "COLLECTION_PENDING".equals(payment.getStatus()) : "PAID".equals(payment.getStatus());
+    }
+    private void publish(Order order,Payment payment,String type,String eventId) {
+        events.publishEvent(new OrderLifecycleInternalEvent(eventId,type,order.getId(),order.getUser().getId(),order.getTotalAmount(),
+            order.getStatus(),payment==null ? null : payment.getPaymentMethod(),payment==null ? null : payment.getStatus()));
     }
     private User user(String email) {return users.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("Account not found"));}
     private OrderResponse response(Order order) {

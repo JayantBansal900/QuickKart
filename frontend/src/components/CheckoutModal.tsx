@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Banknote, ShieldCheck, X } from 'lucide-react';
+import { Banknote, CreditCard, ShieldCheck, Smartphone, X } from 'lucide-react';
+import { PaymentPanel } from './PaymentPanel';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { ApiError } from '../services/http';
-import { CheckoutRequest, OrderResponse } from '../types';
+import { CheckoutRequest, OrderResponse, PaymentMethod } from '../types';
 import { readAttempt, saveAttempt, clearAttempt } from '../services/checkoutAttempt';
 import { formatINR } from '../utils/formatters';
 
@@ -14,8 +15,14 @@ interface Props {
   onOrderSuccess: (order: OrderResponse) => void;
 }
 
+const METHODS: { id: PaymentMethod; label: string; hint: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { id: 'COD', label: 'Cash on delivery', hint: 'Pay in cash when the order arrives.', icon: Banknote },
+  { id: 'UPI', label: 'UPI', hint: 'Pay now with any UPI app (test mode).', icon: Smartphone },
+  { id: 'CARD', label: 'Credit / debit card', hint: 'Pay now by card (test mode).', icon: CreditCard },
+];
+
 /**
- * Cash-on-delivery checkout. The request (with its idempotency key) is saved BEFORE it is sent,
+ * Checkout: cash on delivery, or UPI / card through the simulated gateway. The request (with its idempotency key) is saved BEFORE it is sent,
  * so a refresh or timeout retries the same order instead of creating a second one.
  */
 export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess }) => {
@@ -25,6 +32,25 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
   const [name, setName] = useState(attempt?.recipientName ?? user?.name ?? '');
   const [address, setAddress] = useState(attempt?.deliveryAddress ?? '');
   const [phone, setPhone] = useState(attempt?.deliveryPhone ?? user?.phoneNumber ?? '');
+  const [method, setMethod] = useState<PaymentMethod>(attempt?.paymentMethod ?? 'COD');
+  const [savedAddress, setSavedAddress] = useState<string | null>(null);
+  const [saveAddress, setSaveAddress] = useState(true);
+  const [awaitingPayment, setAwaitingPayment] = useState<OrderResponse | null>(null);
+  const profileName = useRef<string>(user?.name ?? '');
+
+  // Pre-fill from the profile's saved address (and phone) the first time the dialog opens.
+  useEffect(() => {
+    if (!isOpen || !user) return;
+    let alive = true;
+    api.getMyProfile().then((profile) => {
+      if (!alive) return;
+      profileName.current = profile.name;
+      setSavedAddress(profile.savedAddress ?? null);
+      if (profile.savedAddress) setAddress((current) => current || profile.savedAddress || '');
+      if (profile.phoneNumber) setPhone((current) => current || profile.phoneNumber || '');
+    }).catch(() => undefined);
+    return () => { alive = false; };
+  }, [isOpen, user]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [reviewed, setReviewed] = useState(false);
@@ -52,6 +78,22 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
 
   if (!isOpen) return null;
 
+  if (awaitingPayment) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
+        <div className="absolute inset-0 animate-fade-in bg-black/50 backdrop-blur-sm" />
+        <section role="dialog" aria-modal="true" aria-labelledby="payment-title" className="relative w-full animate-rise rounded-t-[28px] bg-surface p-6 shadow-2xl sm:max-w-md sm:rounded-[28px]">
+          <h2 id="payment-title" className="qk-display mb-4 text-3xl text-fg">Complete payment</h2>
+          <PaymentPanel
+            order={awaitingPayment}
+            onPaid={(paid) => { setAwaitingPayment(null); onOrderSuccess(paid); }}
+            onLater={() => { const order = awaitingPayment; setAwaitingPayment(null); onOrderSuccess(order); }}
+          />
+        </section>
+      </div>
+    );
+  }
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (pending.current || !user) return;
@@ -60,7 +102,7 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
       return;
     }
     const request = attempt ?? ({
-      paymentMethod: 'COD',
+      paymentMethod: method,
       idempotencyKey: crypto.randomUUID(),
       cartFingerprint: cart!.fingerprint,
       recipientName: name.trim(),
@@ -78,7 +120,13 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
       clearAttempt(user.id);
       setAttempt(null);
       void fetchCart().catch(() => {});
-      onOrderSuccess(order);
+      if (saveAddress && request.deliveryAddress !== savedAddress) {
+        // Best effort: the order is already placed, a failed profile update must not hide that.
+        void api.updateMyProfile({ name: profileName.current || request.recipientName, savedAddress: request.deliveryAddress })
+          .then((p) => setSavedAddress(p.savedAddress ?? null)).catch(() => undefined);
+      }
+      if (order.payable) setAwaitingPayment(order);
+      else onOrderSuccess(order);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unable to place order.';
       const definite = err instanceof ApiError && [400, 401, 403, 404, 409, 422, 429].includes(err.status);
@@ -142,19 +190,31 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
                   Delivery phone
                   <input className="qk-input" type="tel" required minLength={5} maxLength={40} autoComplete="tel" value={phone} disabled={locked} onChange={(e) => setPhone(e.target.value)} />
                 </label>
+                {address.trim() && address.trim() !== savedAddress && (
+                  <label className="flex cursor-pointer items-center gap-2.5 text-sm text-fg">
+                    <input type="checkbox" className="h-4 w-4 accent-[var(--qk-accent)]" checked={saveAddress} disabled={locked} onChange={(e) => setSaveAddress(e.target.checked)} />
+                    Save this address for next time
+                  </label>
+                )}
               </div>
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold text-fg">Payment</h3>
-              <div className="mt-3 flex items-start gap-3 rounded-2xl border-2 border-fg p-4">
-                <Banknote className="mt-0.5 h-5 w-5 shrink-0 text-fg" />
-                <div className="text-sm">
-                  <p className="font-medium text-fg">Cash on delivery</p>
-                  <p className="mt-0.5 text-muted">
-                    Cash on delivery — payment collection is pending. Online payments are currently unavailable.
-                  </p>
-                </div>
+              <h3 id="payment-method-label" className="text-sm font-semibold text-fg">Payment</h3>
+              <div role="radiogroup" aria-labelledby="payment-method-label" className="mt-3 grid gap-2">
+                {METHODS.map(({ id, label, hint, icon: Icon }) => (
+                  <label
+                    key={id}
+                    className={`flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-4 transition-colors ${method === id ? 'border-fg' : 'border-line hover:border-muted'} ${locked ? 'cursor-not-allowed opacity-70' : ''}`}
+                  >
+                    <input type="radio" name="payment-method" value={id} checked={method === id} disabled={locked} onChange={() => setMethod(id)} className="sr-only" />
+                    <Icon className="mt-0.5 h-5 w-5 shrink-0 text-fg" />
+                    <span className="text-sm">
+                      <span className="block font-medium text-fg">{label}</span>
+                      <span className="mt-0.5 block text-muted">{hint}</span>
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
           </div>
@@ -188,7 +248,7 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
                 type="submit"
                 disabled={busy || (!attempt && (isLoading || needsRefresh || !reviewed || !cart?.items.length))}
               >
-                {busy ? 'Placing order…' : attempt ? 'Retry same order' : 'Place COD order'}
+                {busy ? 'Placing order…' : attempt ? 'Retry same order' : method === 'COD' ? 'Place COD order' : 'Continue to payment'}
               </button>
               <button className="w-full text-center text-sm text-muted hover:text-fg" type="button" disabled={busy} onClick={onClose}>
                 Back to cart

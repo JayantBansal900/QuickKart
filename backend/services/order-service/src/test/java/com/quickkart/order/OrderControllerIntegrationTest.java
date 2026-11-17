@@ -115,7 +115,7 @@ class OrderControllerIntegrationTest {
                         .header("Authorization", "Bearer " + token1).contentType(MediaType.APPLICATION_JSON).content(checkoutJson()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.orderId").isNumber())
-                .andExpect(jsonPath("$.status").value("CONFIRMED"))
+                .andExpect(jsonPath("$.status").value("PLACED"))
                 .andExpect(jsonPath("$.totalAmount").value(2400.00))
                 .andExpect(jsonPath("$.items", hasSize(1)))
                 .andExpect(jsonPath("$.items[0].quantity").value(2));

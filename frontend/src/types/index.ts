@@ -39,11 +39,15 @@ export interface UserProfileResponse {
   emailVerified: boolean;
   accountStatus: string;
   createdAt?: string;
+  /** Default delivery address, pre-filled at checkout. */
+  savedAddress?: string | null;
 }
 
 export interface UpdateProfileRequest {
   name: string;
   phoneNumber?: string;
+  /** Omit to keep the saved address; '' removes it. */
+  savedAddress?: string;
 }
 
 export interface UserAdminResponse {
@@ -75,7 +79,8 @@ export type ProductSort =
   | 'discount-desc'
   | 'rating-desc'
   | 'name'
-  | 'newest';
+  | 'newest'
+  | 'popular';
 
 export interface ProductSearchQuery {
   q?: string;
@@ -90,6 +95,68 @@ export interface ProductSearchQuery {
 export interface CategoryCount {
   category: string;
   count: number;
+}
+
+/** Admin-managed category. `key` is the upper-case name used by the catalog filter. */
+export interface Category {
+  id: number;
+  key: string;
+  name: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  sortOrder: number;
+  active: boolean;
+  productCount: number;
+}
+
+export interface CategoryRequest {
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  sortOrder?: number;
+  active?: boolean;
+}
+
+export interface Review {
+  id: number;
+  productId: number;
+  authorName: string;
+  rating: number;
+  title?: string | null;
+  comment?: string | null;
+  verifiedPurchase: boolean;
+  mine: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReviewEligibility {
+  canReview: boolean;
+  reason?: string | null;
+  myReview?: Review | null;
+}
+
+export interface StockMovement {
+  id: number;
+  change: number;
+  stockAfter: number;
+  reason: 'ORDER_PLACED' | 'ORDER_CANCELLED' | 'RESTOCK' | 'CORRECTION' | 'ADMIN_EDIT' | 'INITIAL_STOCK' | string;
+  reference?: string | null;
+  actor?: string | null;
+  createdAt: string;
+}
+
+export interface AnalyticsInsights {
+  days: number;
+  revenue: number;
+  orders: number;
+  averageOrderValue: number;
+  newCustomers: number;
+  daily: { date: string; revenue: number; orders: number; registrations: number }[];
+  ordersByStatus: { name: string; count: number }[];
+  paymentMethods: { name: string; count: number }[];
+  topProducts: { productId: number; name: string; units: number; revenue: number }[];
+  categories: { category: string; units: number; revenue: number }[];
 }
 
 /** One dependency in the admin System Status page. */
@@ -197,7 +264,7 @@ export interface OrderResponse {
   userEmail?: string;
   orderDate?: string;
   createdAt?: string;
-  status: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  status: OrderStatus;
   totalAmount: number;
   paymentMethod?: string;
   paymentStatus?: string;
@@ -207,11 +274,25 @@ export interface OrderResponse {
   cancelledAt?: string;
   cancelledBy?: string;
   cancellable?: boolean;
+  /** Online order waiting for (or retrying) payment. */
+  payable?: boolean;
   items: OrderItemResponse[];
 }
 
+export type OrderStatus =
+  | 'PENDING'
+  | 'PLACED'
+  | 'CONFIRMED'
+  | 'PROCESSING'
+  | 'SHIPPED'
+  | 'OUT_FOR_DELIVERY'
+  | 'DELIVERED'
+  | 'CANCELLED';
+
+export type PaymentMethod = 'COD' | 'UPI' | 'CARD';
+
 export interface CheckoutRequest {
-  paymentMethod: 'COD';
+  paymentMethod: PaymentMethod;
   idempotencyKey: string;
   cartFingerprint: string;
   recipientName: string;
@@ -220,5 +301,5 @@ export interface CheckoutRequest {
 }
 
 export interface UpdateOrderStatusRequest {
-  status: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  status: OrderStatus;
 }

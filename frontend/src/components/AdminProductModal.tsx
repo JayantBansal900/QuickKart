@@ -2,13 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ImagePlus, Loader2, Trash2, UploadCloud, X } from 'lucide-react';
 import { Product, ProductRequest } from '../types';
 
-const CATEGORIES = ['Electronics', 'Fashion', 'Home & Living', 'Sports', 'Books', 'Beauty', 'Groceries', 'Accessories'];
+/** Used until the admin category list has loaded. */
+const DEFAULT_CATEGORIES = ['Electronics', 'Fashion', 'Home & Living', 'Sports', 'Books', 'Beauty', 'Groceries', 'Accessories'];
 const MAX_BYTES = 3 * 1024 * 1024;
 const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp'];
 
 interface AdminProductModalProps {
   isOpen: boolean;
   product: Product | null;
+  /** Category names from the admin Categories page. */
+  categories?: string[];
   onClose: () => void;
   /** Saves the product fields and, when a photo was chosen, uploads it afterwards. */
   onSubmit: (productData: ProductRequest, photo: File | null) => Promise<void>;
@@ -33,7 +36,8 @@ function fromProduct(p: Product): FormState {
   };
 }
 
-export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, product, onClose, onSubmit }) => {
+export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, product, categories, onClose, onSubmit }) => {
+  const CATEGORIES = categories && categories.length ? categories : DEFAULT_CATEGORIES;
   const [form, setForm] = useState<FormState>(empty);
   const [photo, setPhoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);

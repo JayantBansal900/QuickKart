@@ -50,8 +50,13 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
 
+                        // Reviews: anyone can read; signed-in customers write (eligibility is checked in ReviewService)
+                        .requestMatchers(HttpMethod.GET, "/api/products/*/reviews/eligibility").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/products/*/reviews").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/*/reviews/*").authenticated()
+
                         // Public product catalog read access
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories", "/api/categories/**").permitAll()
 
                         // Product modifications require ADMIN role
                         .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
@@ -59,7 +64,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
 
                         // Dedicated Admin endpoints require ADMIN role
-                        .requestMatchers("/api/admin/products/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/products/**", "/api/admin/categories/**", "/api/admin/categories").hasRole("ADMIN")
 
                         // Any other request must be authenticated
                         .anyRequest().authenticated()

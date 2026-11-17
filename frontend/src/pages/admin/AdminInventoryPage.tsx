@@ -1,65 +1,79 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { History, Search, X } from "lucide-react";
 import { api } from "../../services/api";
-import { Product } from "../../types";
+import { AdminAnalyticsResponse, PageResponse, Product, StockMovement } from "../../types";
 import {
   AdminPageHeader,
   ErrorBanner,
   LoadingRow,
+  PAGE_SIZE,
+  Pager,
   StatCard,
   StatusBadge,
   TableShell,
   errorMessage,
+  formatDateTime,
   tdClass,
   thClass,
+  useDebounced,
 } from "../../components/admin/AdminUi";
 
 export const LOW_STOCK_THRESHOLD = 5;
 type Filter = "ALL" | "LOW" | "OUT";
 
+const REASONS: Record<string, string> = {
+  ORDER_PLACED: "Order placed",
+  ORDER_CANCELLED: "Order cancelled",
+  RESTOCK: "Restock",
+  CORRECTION: "Correction",
+  ADMIN_EDIT: "Edited in product form",
+  INITIAL_STOCK: "Product created",
+};
+
 /**
  * Inventory uses RELATIVE adjustments (+restock / -correction) via PATCH /admin/products/{id}/stock.
  * The server applies them under a row lock, so a checkout that happens at the same moment is never
- * overwritten (an absolute "set stock to N" could silently undo it).
+ * overwritten (an absolute "set stock to N" could silently undo it). Every change is recorded in
+ * the stock history.
  */
 export function AdminInventoryPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [result, setResult] = useState<PageResponse<Product> | null>(null);
+  const [stats, setStats] = useState<AdminAnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("LOW");
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
   const [drafts, setDrafts] = useState<Record<number, string>>({});
   const [savingId, setSavingId] = useState<number | null>(null);
+  const [historyFor, setHistoryFor] = useState<Product | null>(null);
+  const q = useDebounced(query.trim());
+
+  useEffect(() => setPage(0), [q, filter]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      setProducts(await api.getProducts());
+      const [products, analytics] = await Promise.all([
+        api.getAdminProducts({ q, stock: filter, sort: "stock", page, size: PAGE_SIZE }),
+        api.getAdminAnalytics(),
+      ]);
+      setResult(products);
+      setStats(analytics);
     } catch (err) {
       setError(errorMessage(err, "Failed to load inventory."));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [q, filter, page]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  const outCount = products.filter((p) => p.stockQuantity <= 0).length;
-  const lowCount = products.filter((p) => p.stockQuantity > 0 && p.stockQuantity < LOW_STOCK_THRESHOLD).length;
-
-  const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return products
-      .filter((p) =>
-        filter === "OUT" ? p.stockQuantity <= 0 : filter === "LOW" ? p.stockQuantity < LOW_STOCK_THRESHOLD : true,
-      )
-      .filter((p) => !q || p.name.toLowerCase().includes(q) || String(p.id) === q || (p.sku ?? "").toLowerCase().includes(q))
-      .sort((a, b) => a.stockQuantity - b.stockQuantity);
-  }, [products, filter, query]);
+  const products = result?.content ?? [];
 
   const apply = async (product: Product, adjustment: number) => {
     if (!Number.isInteger(adjustment) || adjustment === 0) {
@@ -75,9 +89,10 @@ export function AdminInventoryPage() {
     setNotice(null);
     try {
       const updated = await api.adjustStock(product.id, adjustment);
-      setProducts((list) => list.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)));
+      setResult((r) => r && { ...r, content: r.content.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)) });
       setDrafts((d) => ({ ...d, [product.id]: "" }));
       setNotice(`${product.name}: stock ${product.stockQuantity} → ${updated.stockQuantity}`);
+      api.getAdminAnalytics().then(setStats).catch(() => undefined);
     } catch (err) {
       setError(errorMessage(err, "Stock update failed."));
     } finally {
@@ -98,11 +113,11 @@ export function AdminInventoryPage() {
 
   return (
     <>
-      <AdminPageHeader title="Inventory" subtitle="Restock and correct stock levels" onRefresh={load} refreshing={loading} />
+      <AdminPageHeader title="Inventory" subtitle="Restock, correct and audit stock levels" onRefresh={load} refreshing={loading} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Products tracked" value={loading && !products.length ? "…" : products.length} />
-        <StatCard label={`Low stock (1–${LOW_STOCK_THRESHOLD - 1})`} value={lowCount} tone={lowCount ? "warn" : "default"} />
-        <StatCard label="Out of stock" value={outCount} tone={outCount ? "bad" : "default"} />
+        <StatCard label="Products tracked" value={stats ? stats.totalProducts : "…"} />
+        <StatCard label={`Low stock (1–${LOW_STOCK_THRESHOLD - 1})`} value={stats ? stats.lowStockCount : "…"} tone={stats?.lowStockCount ? "warn" : "default"} />
+        <StatCard label="Out of stock" value={stats ? stats.outOfStockCount : "…"} tone={stats?.outOfStockCount ? "bad" : "default"} />
       </div>
       <ErrorBanner message={error} />
       {notice && <p role="status" className="rounded-lg border border-success/30 bg-success-soft p-3 text-sm text-success">{notice}</p>}
@@ -132,15 +147,16 @@ export function AdminInventoryPage() {
             <th className={thClass}>Current stock</th>
             <th className={thClass}>Availability</th>
             <th className={thClass}>Adjust</th>
+            <th className={`${thClass} text-right`}>History</th>
           </tr>
         </thead>
         <tbody>
           {loading && products.length === 0 ? (
-            <LoadingRow colSpan={4} />
-          ) : visible.length === 0 ? (
-            <LoadingRow colSpan={4} text={filter === "ALL" ? "No products found." : "Nothing needs attention here."} />
+            <LoadingRow colSpan={5} />
+          ) : products.length === 0 ? (
+            <LoadingRow colSpan={5} text={filter === "ALL" ? "No products found." : "Nothing needs attention here."} />
           ) : (
-            visible.map((p) => {
+            products.map((p) => {
               const busy = savingId === p.id;
               return (
                 <tr key={p.id} className="hover:bg-subtle">
@@ -167,7 +183,7 @@ export function AdminInventoryPage() {
                         placeholder="+10 / -2"
                         value={drafts[p.id] ?? ""}
                         onChange={(e) => setDrafts((d) => ({ ...d, [p.id]: e.target.value }))}
-                        className="w-24 rounded-md border border-line px-2 py-1.5 text-sm"
+                        className="w-24 rounded-md border border-line bg-surface px-2 py-1.5 text-sm"
                       />
                       <button type="submit" disabled={busy || !drafts[p.id]} className="rounded-md bg-fg px-3 py-1.5 text-xs font-semibold text-bg disabled:opacity-40">
                         Apply
@@ -185,12 +201,97 @@ export function AdminInventoryPage() {
                       ))}
                     </form>
                   </td>
+                  <td className={`${tdClass} text-right`}>
+                    <button
+                      type="button"
+                      onClick={() => setHistoryFor(p)}
+                      aria-label={`Stock history for ${p.name}`}
+                      className="rounded-md p-1.5 text-muted hover:bg-subtle hover:text-fg"
+                    >
+                      <History className="h-4 w-4" />
+                    </button>
+                  </td>
                 </tr>
               );
             })
           )}
         </tbody>
       </TableShell>
+      {result && (
+        <Pager page={result.page} totalPages={result.totalPages} totalElements={result.totalElements} onPage={setPage} label="products" />
+      )}
+      {historyFor && <StockHistoryPanel product={historyFor} onClose={() => setHistoryFor(null)} />}
     </>
+  );
+}
+
+/** Slide-over listing every stock change of one product, newest first. */
+function StockHistoryPanel({ product, onClose }: { product: Product; onClose: () => void }) {
+  const [page, setPage] = useState(0);
+  const [data, setData] = useState<PageResponse<StockMovement> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    setError(null);
+    api
+      .getStockMovements(product.id, page, 15)
+      .then((r) => alive && setData(r))
+      .catch((err) => alive && setError(errorMessage(err, "Could not load the stock history.")));
+    return () => {
+      alive = false;
+    };
+  }, [product.id, page]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-[70] flex justify-end">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
+      <aside role="dialog" aria-modal="true" aria-label={`Stock history for ${product.name}`} className="relative flex h-full w-full max-w-md flex-col bg-surface shadow-card">
+        <header className="flex items-start justify-between gap-3 border-b border-line p-5">
+          <div className="min-w-0">
+            <p className="qk-eyebrow">Stock history</p>
+            <h2 className="mt-1 truncate text-lg font-semibold">{product.name}</h2>
+            <p className="text-xs text-muted">Now {product.stockQuantity} in stock</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close" autoFocus className="rounded-full p-2 text-muted hover:bg-subtle hover:text-fg">
+            <X className="h-4 w-4" />
+          </button>
+        </header>
+        <div className="flex-1 overflow-y-auto p-5">
+          <ErrorBanner message={error} />
+          {!data && !error ? (
+            <p className="text-sm text-muted" role="status">Loading…</p>
+          ) : data && data.content.length === 0 ? (
+            <p className="text-sm text-muted">No stock changes recorded yet. Changes are recorded from now on.</p>
+          ) : (
+            <ol className="space-y-3">
+              {data?.content.map((m) => (
+                <li key={m.id} className="flex items-start justify-between gap-3 rounded-xl border border-line p-3 text-sm">
+                  <div className="min-w-0">
+                    <p className="font-medium">{REASONS[m.reason] ?? m.reason}{m.reference ? ` · ${m.reference}` : ""}</p>
+                    <p className="truncate text-xs text-muted">{formatDateTime(m.createdAt)}{m.actor ? ` · ${m.actor}` : ""}</p>
+                  </div>
+                  <div className="flex-none text-right tabular-nums">
+                    <p className={`font-semibold ${m.change > 0 ? "text-success" : "text-sale"}`}>{m.change > 0 ? `+${m.change}` : m.change}</p>
+                    <p className="text-xs text-muted">→ {m.stockAfter}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+        {data && data.totalPages > 1 && (
+          <footer className="border-t border-line p-4">
+            <Pager page={data.page} totalPages={data.totalPages} totalElements={data.totalElements} onPage={setPage} label="changes" />
+          </footer>
+        )}
+      </aside>
+    </div>
   );
 }

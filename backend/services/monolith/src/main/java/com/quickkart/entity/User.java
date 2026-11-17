@@ -48,6 +48,13 @@ public class User {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
+    /** Default delivery address, pre-filled at checkout (migration V6). */
+    @Column(name = "saved_address", length = 1000)
+    private String savedAddress;
+
+    public String getSavedAddress() { return savedAddress; }
+    public void setSavedAddress(String savedAddress) { this.savedAddress = savedAddress; }
+
     /** Set on every password change; JWTs issued before this instant are rejected (see AccountAccessService). */
     @Column(name = "password_changed_at")
     private LocalDateTime passwordChangedAt;

@@ -105,8 +105,23 @@ class AdminOrderControllerIntegrationTest {
         mockMvc.perform(get("/api/admin/orders")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].orderId").value(testOrder.getId()));
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].orderId").value(testOrder.getId()));
+    }
+
+    @Test
+    void adminOrderListFiltersByStatusAndSearch() throws Exception {
+        mockMvc.perform(get("/api/admin/orders").param("status", "DELIVERED").header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(0)));
+        mockMvc.perform(get("/api/admin/orders").param("q", "#" + testOrder.getId()).header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(1)));
+        mockMvc.perform(get("/api/admin/orders").param("q", "nobody-matches-this").param("size", "5").header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(0)))
+                .andExpect(jsonPath("$.size").value(5));
     }
 
     @Test

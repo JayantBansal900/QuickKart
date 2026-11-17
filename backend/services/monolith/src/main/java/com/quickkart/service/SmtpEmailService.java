@@ -72,7 +72,7 @@ public class SmtpEmailService implements EmailService {
                 <html><body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#09090b">
                   <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="padding:32px 12px"><tr><td align="center">
                     <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:20px;padding:36px">
-                      <tr><td style="font-size:18px;font-weight:700">quick<span style="color:#4f46e5">kart</span></td></tr>
+                      <tr><td style="font-size:18px;font-weight:700">quick<span style="color:#1f4d38">kart</span></td></tr>
                       <tr><td style="padding-top:28px;font-size:22px;font-weight:600">Order #%s is confirmed</td></tr>
                       <tr><td style="padding-top:10px;font-size:15px;line-height:22px;color:#52525b">Hi %s, thanks for shopping with QuickKart.</td></tr>
                       <tr><td style="padding-top:20px"><table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="border-top:1px solid #e4e4e7">%s
@@ -85,6 +85,27 @@ public class SmtpEmailService implements EmailService {
                 </body></html>
                 """.formatted(orderId, HtmlUtils.htmlEscape(displayName(name)), rows, HtmlUtils.htmlEscape(money(total)));
         send(email, "Order #" + orderId + " confirmed", text.toString(), html);
+    }
+
+    @Override
+    public void sendOrderUpdate(String email, String name, Long orderId, String subject, String headline, String message) {
+        String text = "Hi " + displayName(name) + ",\n\n" + headline + "\n\n" + message + "\n\nOrder #" + orderId
+                + " - see My Orders on QuickKart for details.\n";
+        String html = """
+                <!doctype html>
+                <html><body style="margin:0;padding:0;background:#f6f4f0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1c1917">
+                  <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="padding:32px 12px"><tr><td align="center">
+                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:20px;padding:36px">
+                      <tr><td style="font-size:18px;font-weight:700">quick<span style="color:#1f4d38">kart</span></td></tr>
+                      <tr><td style="padding-top:28px;font-size:22px;font-weight:600">%s</td></tr>
+                      <tr><td style="padding-top:10px;font-size:15px;line-height:22px;color:#57534e">Hi %s, %s</td></tr>
+                      <tr><td style="padding-top:20px;font-size:13px;line-height:20px;color:#78716c">Order <b>#%s</b> &middot; open <b>My Orders</b> on QuickKart for the full details.</td></tr>
+                    </table>
+                  </td></tr></table>
+                </body></html>
+                """.formatted(HtmlUtils.htmlEscape(headline), HtmlUtils.htmlEscape(displayName(name)),
+                HtmlUtils.htmlEscape(message), orderId);
+        send(email, subject, text, html);
     }
 
     private static String money(java.math.BigDecimal amount) {
@@ -145,7 +166,7 @@ public class SmtpEmailService implements EmailService {
                   <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="padding:32px 12px">
                     <tr><td align="center">
                       <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:20px;padding:36px">
-                        <tr><td style="font-size:18px;font-weight:700;letter-spacing:-0.3px">quick<span style="color:#4f46e5">kart</span></td></tr>
+                        <tr><td style="font-size:18px;font-weight:700;letter-spacing:-0.3px">quick<span style="color:#1f4d38">kart</span></td></tr>
                         <tr><td style="padding-top:28px;font-size:22px;font-weight:600">%s</td></tr>
                         <tr><td style="padding-top:10px;font-size:15px;line-height:22px;color:#52525b">%s</td></tr>
                         <tr><td style="padding-top:24px">

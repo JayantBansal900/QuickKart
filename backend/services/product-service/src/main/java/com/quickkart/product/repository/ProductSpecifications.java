@@ -47,9 +47,10 @@ public final class ProductSpecifications {
             String nullsLastField = criteria.nullsLastDescField();
             boolean isCountQuery = Long.class.equals(query.getResultType()) || long.class.equals(query.getResultType());
             if (nullsLastField != null && !isCountQuery) {
-                query.orderBy(
-                        cb.desc(cb.coalesce(root.<Double>get(nullsLastField), -1.0)),
-                        cb.asc(root.get("id")));
+                var key = "reviewCount".equals(nullsLastField)
+                        ? cb.coalesce(root.<Integer>get(nullsLastField), -1)
+                        : cb.coalesce(root.<Double>get(nullsLastField), -1.0);
+                query.orderBy(cb.desc(key), cb.asc(root.get("id")));
             }
             // Discontinued products stay in the database (orders reference them) but leave the storefront.
             predicates.add(cb.or(cb.isNull(root.get("availability")), cb.notEqual(cb.upper(root.get("availability")), "DISCONTINUED")));
@@ -57,7 +58,7 @@ public final class ProductSpecifications {
         };
     }
 
-    static String escapeLike(String value) {
+    public static String escapeLike(String value) {
         return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 }

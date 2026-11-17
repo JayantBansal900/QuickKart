@@ -87,45 +87,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(PaymentNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handlePaymentNotFoundException(PaymentNotFoundException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                "Payment Not Found",
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-    }
 
-    @ExceptionHandler(InvalidPaymentMethodException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidPaymentMethodException(InvalidPaymentMethodException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Invalid Payment Method",
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
 
-    @ExceptionHandler(DuplicatePaymentException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicatePaymentException(DuplicatePaymentException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                "Duplicate Payment",
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
-    }
 
-    @ExceptionHandler(UnauthorizedPaymentAccessException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedPaymentAccessException(UnauthorizedPaymentAccessException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.FORBIDDEN.value(),
-                "Forbidden",
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {

@@ -33,6 +33,16 @@ public class OrderController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    /** Simulated payment gateway: {"outcome":"SUCCESS"} or {"outcome":"FAILURE"} (test mode, no card data). */
+    @PostMapping("/{id}/pay")
+    public ResponseEntity<OrderResponse> pay(Authentication authentication,@PathVariable Long id,
+                                             @RequestBody(required=false) java.util.Map<String,String> body) {
+        String outcome=body==null ? "SUCCESS" : body.getOrDefault("outcome","SUCCESS");
+        if(!"SUCCESS".equalsIgnoreCase(outcome) && !"FAILURE".equalsIgnoreCase(outcome))
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.BAD_REQUEST,"outcome must be SUCCESS or FAILURE");
+        return ResponseEntity.ok(orderService.pay(authentication.getName(),id,"SUCCESS".equalsIgnoreCase(outcome)));
+    }
+
     @PostMapping("/{id}/cancel")
     public ResponseEntity<OrderResponse> cancel(Authentication authentication,@PathVariable Long id) {
         return ResponseEntity.ok(orderService.cancelOrder(authentication.getName(),id));

@@ -87,7 +87,7 @@ class SecurityFilterIntegrationTest {
     }
 
     @Test
-    void kafkaEndpointsShouldRejectRegularUser() throws Exception {
+    void removedKafkaDevEndpointsAreGone() throws Exception {
         User user = new User( "KafkaTester", "kafka-tester@example.com", "secret", "USER");
         user.setEmailVerified(true); user.setAccountStatus("ACTIVE");
         userRepository.saveAndFlush(user);
@@ -95,12 +95,12 @@ class SecurityFilterIntegrationTest {
 
         mockMvc.perform(get("/api/kafka/status")
                         .header("Authorization", "Bearer " + userToken))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isNotFound());
 
         mockMvc.perform(post("/api/kafka/publish-test")
                         .header("Authorization", "Bearer " + userToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"orderId\":202,\"userId\":10,\"totalAmount\":129.50}"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isNotFound());
     }
 }

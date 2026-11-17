@@ -13,7 +13,7 @@ services:
     container_name: quickkart-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-quickkart}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -30,16 +30,42 @@ services:
     networks:
       - quickkart-net
 
+  # Applies infrastructure/postgres/migrations (Flyway) before any service starts, then exits.
+  # Databases created by the init script (or older ones) are baselined at V5, so only V6+ runs on them.
+  db-migrate:
+    image: flyway/flyway:10.17.0
+    container_name: quickkart-db-migrate
+    command: >-
+      -url=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-quickkart}
+      -user=${POSTGRES_USER:-postgres}
+      -locations=filesystem:/flyway/sql
+      -baselineOnMigrate=true -baselineVersion=5
+      -connectRetries=10
+      migrate
+    environment:
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - ./infrastructure/postgres/migrations:/flyway/sql:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - quickkart-net
+
   redis:
     image: redis:7-alpine
     container_name: quickkart-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD to a random value (see .env.example)}
+    # The password is read from the environment inside the container, so it never appears in `ps` output of the host.
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\""]
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep PONG"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -52,7 +78,7 @@ services:
     container_name: quickkart-kafka
     restart: unless-stopped
     ports:
-      - "9092:9092"
+      - "127.0.0.1:9092:9092"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -83,7 +109,7 @@ services:
     container_name: quickkart-monolith
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - "127.0.0.1:8081:8081"
     environment:
       OTP_HASH_SECRET: ${OTP_HASH_SECRET:?Set OTP_HASH_SECRET to a separate random Base64 key of at least 32 bytes}
       DEV_ADMIN_ENABLED: ${DEV_ADMIN_ENABLED:-false}
@@ -101,7 +127,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       KAFKA_EMBEDDED_ENABLED: "false"
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET to a random Base64 key of at least 32 bytes}
@@ -111,6 +137,8 @@ services:
       PRODUCT_SERVICE_URL: http://product-service:8082
       ORDER_SERVICE_URL: http://order-service:8083
     depends_on:
+      db-migrate:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       redis:
@@ -133,7 +161,7 @@ services:
     container_name: quickkart-product-service
     restart: unless-stopped
     ports:
-      - "8082:8082"
+      - "127.0.0.1:8082:8082"
     environment:
       APP_UPLOADS_DIR: /app/uploads
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-quickkart}
@@ -141,7 +169,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET to a random Base64 key of at least 32 bytes}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       DEV_PRODUCTS_ENABLED: ${DEV_PRODUCTS_ENABLED:-true}
@@ -150,6 +178,8 @@ services:
     volumes:
       - product_uploads:/app/uploads
     depends_on:
+      db-migrate:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       redis:
@@ -170,7 +200,7 @@ services:
     container_name: quickkart-order-service
     restart: unless-stopped
     ports:
-      - "8083:8083"
+      - "127.0.0.1:8083:8083"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-quickkart}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
@@ -182,6 +212,8 @@ services:
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
       KAFKA_EMBEDDED_ENABLED: "false"
     depends_on:
+      db-migrate:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       kafka:

@@ -10,4 +10,6 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> 
     List<OutboxEvent> findTop50ByPublishedAtIsNullOrderByIdAsc();
 
     long countByPublishedAtIsNull();
+
+    boolean existsByEventId(String eventId);
 }

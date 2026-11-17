@@ -1,7 +1,7 @@
 package com.quickkart.order.dto;
 import jakarta.validation.constraints.*;
 public class CheckoutRequest {
-    @NotBlank @Pattern(regexp="COD") private String paymentMethod;
+    @NotBlank @Pattern(regexp="COD|UPI|CARD") private String paymentMethod;
     @NotBlank @Size(max=80) private String idempotencyKey;
     @NotBlank @Size(max=64) private String cartFingerprint;
     @NotBlank @Size(max=120) private String recipientName;

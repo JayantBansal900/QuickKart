@@ -19,7 +19,29 @@ import {
   PageResponse,
   ProductSearchQuery,
   CategoryCount,
+  Category,
+  CategoryRequest,
+  Review,
+  ReviewEligibility,
+  StockMovement,
+  AnalyticsInsights,
 } from '../types';
+
+/** Builds "?a=1&b=2" from the defined, non-empty values. */
+function queryString(params: Record<string, string | number | undefined | null>): string {
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') qs.set(key, String(value));
+  }
+  const text = qs.toString();
+  return text ? `?${text}` : '';
+}
+
+export interface AdminPageQuery {
+  q?: string;
+  page?: number;
+  size?: number;
+}
 
 import { API_BASE_URL, apiFetch, handleResponse, TOKEN_KEY } from './http';
 function getAuthHeaders(): HeadersInit {
@@ -117,12 +139,12 @@ export const api = {
 
   // ─── Admin User Management API ───────────────────────────────────────────────
 
-  async getAdminUsers(): Promise<UserAdminResponse[]> {
-    const res = await apiFetch(`${API_BASE_URL}/admin/users`, {
+  /** Paged, newest first. */
+  async getAdminUsers(query: AdminPageQuery & { role?: string; status?: string } = {}): Promise<PageResponse<UserAdminResponse>> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/users${queryString({ ...query })}`, {
       headers: getAuthHeaders(),
     });
-    const data = await handleResponse<unknown>(res);
-    return Array.isArray(data) ? data : [];
+    return handleResponse<PageResponse<UserAdminResponse>>(res);
   },
 
   async getAdminUserById(id: number): Promise<UserAdminResponse> {
@@ -148,6 +170,82 @@ export const api = {
       headers: getAuthHeaders(),
     });
     return handleResponse<AdminAnalyticsResponse>(res);
+  },
+
+  async getAnalyticsInsights(days = 30): Promise<AnalyticsInsights> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/analytics/insights?days=${days}`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse<AnalyticsInsights>(res);
+  },
+
+  // ─── Categories ──────────────────────────────────────────────────────────────
+
+  /** Active categories for the storefront, in display order, with product counts. */
+  async getCategories(): Promise<Category[]> {
+    const res = await apiFetch(`${API_BASE_URL}/categories`);
+    const data = await handleResponse<unknown>(res);
+    return Array.isArray(data) ? data : [];
+  },
+
+  async getAdminCategories(): Promise<Category[]> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/categories`, { headers: getAuthHeaders() });
+    const data = await handleResponse<unknown>(res);
+    return Array.isArray(data) ? data : [];
+  },
+
+  async createCategory(request: CategoryRequest): Promise<Category> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/categories`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(request),
+    });
+    return handleResponse<Category>(res);
+  },
+
+  async updateCategory(id: number, request: CategoryRequest): Promise<Category> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/categories/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(request),
+    });
+    return handleResponse<Category>(res);
+  },
+
+  async deleteCategory(id: number): Promise<void> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/categories/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+    return handleResponse<void>(res);
+  },
+
+  // ─── Reviews ─────────────────────────────────────────────────────────────────
+
+  async getReviews(productId: number, page = 0, size = 5): Promise<PageResponse<Review>> {
+    const res = await apiFetch(`${API_BASE_URL}/products/${productId}/reviews?page=${page}&size=${size}`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse<PageResponse<Review>>(res);
+  },
+
+  async getReviewEligibility(productId: number): Promise<ReviewEligibility> {
+    const res = await apiFetch(`${API_BASE_URL}/products/${productId}/reviews/eligibility`, { headers: getAuthHeaders() });
+    return handleResponse<ReviewEligibility>(res);
+  },
+
+  async saveReview(productId: number, review: { rating: number; title?: string; comment?: string }): Promise<Review> {
+    const res = await apiFetch(`${API_BASE_URL}/products/${productId}/reviews`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(review),
+    });
+    return handleResponse<Review>(res);
+  },
+
+  async deleteReview(productId: number, reviewId: number): Promise<void> {
+    const res = await apiFetch(`${API_BASE_URL}/products/${productId}/reviews/${reviewId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse<void>(res);
   },
 
   // ─── Admin System Status API ─────────────────────────────────────────────────
@@ -197,13 +295,21 @@ export const api = {
     return Array.isArray(data) ? data : [];
   },
 
-  /** Full catalog for admin screens (admin-only endpoint; the public one is paginated). */
-  async getProducts(): Promise<Product[]> {
-    const res = await apiFetch(`${API_BASE_URL}/admin/products`, {
+  /** Admin catalog page (includes discontinued). stock: ALL | LOW | OUT; sort: newest | stock. */
+  async getAdminProducts(
+    query: AdminPageQuery & { category?: string; stock?: 'ALL' | 'LOW' | 'OUT'; sort?: 'newest' | 'stock' } = {},
+  ): Promise<PageResponse<Product>> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/products${queryString({ ...query })}`, {
       headers: getAuthHeaders(),
     });
-    const data = await handleResponse<unknown>(res);
-    return Array.isArray(data) ? data : [];
+    return handleResponse<PageResponse<Product>>(res);
+  },
+
+  async getStockMovements(productId: number, page = 0, size = 10): Promise<PageResponse<StockMovement>> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/products/${productId}/stock-movements?page=${page}&size=${size}`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse<PageResponse<StockMovement>>(res);
   },
 
   async getProductById(id: number): Promise<Product> {
@@ -307,6 +413,16 @@ export const api = {
     return handleResponse<OrderResponse>(res);
   },
 
+  /** Simulated payment gateway (test mode): no card data is sent, the outcome is chosen by the caller. */
+  async payOrder(id: number, outcome: 'SUCCESS' | 'FAILURE' = 'SUCCESS'): Promise<OrderResponse> {
+    const res = await apiFetch(`${API_BASE_URL}/orders/${id}/pay`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ outcome }),
+    });
+    return handleResponse<OrderResponse>(res);
+  },
+
   async cancelOrder(id: number): Promise<OrderResponse> {
     const response = await apiFetch(`${API_BASE_URL}/orders/${id}/cancel`, {method:'POST',headers:getAuthHeaders()});
     return handleResponse<OrderResponse>(response);
@@ -327,12 +443,12 @@ export const api = {
     return handleResponse<OrderResponse>(res);
   },
 
-  async getAllAdminOrders(): Promise<OrderResponse[]> {
-    const res = await apiFetch(`${API_BASE_URL}/admin/orders`, {
+  /** Paged, newest first; q matches order #, customer email or recipient. */
+  async getAdminOrders(query: AdminPageQuery & { status?: string } = {}): Promise<PageResponse<OrderResponse>> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/orders${queryString({ ...query })}`, {
       headers: getAuthHeaders(),
     });
-    const data = await handleResponse<unknown>(res);
-    return Array.isArray(data) ? data : (data && typeof data === 'object' && 'content' in data && Array.isArray(data.content) ? data.content : []);
+    return handleResponse<PageResponse<OrderResponse>>(res);
   },
 
   async updateOrderStatus(id: number, request: UpdateOrderStatusRequest): Promise<OrderResponse> {

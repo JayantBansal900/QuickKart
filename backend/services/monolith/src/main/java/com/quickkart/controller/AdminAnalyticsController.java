@@ -24,9 +24,13 @@ public class AdminAnalyticsController {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
 
+    private final com.quickkart.service.AnalyticsService analyticsService;
+
     public AdminAnalyticsController(ProductRepository productRepository,
                                     OrderRepository orderRepository,
-                                    UserRepository userRepository) {
+                                    UserRepository userRepository,
+                                    com.quickkart.service.AnalyticsService analyticsService) {
+        this.analyticsService = analyticsService;
         this.productRepository = productRepository;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
@@ -40,11 +44,11 @@ public class AdminAnalyticsController {
         long outOfStockCount = productRepository.countByStockQuantityLessThanEqual(0);
 
         long totalOrders = orderRepository.count();
-        // Booked revenue = value of all non-cancelled orders (includes COD not yet collected).
+        // Booked revenue = all placed orders that are not cancelled (COD not yet collected included, unpaid online orders excluded).
         BigDecimal totalRevenue = orderRepository.calculateTotalRevenue();
         BigDecimal collectedRevenue = orderRepository.calculateCollectedRevenue();
-        // Checkout creates CONFIRMED orders, so "pending" means "awaiting fulfilment", not just PENDING.
-        long pendingOrdersCount = orderRepository.countByStatusIn(List.of("PENDING", "CONFIRMED", "PROCESSING"));
+        // "Pending" = placed but not yet shipped (awaiting fulfilment).
+        long pendingOrdersCount = orderRepository.countByStatusIn(List.of("PLACED", "CONFIRMED", "PROCESSING"));
 
         long totalUsers = userRepository.count();
         long verifiedUsersCount = userRepository.countByEmailVerifiedTrue();
@@ -62,5 +66,12 @@ public class AdminAnalyticsController {
 
         response.setCollectedRevenue(collectedRevenue != null ? collectedRevenue : BigDecimal.ZERO);
         return ResponseEntity.ok(response);
+    }
+
+    /** Revenue and orders per day, registrations, best sellers and category performance for the last {@code days} days (7-365). */
+    @GetMapping("/insights")
+    public ResponseEntity<com.quickkart.dto.AnalyticsInsights> insights(
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "30") int days) {
+        return ResponseEntity.ok(analyticsService.insights(days));
     }
 }

@@ -25,12 +25,14 @@ class ProductSearchCacheTest {
     @Autowired ProductService service;
     @Autowired ProductRepository products;
     @Autowired CacheManager cacheManager;
+    @Autowired com.quickkart.product.repository.CategoryRepository categories;
 
     private static final String CAT = "CACHETEST";
     private Product product;
 
     @BeforeEach
     void setUp() {
+        if (categories.findByNameIgnoreCase(CAT).isEmpty()) categories.save(new com.quickkart.product.entity.Category(CAT, null, null, 999));
         products.deleteAll(products.findAll().stream().filter(p -> CAT.equals(p.getCategory())).toList());
         product = products.saveAndFlush(new Product("Cache Kettle", "d", new BigDecimal("50.00"), 10, CAT));
         cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
