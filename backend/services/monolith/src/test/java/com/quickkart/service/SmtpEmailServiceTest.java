@@ -32,12 +32,12 @@ class SmtpEmailServiceTest {
         when(sender.createMimeMessage()).thenAnswer(i -> new MimeMessage(Session.getInstance(new Properties())));
         var service = new SmtpEmailService(sender, "noreply@example.invalid", smtpEnv());
 
-        service.sendVerificationOtp("asha@example.invalid", "<b>Asha</b>", "123456");
+        service.sendVerificationOtp("asha@mail.quickkart-demo.in", "<b>Asha</b>", "123456");
 
         ArgumentCaptor<MimeMessage> captor = ArgumentCaptor.forClass(MimeMessage.class);
         verify(sender).send(captor.capture());
         MimeMessage sent = captor.getValue();
-        assertEquals("asha@example.invalid", sent.getAllRecipients()[0].toString());
+        assertEquals("asha@mail.quickkart-demo.in", sent.getAllRecipients()[0].toString());
         assertTrue(sent.getSubject().contains("123456"));
         assertTrue(sent.getContent() instanceof MimeMultipart);
 
@@ -50,6 +50,34 @@ class SmtpEmailServiceTest {
         String html = SmtpEmailService.html("<b>Asha</b>", "123456");
         assertFalse(html.contains("<b>Asha</b>"), "user-supplied name must be HTML-escaped");
         assertTrue(html.contains("&lt;b&gt;Asha&lt;/b&gt;"));
+    }
+
+    @Test
+    void neverSendsToReservedTestDomains() {
+        JavaMailSender sender = mock(JavaMailSender.class);
+        var service = new SmtpEmailService(sender, "noreply@example.invalid", smtpEnv());
+        for (String to : new String[]{"a@example.invalid", "b@shop.test", "c@example.com", "d@sub.example.org", "e@localhost"})
+            service.sendVerificationOtp(to, "Test", "123456");
+        verifyNoInteractions(sender);
+        assertFalse(SmtpEmailService.isReservedRecipient("real.person@gmail.com"));
+        assertFalse(SmtpEmailService.isReservedRecipient("someone@myexample.com"));
+    }
+
+    @Test
+    void orderConfirmationListsItemsAndTotal() throws Exception {
+        JavaMailSender sender = mock(JavaMailSender.class);
+        when(sender.createMimeMessage()).thenAnswer(i -> new MimeMessage(Session.getInstance(new Properties())));
+        new SmtpEmailService(sender, "noreply@example.invalid", smtpEnv()).sendOrderConfirmation(
+                "asha@mail.quickkart-demo.in", "Asha", 42L, new java.math.BigDecimal("1598.00"),
+                java.util.List.of(new com.quickkart.dto.OrderItemSummary(1L, "Ceramic <Mug>", 2, new java.math.BigDecimal("799.00"))));
+        ArgumentCaptor<MimeMessage> captor = ArgumentCaptor.forClass(MimeMessage.class);
+        verify(sender).send(captor.capture());
+        assertEquals("Order #42 confirmed", captor.getValue().getSubject());
+        ByteArrayOutputStream raw = new ByteArrayOutputStream();
+        captor.getValue().writeTo(raw);
+        String body = raw.toString(java.nio.charset.StandardCharsets.UTF_8);
+        assertTrue(body.contains("1,598"), "total is shown");
+        assertTrue(body.contains("Ceramic &lt;Mug&gt;"), "product names are HTML-escaped");
     }
 
     @Test

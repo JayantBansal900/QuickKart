@@ -13,4 +13,8 @@ public interface EmailService {
 
     /** Sends the one-time code for resetting a forgotten password. */
     void sendPasswordResetOtp(String toEmail, String userName, String otp);
+
+    /** Order confirmation, sent by the Kafka notification consumer after checkout. */
+    void sendOrderConfirmation(String toEmail, String userName, Long orderId, java.math.BigDecimal total,
+                               java.util.List<com.quickkart.dto.OrderItemSummary> items);
 }

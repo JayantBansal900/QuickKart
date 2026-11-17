@@ -42,4 +42,11 @@ public class ConsoleEmailService implements EmailService {
                 ================================================================================
                 """, toEmail, userName, otp);
     }
+
+    @Override
+    public void sendOrderConfirmation(String toEmail, String userName, Long orderId, java.math.BigDecimal total,
+                                      java.util.List<com.quickkart.dto.OrderItemSummary> items) {
+        log.info("[QUICKKART NOTIFICATION SERVICE - EMAIL DISPATCH] To: {} | Subject: Order #{} confirmed | {} item(s), total {}",
+                toEmail, orderId, items == null ? 0 : items.size(), total);
+    }
 }

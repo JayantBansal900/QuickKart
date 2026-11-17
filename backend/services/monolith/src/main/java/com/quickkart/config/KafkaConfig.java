@@ -21,6 +21,7 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -63,6 +64,15 @@ public class KafkaConfig {
                 .build();
     }
 
+    /** Dead-letter topic: records that still fail after retries are parked here for inspection/replay. */
+    @Bean
+    public NewTopic orderEventsDeadLetterTopic() {
+        return TopicBuilder.name(orderEventsTopic + ".DLT")
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
+
     @Bean
     public KafkaAdmin kafkaAdmin() {
         Map<String, Object> configs = new HashMap<>();
@@ -82,10 +92,30 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
-        configProps.put(ProducerConfig.RETRIES_CONFIG, 2);
-        configProps.put(ProducerConfig.ACKS_CONFIG, "1");
+        // Durable, duplicate-free publishing: wait for all in-sync replicas, and let the broker drop
+        // retried duplicates (idempotent producer).
+        configProps.put(ProducerConfig.ACKS_CONFIG, "all");
+        configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         configProps.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 3000);
         return new DefaultKafkaProducerFactory<>(configProps);
+    }
+
+    /**
+     * Template for the dead-letter recoverer. Values are either the deserialized event (JSON) or,
+     * for poison messages, the original raw bytes, so serialization is chosen by type.
+     */
+    private KafkaTemplate<Object, Object> deadLetterTemplate() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 3000);
+        org.apache.kafka.common.serialization.Serializer<Object> values =
+                new org.springframework.kafka.support.serializer.DelegatingByTypeSerializer(Map.of(
+                        byte[].class, new org.apache.kafka.common.serialization.ByteArraySerializer(),
+                        Object.class, new JsonSerializer<>()), true);
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        DefaultKafkaProducerFactory<Object, Object> factory = new DefaultKafkaProducerFactory<>(props,
+                (org.apache.kafka.common.serialization.Serializer) new StringSerializer(), values);
+        return new KafkaTemplate<>(factory);
     }
 
     @Bean
@@ -121,12 +151,14 @@ public class KafkaConfig {
         factory.setConsumerFactory(consumerFactory);
         factory.setAutoStartup(listenerAutoStartup);
 
-        // Error handling: Backoff 1 second, max 2 retry attempts, prevent infinite retry loops
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(
-                (record, exception) -> log.error("[Kafka Consumer Error Handler] Exhausted retries for record with key: {}. Error: {}",
-                        record.key(), exception.getMessage()),
-                new FixedBackOff(1000L, 2L)
-        );
+        // Retry a failing record 3 more times, 2 s apart (e.g. SMTP briefly down), then publish it to
+        // <topic>.DLT instead of blocking the partition forever. Records that can't even be
+        // deserialized are not retried — they go straight to the DLT.
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(deadLetterTemplate(),
+                (record, exception) -> new org.apache.kafka.common.TopicPartition(record.topic() + ".DLT", -1));
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, new FixedBackOff(2000L, 3L));
+        errorHandler.setRetryListeners((record, ex, attempt) ->
+                log.warn("Order event delivery attempt {} failed for key {}: {}", attempt, record.key(), ex.getClass().getSimpleName()));
         factory.setCommonErrorHandler(errorHandler);
 
         return factory;

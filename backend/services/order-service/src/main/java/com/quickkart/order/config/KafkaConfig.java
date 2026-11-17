@@ -82,8 +82,10 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
-        configProps.put(ProducerConfig.RETRIES_CONFIG, 2);
-        configProps.put(ProducerConfig.ACKS_CONFIG, "1");
+        // Durable, duplicate-free publishing: wait for all in-sync replicas; the idempotent producer
+        // lets the broker drop duplicates caused by its own retries.
+        configProps.put(ProducerConfig.ACKS_CONFIG, "all");
+        configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         configProps.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 3000);
         return new DefaultKafkaProducerFactory<>(configProps);
     }
@@ -93,41 +95,6 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory);
     }
 
-    @Bean
-    public ConsumerFactory<String, OrderCreatedEvent> consumerFactory() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
-        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, OrderCreatedEvent.class.getPackageName());
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, OrderCreatedEvent.class.getName());
-        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-
-        return new DefaultKafkaConsumerFactory<>(
-                props,
-                new StringDeserializer(),
-                new ErrorHandlingDeserializer<>(new JsonDeserializer<>(OrderCreatedEvent.class, false))
-        );
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, OrderCreatedEvent> kafkaListenerContainerFactory(
-            ConsumerFactory<String, OrderCreatedEvent> consumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<String, OrderCreatedEvent> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory);
-        factory.setAutoStartup(listenerAutoStartup);
-
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(
-                (record, exception) -> log.error("[Kafka Consumer Error Handler] Exhausted retries for record with key: {}. Error: {}",
-                        record.key(), exception.getMessage()),
-                new FixedBackOff(1000L, 2L)
-        );
-        factory.setCommonErrorHandler(errorHandler);
-
-        return factory;
-    }
+    // No consumers here: order-service only PUBLISHES order events (via the outbox relay).
+    // The monolith consumes them and sends the confirmation emails.
 }
