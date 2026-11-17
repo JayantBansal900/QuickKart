@@ -64,7 +64,31 @@ After changing one service, rebuild just that one:
 cd frontend && npm ci && npx vite
 ```
 
-Vite serves on :5173 and proxies `/api` and `/actuator` to the gateway on :8080, so the Docker backend must be running.
+Vite serves on :5173 and proxies `/api` and `/actuator` to the gateway on :8080, so the backend must be running (in Docker or as below). Use `npx vite`, not `npm run dev`: the `dev` script starts every service itself.
+
+### Each service in its own terminal (VS Code, Windows PowerShell)
+
+Useful when you are changing Java code and want to restart one service quickly. PostgreSQL, Redis and Kafka stay in Docker; the app services run on your machine. Stop the app containers first so the ports are free:
+
+```bash
+docker compose stop frontend api-gateway order-service product-service backend
+```
+
+```bash
+docker compose up -d --wait postgres redis kafka
+```
+
+Spring Boot does not read `.env`, so each Java terminal loads it first with `scripts/load-env.ps1`. Start them in this order and wait for `Started …Application` in each:
+
+| Terminal | Commands | Port |
+|---|---|---|
+| 1. monolith | `cd backend\services\monolith`<br>`. ..\..\..\scripts\load-env.ps1`<br>`mvn spring-boot:run` | 8081 |
+| 2. product-service | `cd backend\services\product-service`<br>`. ..\..\..\scripts\load-env.ps1`<br>`mvn spring-boot:run` | 8082 |
+| 3. order-service | `cd backend\services\order-service`<br>`. ..\..\..\scripts\load-env.ps1`<br>`mvn spring-boot:run` | 8083 |
+| 4. api-gateway | `cd backend\services\api-gateway`<br>`. ..\..\..\scripts\load-env.ps1`<br>`mvn spring-boot:run` | 8080 |
+| 5. frontend | `cd frontend`<br>`npx vite` | 5173 |
+
+Open http://localhost:5173. `Ctrl+C` stops a service; run `mvn spring-boot:run` again in that terminal to restart it with your changes. To go back to the all-Docker setup, stop the five terminals and run `docker compose up -d --wait`.
 
 ## 3. Database changes
 
