@@ -151,7 +151,7 @@ export function AuthPage() {
         <div className="relative">
           <h2 className="qk-display text-5xl">Shop smarter.<br /><em>Pay on delivery.</em></h2>
           <ul className="mt-8 space-y-3 text-sm opacity-80">
-            <li>✓ 535 products across 8 categories</li>
+            <li>✓ 144 hand-picked products across 8 categories</li>
             <li>✓ Cash on delivery on every order</li>
             <li>✓ Email-verified accounts</li>
           </ul>

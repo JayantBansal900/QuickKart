@@ -51,6 +51,8 @@ public final class ProductSpecifications {
                         cb.desc(cb.coalesce(root.<Double>get(nullsLastField), -1.0)),
                         cb.asc(root.get("id")));
             }
+            // Discontinued products stay in the database (orders reference them) but leave the storefront.
+            predicates.add(cb.or(cb.isNull(root.get("availability")), cb.notEqual(cb.upper(root.get("availability")), "DISCONTINUED")));
             return cb.and(predicates.toArray(Predicate[]::new));
         };
     }

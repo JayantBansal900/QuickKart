@@ -17,7 +17,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
 
     /** One GROUP BY query instead of loading every product just to count categories. */
     @Query("SELECT new com.quickkart.product.dto.CategoryCount(UPPER(p.category), COUNT(p)) "
-            + "FROM Product p WHERE p.category IS NOT NULL GROUP BY UPPER(p.category) ORDER BY UPPER(p.category)")
+            + "FROM Product p WHERE p.category IS NOT NULL "
+            + "AND (p.availability IS NULL OR UPPER(p.availability) <> 'DISCONTINUED') "
+            + "GROUP BY UPPER(p.category) ORDER BY UPPER(p.category)")
     List<com.quickkart.product.dto.CategoryCount> countByCategory();
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

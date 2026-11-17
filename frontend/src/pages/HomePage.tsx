@@ -336,7 +336,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
                 </button>
               </div>
               <dl className="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-line pt-6 text-sm">
-                <div><dt className="text-muted">Brands</dt><dd className="mt-1 text-lg font-semibold text-fg">300+</dd></div>
+                <div><dt className="text-muted">Brands</dt><dd className="mt-1 text-lg font-semibold text-fg">90+</dd></div>
                 <div><dt className="text-muted">Payment</dt><dd className="mt-1 text-lg font-semibold text-fg">On delivery</dd></div>
                 <div><dt className="text-muted">Returns</dt><dd className="mt-1 text-lg font-semibold text-fg">Easy cancel</dd></div>
               </dl>
