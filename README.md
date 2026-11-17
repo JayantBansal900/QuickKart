@@ -31,18 +31,18 @@ A full-stack e-commerce app: a React storefront and admin panel on top of Spring
 
 ```mermaid
 flowchart LR
-    B[Browser] -->|:3000| N[nginx<br/>React SPA]
-    N -->|/api| G[API Gateway :8080<br/>routing · CORS · correlation id]
-    G -->|/api/products/**<br/>/api/admin/products/**| P[Product service :8082<br/>catalog · search]
-    G -->|/api/cart/** /api/orders/**<br/>/api/admin/orders/**| O[Order service :8083<br/>cart · checkout · outbox]
-    G -->|/api/auth/** /api/admin/**<br/>everything else| M[Monolith :8081<br/>auth · users · admin · email]
-    P <--> R[(Redis<br/>catalog cache)]
-    P --> DB[(PostgreSQL)]
+    B["Browser"] -->|":3000"| N["nginx + React SPA"]
+    N -->|"/api"| G["API Gateway :8080<br/>routing, CORS, correlation id"]
+    G -->|"products"| P["Product service :8082<br/>catalog, search"]
+    G -->|"cart, orders"| O["Order service :8083<br/>cart, checkout, outbox"]
+    G -->|"auth, admin, rest"| M["Monolith :8081<br/>auth, users, admin, email"]
+    P <--> R[("Redis<br/>catalog cache")]
+    P --> DB[("PostgreSQL")]
     O --> DB
     M --> DB
-    O -->|outbox relay| K{{Kafka<br/>quickkart.order-events}}
-    K -->|consumer| M
-    M -->|SMTP| E[Email]
+    O -->|"outbox relay"| K{{"Kafka<br/>quickkart.order-events"}}
+    K -->|"consumer"| M
+    M -->|"SMTP"| E["Email"]
 ```
 
 All services share one PostgreSQL database, and each service owns its own tables and endpoints. More detail is in [docs/architecture.md](docs/architecture.md).
