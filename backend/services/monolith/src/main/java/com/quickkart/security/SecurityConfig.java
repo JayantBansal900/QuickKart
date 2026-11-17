@@ -53,14 +53,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/verify-otp", "/api/auth/resend-otp", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
 
                         // Protected developer endpoints (Kafka event testing requires authenticated JWT)
-                        .requestMatchers("/api/kafka/**").hasRole("ADMIN")
 
                         // Admin-only endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // Protected user endpoints (payments, user profile, auth/me). Catalog, cart and orders live in
                         // product-service and order-service; the gateway never routes them here.
-                        .requestMatchers("/api/payments", "/api/payments/**", "/api/auth/me", "/api/user/**").authenticated()
+                        .requestMatchers("/api/auth/me", "/api/user/**").authenticated()
 
                         // Any other requests require authentication
                         .anyRequest().authenticated()

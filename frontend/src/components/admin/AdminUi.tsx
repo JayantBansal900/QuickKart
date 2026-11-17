@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 
 /** Small presentational building blocks shared by every admin page. */
 
@@ -81,14 +81,20 @@ const INFO = "bg-accent-soft text-accent";
 const BADGE_TONES: Record<string, string> = {
   // order statuses
   PENDING: NEUTRAL,
+  PLACED: INFO,
   CONFIRMED: INFO,
   PROCESSING: WARN,
   SHIPPED: INFO,
+  OUT_FOR_DELIVERY: INFO,
   DELIVERED: GOOD,
   CANCELLED: BAD,
   // payment / account / health
   COLLECTED: GOOD,
   COLLECTION_PENDING: WARN,
+  PAID: GOOD,
+  FAILED: BAD,
+  REFUNDED: NEUTRAL,
+  MANUAL_REVIEW_REQUIRED: BAD,
   ACTIVE: GOOD,
   SUSPENDED: BAD,
   DISABLED: NEUTRAL,
@@ -155,3 +161,47 @@ export function formatDateTime(value?: string | null): string {
     ? value
     : date.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
 }
+
+/** Previous / next pager under an admin table. */
+export function Pager({
+  page,
+  totalPages,
+  totalElements,
+  onPage,
+  label = "results",
+}: {
+  page: number;
+  totalPages: number;
+  totalElements: number;
+  onPage: (page: number) => void;
+  label?: string;
+}) {
+  if (totalElements === 0) return null;
+  return (
+    <nav aria-label="Pagination" className="flex items-center justify-between gap-3 text-sm text-muted">
+      <span>
+        {totalElements} {label} · page {page + 1} of {Math.max(1, totalPages)}
+      </span>
+      <span className="flex gap-2">
+        <button type="button" disabled={page <= 0} onClick={() => onPage(page - 1)} className="qk-btn qk-btn-ghost h-9 px-3 text-xs disabled:opacity-40">
+          <ChevronLeft className="h-3.5 w-3.5" /> Previous
+        </button>
+        <button type="button" disabled={page + 1 >= totalPages} onClick={() => onPage(page + 1)} className="qk-btn qk-btn-ghost h-9 px-3 text-xs disabled:opacity-40">
+          Next <ChevronRight className="h-3.5 w-3.5" />
+        </button>
+      </span>
+    </nav>
+  );
+}
+
+/** Returns `value` once it has stopped changing for `delayMs` (one request per pause, not per keystroke). */
+export function useDebounced<T>(value: T, delayMs = 300): T {
+  const [debounced, setDebounced] = React.useState(value);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(timer);
+  }, [value, delayMs]);
+  return debounced;
+}
+
+export const PAGE_SIZE = 25;

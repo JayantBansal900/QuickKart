@@ -2,15 +2,19 @@
 // Creates two throwaway customers (e2e-*@example.invalid) and one COD order; restores the stock it uses.
 // Requires .env with DEV_ADMIN_EMAIL / DEV_ADMIN_PASSWORD and SPRING_PROFILES_ACTIVE=dev (OTP is read from logs).
 // Usage (from project root):  node scripts/e2e-smoke.mjs .
+// Another stack (e.g. a second Compose project on other ports): set QK_GATEWAY, QK_WEB,
+// QK_CONTAINER_PREFIX (default "quickkart") and QK_ENV_FILE.
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = process.argv[2];
-const GW = "http://localhost:8080/api";
-const WEB = "http://localhost:3000";
+const GATEWAY = process.env.QK_GATEWAY || "http://localhost:8080";
+const GW = `${GATEWAY}/api`;
+const WEB = process.env.QK_WEB || "http://localhost:3000";
+const PREFIX = process.env.QK_CONTAINER_PREFIX || "quickkart";
 const env = Object.fromEntries(
-  readFileSync(join(ROOT, ".env"), "utf8").split(/\r?\n/).filter((l) => l && !l.startsWith("#") && l.includes("="))
+  readFileSync(process.env.QK_ENV_FILE || join(ROOT, ".env"), "utf8").split(/\r?\n/).filter((l) => l && !l.startsWith("#") && l.includes("="))
     .map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]),
 );
 
@@ -37,12 +41,15 @@ async function call(method, path, { token, body, base = GW } = {}) {
   let json; try { json = text ? JSON.parse(text) : undefined; } catch { json = undefined; }
   return { status: res.status, json, text };
 }
-const docker = (...args) => execFileSync("docker", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+// REDISCLI_AUTH is passed through the environment, so the Redis password never appears in a command line.
+const docker = (...args) => execFileSync("docker", args, {
+  encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, REDISCLI_AUTH: env.REDIS_PASSWORD || "" },
+});
 const dockerLogs = (c, since = "10m") => { try { return execFileSync("docker", ["logs", "--since", since, c], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64e6 }); } catch (e) { return (e.stdout || "") + (e.stderr || ""); } };
-const redis = (...args) => docker("exec", "quickkart-redis", "redis-cli", ...args).trim();
+const redis = (...args) => docker("exec", "-e", "REDISCLI_AUTH", `${PREFIX}-redis`, "redis-cli", ...args).trim();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function otpFor(email) {
-  const logs = dockerLogs("quickkart-monolith");
+  const logs = dockerLogs(`${PREFIX}-monolith`);
   const re = new RegExp(`To: ${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[\\s\\S]*?Verification Code: (\\d{6})`, "g");
   let m, last = null; while ((m = re.exec(logs))) last = m[1];
   return last;
@@ -50,12 +57,15 @@ function otpFor(email) {
 const stamp = Date.now();
 
 // ---------- 1. Health & routing ----------
-const gwHealth = await call("GET", "/actuator/health", { base: "http://localhost:8080" });
+const gwHealth = await call("GET", "/actuator/health", { base: GATEWAY });
 check("gateway /actuator/health UP", gwHealth.json?.status === "UP", `status=${gwHealth.status}`);
 const bypass = await call("GET", "/order-service/actuator/health", { base: WEB });
 check("nginx no longer proxies /order-service/ (gateway bypass removed)", !bypass.text.includes('"status"'), `got ${bypass.status}, ${bypass.text.slice(0, 40).replace(/\s+/g, " ")}`);
 const spa = await call("GET", "/admin/login", { base: WEB });
 check("nginx serves SPA for /admin/login", spa.status === 200 && spa.text.includes("<div id=\"root\">"), `status=${spa.status}`);
+const headers = (await fetch(`${WEB}/`)).headers;
+check("nginx sends security headers (CSP, nosniff, frame deny)",
+  /script-src 'self'/.test(headers.get("content-security-policy") ?? "") && headers.get("x-content-type-options") === "nosniff" && headers.get("x-frame-options") === "DENY");
 
 // ---------- 2. Catalog search ----------
 const page0 = await call("GET", "/products");
@@ -106,7 +116,15 @@ check("system status: all components UP", sys.json?.overall === "UP",
   (sys.json?.components ?? []).map((c) => `${c.name}=${c.status}(${c.latencyMs}ms)`).join(", "));
 check("system status leaks no hosts/secrets", !/localhost|jdbc:|password|secret|:9092|:5432/i.test(sys.text));
 const users = await call("GET", "/admin/users", { token: A });
-check("admin users list has no password/otp fields", users.status === 200 && !/password|otp|hash/i.test(users.text), `${users.json?.length} users`);
+check("admin users list is paged and has no password/otp fields", users.status === 200 && Array.isArray(users.json?.content) && !/password|otp|hash/i.test(users.text), `${users.json?.totalElements} users`);
+const ordersPage = await call("GET", "/admin/orders?size=5", { token: A });
+check("admin order list is paged", ordersPage.status === 200 && ordersPage.json?.size === 5 && Array.isArray(ordersPage.json?.content), `${ordersPage.json?.totalElements} orders`);
+const lowStock = await call("GET", "/admin/products?stock=LOW&sort=stock", { token: A });
+check("admin product list filters low stock", lowStock.status === 200 && (lowStock.json?.content ?? []).every((p) => p.stockQuantity < 5), `${lowStock.json?.totalElements} low`);
+const categories = await call("GET", "/categories");
+check("public category list (admin-managed)", categories.status === 200 && categories.json?.length >= 8 && categories.json.every((c) => c.key && c.name && c.active), categories.json?.map((c) => c.name).join(", "));
+const insights = await call("GET", "/admin/analytics/insights?days=7", { token: A });
+check("analytics insights: one point per day", insights.status === 200 && insights.json?.daily?.length === 7, `revenue=${insights.json?.revenue}`);
 const selfSuspend = await call("PATCH", `/admin/users/${adminLogin.json?.id}/status`, { token: A, body: { status: "SUSPENDED" } });
 check("admin cannot suspend self → 409", selfSuspend.status === 409, `status=${selfSuspend.status}`);
 const analyticsBefore = await call("GET", "/admin/analytics", { token: A });
@@ -126,6 +144,8 @@ const minus = await call("PATCH", `/admin/products/${target.id}/stock`, { token:
 check("admin stock -1 (restore)", minus.json?.stockQuantity === target.stockQuantity);
 const neg = await call("PATCH", `/admin/products/${target.id}/stock`, { token: A, body: { adjustment: -(target.stockQuantity + 5) } });
 check("stock cannot go negative → 400", neg.status === 400, `status=${neg.status}`);
+const moves = await call("GET", `/admin/products/${target.id}/stock-movements?size=2`, { token: A });
+check("stock history records both adjustments", moves.json?.content?.[0]?.change === -1 && moves.json?.content?.[1]?.change === 1, JSON.stringify(moves.json?.content?.map((m) => m.reason)));
 
 // ---------- 4b. Admin product with photo upload ----------
 const created = await call("POST", "/admin/products", { token: A, body: { name: `E2E Photo Product ${stamp}`, description: "temporary", price: 499, stockQuantity: 3, category: "Accessories", sku: `E2E-PHOTO-${stamp}` } });
@@ -140,12 +160,12 @@ async function upload(bytes, name, type, token = A) {
 }
 const up = await upload(PNG, "photo.png", "image/png");
 check("admin uploads a product photo", up.status === 200 && /^\/api\/products\/images\/[0-9a-f-]{36}\.png$/.test(up.json?.imageUrl ?? ""), `status=${up.status} ${up.json?.imageUrl}`);
-const img = await fetch(`http://localhost:8080${up.json?.imageUrl}`);
+const img = await fetch(`${GATEWAY}${up.json?.imageUrl}`);
 check("uploaded photo is served publicly as image/png", img.status === 200 && img.headers.get("content-type") === "image/png", `status=${img.status}`);
 const fake = await upload(new TextEncoder().encode("<html>not an image</html>"), "evil.jpg", "image/jpeg");
 check("a non-image renamed to .jpg is rejected", fake.status === 400, `status=${fake.status}`);
 const del = await call("DELETE", `/admin/products/${created.json?.id}`, { token: A });
-const gone = await fetch(`http://localhost:8080${up.json?.imageUrl}`);
+const gone = await fetch(`${GATEWAY}${up.json?.imageUrl}`);
 check("deleting the product removes its photo", del.status === 204 && gone.status === 404, `delete=${del.status} image=${gone.status}`);
 
 // ---------- 5. Registration + OTP ----------
@@ -188,7 +208,7 @@ const checkout = await call("POST", "/orders/checkout", {
   body: { paymentMethod: "COD", idempotencyKey: `e2e-${stamp}`, cartFingerprint: cart.json?.fingerprint,
     recipientName: "E2E Customer", deliveryAddress: "221B Test Street, Test City", deliveryPhone: "9876543210" },
 });
-check("COD checkout creates order", checkout.status === 201 && checkout.json?.paymentStatus === "COLLECTION_PENDING", `status=${checkout.status} ${checkout.text.slice(0, 100)}`);
+check("COD checkout creates a PLACED order", checkout.status === 201 && checkout.json?.status === "PLACED" && checkout.json?.paymentStatus === "COLLECTION_PENDING", `status=${checkout.status} ${checkout.text.slice(0, 100)}`);
 const orderId = checkout.json?.id;
 const retry = await call("POST", "/orders/checkout", {
   token: C, body: { paymentMethod: "COD", idempotencyKey: `e2e-${stamp}`, cartFingerprint: cart.json?.fingerprint,
@@ -212,20 +232,66 @@ check("other customer cannot read this order (IDOR)", idor.status === 404, `stat
 let kafkaSeen = false;
 for (let i = 0; i < 30 && !kafkaSeen; i++) {
   await sleep(500);
-  kafkaSeen = new RegExp(`Order event ORDER_CREATED-${orderId} processed`).test(dockerLogs("quickkart-monolith", "2m"));
+  kafkaSeen = new RegExp(`Order event ORDER_CREATED-${orderId} processed`).test(dockerLogs(`${PREFIX}-monolith`, "2m"));
 }
 check("Kafka ORDER_CREATED event consumed (outbox → Kafka → consumer)", kafkaSeen, `order #${orderId}`);
 
 // Admin fulfils order → COD collected
-for (const s of ["PROCESSING", "SHIPPED", "DELIVERED"]) await call("PATCH", `/admin/orders/${orderId}/status`, { token: A, body: { status: s } });
+const skip = await call("PATCH", `/admin/orders/${orderId}/status`, { token: A, body: { status: "DELIVERED" } });
+check("status cannot skip steps → 409", skip.status === 409, `status=${skip.status}`);
+for (const s of ["CONFIRMED", "PROCESSING", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED"]) await call("PATCH", `/admin/orders/${orderId}/status`, { token: A, body: { status: s } });
 const delivered = (await call("GET", `/orders/${orderId}`, { token: C })).json;
 check("delivered order → payment COLLECTED", delivered?.status === "DELIVERED" && delivered?.paymentStatus === "COLLECTED", `${delivered?.status}/${delivered?.paymentStatus}`);
 const analyticsAfter = (await call("GET", "/admin/analytics", { token: A })).json;
 check("collectedRevenue increased by order total",
   Math.abs(Number(analyticsAfter.collectedRevenue) - Number(analyticsBefore.json.collectedRevenue) - Number(checkout.json?.totalAmount)) < 0.01,
   `${analyticsBefore.json.collectedRevenue} → ${analyticsAfter.collectedRevenue}`);
-const del = await call("DELETE", `/admin/products/${target.id}`, { token: A });
-check("deleting an ordered product → 409", del.status === 409, `status=${del.status}`);
+let deliveredEvent = false;
+for (let i = 0; i < 30 && !deliveredEvent; i++) {
+  await sleep(500);
+  deliveredEvent = new RegExp(`Order event ORDER_STATUS-${orderId}-DELIVERED processed`).test(dockerLogs(`${PREFIX}-monolith`, "2m"));
+}
+check("status-change event consumed (delivered email)", deliveredEvent);
+
+// Reviews: only after delivery; posting updates the product rating; the test review is removed again.
+const otherProduct = page0.json.content.find((p) => p.id !== target.id);
+const notBought = await call("POST", `/products/${otherProduct.id}/reviews`, { token: C, body: { rating: 5 } });
+check("cannot review a product you did not receive → 403", notBought.status === 403, `status=${notBought.status}`);
+const review = await call("POST", `/products/${target.id}/reviews`, { token: C, body: { rating: 5, comment: "E2E review" } });
+check("customer reviews a delivered product", review.status === 200 && review.json?.verifiedPurchase === true, `status=${review.status}`);
+const reviews = await call("GET", `/products/${target.id}/reviews`);
+check("review is public without the author's email", reviews.json?.content?.some((r) => r.id === review.json?.id) && !reviews.text.includes(email));
+const unreview = await call("DELETE", `/products/${target.id}/reviews/${review.json?.id}`, { token: C });
+check("customer deletes own review", unreview.status === 204, `status=${unreview.status}`);
+
+// Saved delivery address on the profile.
+const prof = await call("PUT", "/user/profile", { token: C, body: { name: "E2E Customer", savedAddress: "221B Test Street, Test City" } });
+check("profile saves a default delivery address", prof.status === 200 && prof.json?.savedAddress === "221B Test Street, Test City", `status=${prof.status}`);
+
+// ---------- Simulated online payment ----------
+await call("POST", "/cart/items", { token: C, body: { productId: target.id, quantity: 1 } });
+const cart2 = await call("GET", "/cart", { token: C });
+const online = await call("POST", "/orders/checkout", {
+  token: C,
+  body: { paymentMethod: "UPI", idempotencyKey: `e2e-upi-${stamp}`, cartFingerprint: cart2.json?.fingerprint,
+    recipientName: "E2E Customer", deliveryAddress: "221B Test Street, Test City", deliveryPhone: "9876543210" },
+});
+check("UPI checkout waits for payment", online.status === 201 && online.json?.status === "PENDING" && online.json?.payable === true, `${online.json?.status}/${online.json?.paymentStatus}`);
+const failedPay = await call("POST", `/orders/${online.json?.id}/pay`, { token: C, body: { outcome: "FAILURE" } });
+check("failed payment keeps the order payable", failedPay.json?.paymentStatus === "FAILED" && failedPay.json?.payable === true, failedPay.json?.paymentStatus);
+const paid = await call("POST", `/orders/${online.json?.id}/pay`, { token: C, body: { outcome: "SUCCESS" } });
+check("successful payment places the order", paid.json?.status === "PLACED" && paid.json?.paymentStatus === "PAID", `${paid.json?.status}/${paid.json?.paymentStatus}`);
+let paymentEvent = false;
+for (let i = 0; i < 30 && !paymentEvent; i++) {
+  await sleep(500);
+  paymentEvent = new RegExp(`Order event PAYMENT_SUCCEEDED-${online.json?.id} processed`).test(dockerLogs(`${PREFIX}-monolith`, "2m"));
+}
+check("PAYMENT_SUCCEEDED event consumed", paymentEvent);
+const refunded = await call("POST", `/orders/${online.json?.id}/cancel`, { token: C });
+check("cancelling a paid order refunds it", refunded.json?.status === "CANCELLED" && refunded.json?.paymentStatus === "REFUNDED", `${refunded.json?.status}/${refunded.json?.paymentStatus}`);
+
+const delOrdered = await call("DELETE", `/admin/products/${target.id}`, { token: A });
+check("deleting an ordered product → 409", delOrdered.status === 409, `status=${delOrdered.status}`);
 
 // Restore the stock consumed by the test order.
 await call("PATCH", `/admin/products/${target.id}/stock`, { token: A, body: { adjustment: 1 } });

@@ -79,6 +79,9 @@ export const Header: React.FC<HeaderProps> = ({
           <button type="button" onClick={() => onSelectView('store')} className={navItem(currentView === 'store')}>
             Shop
           </button>
+          <Link to="/categories" className={navItem(location.pathname === '/categories')}>
+            Categories
+          </Link>
           {isAuthenticated && (
             <button type="button" onClick={() => onSelectView('orders')} className={navItem(currentView === 'orders')}>
               Orders

@@ -1,62 +1,60 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Edit2, Plus, Search, Trash2 } from "lucide-react";
 import { api } from "../../services/api";
-import { Product, ProductRequest } from "../../types";
+import { Category, PageResponse, Product, ProductRequest } from "../../types";
 import { formatINR } from "../../utils/formatters";
 import { AdminProductModal } from "../../components/AdminProductModal";
+import { useConfirm } from "../../components/ConfirmDialog";
 import {
   AdminPageHeader,
   ErrorBanner,
   LoadingRow,
+  PAGE_SIZE,
+  Pager,
   StatusBadge,
   TableShell,
   errorMessage,
   tdClass,
   thClass,
+  useDebounced,
 } from "../../components/admin/AdminUi";
 
 export function AdminProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [result, setResult] = useState<PageResponse<Product> | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("ALL");
+  const [page, setPage] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
+  const [confirmDialog, confirm] = useConfirm();
+  const q = useDebounced(query.trim());
+
+  useEffect(() => setPage(0), [q, category]);
+
+  useEffect(() => {
+    api.getAdminCategories().then(setCategories).catch(() => setCategories([]));
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      setProducts(await api.getProducts());
+      setResult(await api.getAdminProducts({ q, category: category === "ALL" ? undefined : category, page, size: PAGE_SIZE }));
     } catch (err) {
       setError(errorMessage(err, "Failed to load products."));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [q, category, page]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  const categories = useMemo(
-    () => Array.from(new Set(products.map((p) => p.category).filter(Boolean) as string[])).sort(),
-    [products],
-  );
-
-  const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return products.filter(
-      (p) =>
-        (category === "ALL" || p.category === category) &&
-        (!q ||
-          p.name.toLowerCase().includes(q) ||
-          (p.brand ?? "").toLowerCase().includes(q) ||
-          (p.sku ?? "").toLowerCase().includes(q) ||
-          String(p.id) === q),
-    );
-  }, [products, query, category]);
+  const products = result?.content ?? [];
 
   const save = async (data: ProductRequest, photo: File | null) => {
     const saved = editing ? await api.updateProduct(editing.id, data) : await api.createProduct(data);
@@ -68,7 +66,13 @@ export function AdminProductsPage() {
   };
 
   const remove = async (product: Product) => {
-    if (!window.confirm(`Delete "${product.name}" (#${product.id})? This cannot be undone.`)) return;
+    const ok = await confirm({
+      title: `Delete "${product.name}"?`,
+      message: "This can't be undone. Products that appear in past orders can't be deleted: set them to Discontinued instead.",
+      confirmLabel: "Delete product",
+      danger: true,
+    });
+    if (!ok) return;
     setError(null);
     try {
       await api.deleteProduct(product.id);
@@ -81,9 +85,10 @@ export function AdminProductsPage() {
 
   return (
     <>
+      {confirmDialog}
       <AdminPageHeader
         title="Products"
-        subtitle={`${products.length} products in the catalog`}
+        subtitle={result ? `${result.totalElements} ${category === "ALL" && !q ? "products in the catalog" : "matching products"}` : "Loading…"}
         onRefresh={load}
         refreshing={loading}
         actions={
@@ -120,7 +125,7 @@ export function AdminProductsPage() {
         >
           <option value="ALL">All categories</option>
           {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c.id} value={c.name}>{c.name}</option>
           ))}
         </select>
       </div>
@@ -131,7 +136,7 @@ export function AdminProductsPage() {
             <th className={thClass}>Product</th>
             <th className={thClass}>Category</th>
             <th className={thClass}>Price</th>
-            <th className={thClass}>Discount</th>
+            <th className={thClass}>Rating</th>
             <th className={thClass}>Stock</th>
             <th className={thClass}>Availability</th>
             <th className={`${thClass} text-right`}>Actions</th>
@@ -140,27 +145,32 @@ export function AdminProductsPage() {
         <tbody>
           {loading && products.length === 0 ? (
             <LoadingRow colSpan={7} />
-          ) : visible.length === 0 ? (
+          ) : products.length === 0 ? (
             <LoadingRow colSpan={7} text="No products match your filters." />
           ) : (
-            visible.map((p) => (
+            products.map((p) => (
               <tr key={p.id} className="hover:bg-subtle">
                 <td className={tdClass}>
                   <div className="flex items-center gap-3">
                     {p.thumbnailUrl || p.imageUrl ? (
                       <img src={p.thumbnailUrl || p.imageUrl} alt="" className="h-12 w-12 flex-none rounded-xl bg-subtle object-cover" loading="lazy" />
                     ) : (
-                      <div className="h-9 w-9 flex-none rounded-md bg-subtle" />
+                      <div className="h-12 w-12 flex-none rounded-xl bg-subtle" />
                     )}
                     <div className="min-w-0">
                       <p className="truncate font-semibold">{p.name}</p>
-                      <p className="text-xs text-muted">#{p.id}{p.sku ? ` · ${p.sku}` : ""}</p>
+                      <p className="text-xs text-muted">#{p.id}{p.sku ? ` · ${p.sku}` : ""}{p.brand ? ` · ${p.brand}` : ""}</p>
                     </div>
                   </div>
                 </td>
                 <td className={tdClass}>{p.category || "—"}</td>
-                <td className={`${tdClass} font-semibold tabular-nums`}>{formatINR(p.price)}</td>
-                <td className={`${tdClass} tabular-nums`}>{p.discountPercentage ? `${p.discountPercentage}%` : "—"}</td>
+                <td className={`${tdClass} tabular-nums`}>
+                  <span className="font-semibold">{formatINR(p.price)}</span>
+                  {p.discountPercentage ? <span className="ml-1.5 text-xs text-success">−{Math.round(p.discountPercentage)}%</span> : null}
+                </td>
+                <td className={`${tdClass} tabular-nums text-xs`}>
+                  {p.rating ? `${p.rating.toFixed(1)} ★` : "—"} <span className="text-muted">({p.reviewCount ?? 0})</span>
+                </td>
                 <td className={`${tdClass} tabular-nums ${p.stockQuantity <= 0 ? "text-sale font-semibold" : p.stockQuantity < 5 ? "text-amber-700 dark:text-amber-400 font-semibold" : ""}`}>
                   {p.stockQuantity}
                 </td>
@@ -191,10 +201,14 @@ export function AdminProductsPage() {
           )}
         </tbody>
       </TableShell>
+      {result && (
+        <Pager page={result.page} totalPages={result.totalPages} totalElements={result.totalElements} onPage={setPage} label="products" />
+      )}
 
       <AdminProductModal
         isOpen={modalOpen}
         product={editing}
+        categories={categories.map((c) => c.name)}
         onClose={() => {
           setModalOpen(false);
           setEditing(null);

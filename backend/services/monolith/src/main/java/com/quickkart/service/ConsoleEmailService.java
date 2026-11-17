@@ -49,4 +49,9 @@ public class ConsoleEmailService implements EmailService {
         log.info("[QUICKKART NOTIFICATION SERVICE - EMAIL DISPATCH] To: {} | Subject: Order #{} confirmed | {} item(s), total {}",
                 toEmail, orderId, items == null ? 0 : items.size(), total);
     }
+
+    @Override
+    public void sendOrderUpdate(String toEmail, String userName, Long orderId, String subject, String headline, String message) {
+        log.info("[QUICKKART NOTIFICATION SERVICE - EMAIL DISPATCH] To: {} | Subject: {} | {}", toEmail, subject, headline);
+    }
 }

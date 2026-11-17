@@ -11,12 +11,13 @@ How to explain this project in an interview. Every answer here matches the code;
 > I focused on the problems real shops actually hit:
 > - **No overselling:** checkout uses row locks.
 > - **No duplicate orders:** checkout takes an idempotency key.
-> - **No lost events:** order events go through a transactional outbox to Kafka, and an idempotent consumer sends the confirmation email.
+> - **No lost events:** order, payment and status events go through a transactional outbox to Kafka, and an idempotent consumer sends the emails.
+> - **Payments that can fail:** online orders wait in `PENDING` until a (simulated) gateway confirms; failures can be retried and unpaid orders release their stock after 30 minutes.
 > - **Account security:** sign-up and password reset use emailed one-time codes, and a password reset revokes every old JWT.
 >
-> Catalog search is server-side with a Redis cache. I load-tested it: about 867 requests per second with the cache warm versus 317 without, p95 50 ms versus 105 ms. There are about 250 automated tests running in GitHub Actions.
+> Catalog search is server-side with a Redis cache. I load-tested it: about 914 requests per second with the cache warm versus 611 without on the 144-product catalog, and 867 versus 317 when it had 535 products: the cache matters more as the table grows. There are about 285 automated tests running in GitHub Actions.
 >
-> Payment is cash on delivery only; I didn't integrate a real payment gateway."
+> The payment gateway is simulated (test mode, no real provider), and it isn't deployed to the cloud."
 
 ## 2. Numbers to remember
 
@@ -24,9 +25,9 @@ How to explain this project in an interview. Every answer here matches the code;
 |---|---|
 | Services | gateway :8080, monolith :8081, product :8082, order :8083, plus PostgreSQL, Redis, Kafka, nginx |
 | Catalog | 144 products (18 per category) with photos, 8 categories |
-| Tests | 90 monolith + 42 order + 40 product + 7 gateway + 73 frontend = **252**, plus a 49-check end-to-end script |
-| Search, cache hit | 867 req/s, p95 35.6 ms (20 concurrent clients, local Docker) |
-| Search, cache miss | 317 req/s, p95 94.3 ms |
+| Tests | 98 monolith + 49 order + 48 product + 7 gateway + 83 frontend = **285**, plus a 73-check end-to-end script against the running stack |
+| Search, cache hit | 914 req/s, p95 39 ms (144 products, 20 concurrent clients, local Docker) |
+| Search, cache miss | 611 req/s, p95 57 ms (317 req/s with 535 products) |
 | Cache TTL | 60 s |
 | OTP | 6 digits, 5 min expiry, 5 attempts, HMAC-stored |
 | JWT | 24 h, re-checked against the DB on every request |
@@ -110,6 +111,15 @@ The frontend generates an idempotency key (UUID) once per checkout attempt.
 **Q: The price changed while the user was on the checkout screen.**
 The cart response includes a fingerprint: a hash of product IDs, quantities, prices and names. Checkout sends it back, and if the cart changed, the server refuses (`409`) and the UI asks the user to review again. Nobody pays a price they didn't see.
 
+**Q: How do online payments work?**
+The gateway is simulated, but the state machine is the real one. A UPI/card checkout reserves stock and creates the order in `PENDING` with a `PENDING` payment. `POST /orders/{id}/pay` plays the gateway callback:
+- **Success:** payment `PAID`, order `PLACED`, a `PAYMENT_SUCCEEDED` event goes through the outbox (the confirmation email). A duplicate callback returns the same order, because the handler checks "already PAID" first, under the order's row lock.
+- **Failure:** payment `FAILED`, the order stays payable, and the customer can retry from My Orders.
+- **Never paid:** a scheduled job cancels the order after 30 minutes and puts the stock back. It locks the order row too, so if a payment arrives at the same moment, exactly one of them wins.
+- **Cancelled after paying:** the payment becomes `REFUNDED`.
+
+With a real provider (Razorpay/Stripe test mode) only the callback changes: verify the provider's signature, then run the same transitions.
+
 **Q: What about Redis locks for stock?**
 I don't use them. The database row lock is the source of truth, so a separate Redis lock would only add a failure mode.
 
@@ -160,8 +170,10 @@ The product service builds a JPA `Specification` from the filters: text query, c
 A `CacheErrorHandler` logs the error and the request goes straight to PostgreSQL. The site gets slower but keeps working. Also, cache deserialization only allows known DTO and JDK types, so a poisoned cache entry can't make Jackson instantiate an arbitrary class.
 
 **Q: Measured impact?**
-- Throughput: 867 vs 317 requests per second (median of three runs).
-- p95 latency: 35.6 ms vs 94.3 ms.
+- 535 products: 867 vs 317 requests per second, p95 35.6 ms vs 94.3 ms (median of three runs).
+- 144 products today: 914 vs 611 requests per second, p95 39 ms vs 57 ms (median of four runs).
+
+The gap shrank because the uncached query got cheaper on a smaller table. That's the honest point: the cache's value grows with the catalog.
 
 Same query, 20 concurrent clients, on my laptop's Docker. I'd call those comparison numbers, not production capacity.
 
@@ -195,14 +207,30 @@ All jobs pass on `main`.
 
 ---
 
+### 4.8 Reviews, stock history, analytics, migrations
+
+**Q: How do you stop fake reviews?**
+Only a customer with a `DELIVERED` order containing the product can review it ("verified purchase"), and a unique key on `(product_id, user_id)` allows one review each; posting again edits it. Reviews show "Priya S.", never the email. The product's `rating` and `reviewCount` are a running average updated under the product's row lock in the same transaction, so two reviews at once can't lose an update.
+
+**Q: How would you find out why stock is wrong?**
+Every change writes a `stock_movements` row in the same transaction as the change: checkout (−n, "Order #41"), cancellation (+n), admin restock/correction, edits in the product form. The admin Inventory page shows the history per product, with who did it.
+
+**Q: How is the analytics page computed?**
+A few `GROUP BY` queries in PostgreSQL (revenue and orders per day, sign-ups per day, top products, revenue per category, status and payment mix), one round trip each, then missing days filled with zeros in Java so the chart has a point per day. "Revenue" means placed orders that weren't cancelled; unpaid online orders are left out.
+
+**Q: How do schema changes reach the database?**
+Flyway migrations in a one-shot `db-migrate` container that runs before the services (Compose `service_completed_successfully`). Existing databases were baselined at V5, so only new migrations run on them. In `prod`, Hibernate only validates the schema.
+
+**Q: The JWT is in localStorage. Isn't that an XSS risk?**
+Yes, that's the trade-off. The mitigation is a strict Content-Security-Policy from nginx: scripts only from our own origin and no inline scripts (I moved the theme pre-paint script into a file for this), so an injected `<script>` can't run. React also escapes output by default. The next step would be an httpOnly, SameSite cookie plus CSRF protection.
+
 ## 5. Weaknesses — say these before they ask
 
 | Weakness | What I'd do next |
 |---|---|
-| Payment is COD only | Razorpay or Stripe in test mode: create the order, verify the signature in a webhook, then mark the payment. |
+| Payment gateway is simulated | Razorpay or Stripe in test mode: create the provider order, verify the webhook signature, then run the same `PENDING → PAID` transition. |
 | Shared database | Separate databases per service, with stock reservation done through an API or a saga. |
 | Not deployed | Docker images are ready. Next: ECS or a small VM, managed PostgreSQL/Redis, secrets in a secret manager. |
-| Migrations applied by hand | Flyway, so every environment applies them automatically and in order. |
 | `LIKE` search | PostgreSQL full-text search (`tsvector` + GIN index), or OpenSearch for a large catalog. |
 | No metrics dashboard | Micrometer → Prometheus → Grafana, including outbox lag and consumer lag. |
 

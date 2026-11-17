@@ -57,8 +57,6 @@ public class IsolatedDatabaseContextCustomizerFactory implements ContextCustomiz
             context.addBeanFactoryPostProcessor(factory -> {
                 if (!factory.containsSingleton("smtpEmailService")) factory.registerSingleton("smtpEmailService",
                     org.mockito.Mockito.mock(com.quickkart.service.EmailService.class));
-                if (!embeddedKafka && !factory.containsSingleton("orderEventProducer")) factory.registerSingleton("orderEventProducer",
-                    org.mockito.Mockito.mock(com.quickkart.producer.OrderEventProducer.class));
                 if (!context.getEnvironment().getRequiredProperty("spring.datasource.url").equals(url) ||
                     !context.getEnvironment().getRequiredProperty("spring.datasource.hikari.jdbc-url").equals(url))
                     throw new IllegalStateException("Tests may only use their generated disposable database");

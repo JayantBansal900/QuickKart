@@ -41,9 +41,70 @@ public class ProductService {
      *  - Every write made through THIS service evicts both caches immediately.
      */
     private final ProductRepository productRepository;
+    private final com.quickkart.product.repository.StockMovementRepository stockMovements;
+    private final com.quickkart.product.repository.CategoryRepository categoryRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository,
+                          com.quickkart.product.repository.StockMovementRepository stockMovements,
+                          com.quickkart.product.repository.CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.stockMovements = stockMovements;
+        this.categoryRepository = categoryRepository;
+    }
+
+    /** Admin catalog: every product (including discontinued), searchable, filterable by category and stock level. */
+    @Transactional(readOnly = true)
+    public PageResponse<ProductResponse> searchForAdmin(String q, String category, String stock, String sort, int page, int size) {
+        String query = q == null ? "" : q.trim().toLowerCase(java.util.Locale.ROOT);
+        String cat = category == null || category.isBlank() || "ALL".equalsIgnoreCase(category) ? null : category.trim().toUpperCase(java.util.Locale.ROOT);
+        String level = stock == null ? "ALL" : stock.trim().toUpperCase(java.util.Locale.ROOT);
+        org.springframework.data.jpa.domain.Specification<Product> spec = (root, cq, cb) -> {
+            java.util.List<jakarta.persistence.criteria.Predicate> where = new java.util.ArrayList<>();
+            if (cat != null) where.add(cb.equal(cb.upper(root.get("category")), cat));
+            if ("LOW".equals(level)) where.add(cb.lessThan(root.get("stockQuantity"), LOW_STOCK_THRESHOLD));
+            if ("OUT".equals(level)) where.add(cb.lessThanOrEqualTo(root.get("stockQuantity"), 0));
+            if (!query.isEmpty()) {
+                String like = "%" + com.quickkart.product.repository.ProductSpecifications.escapeLike(query) + "%";
+                java.util.List<jakarta.persistence.criteria.Predicate> any = new java.util.ArrayList<>(java.util.List.of(
+                        cb.like(cb.lower(root.get("name")), like, '\\'),
+                        cb.like(cb.lower(cb.coalesce(root.get("brand"), "")), like, '\\'),
+                        cb.like(cb.lower(cb.coalesce(root.get("sku"), "")), like, '\\')));
+                if (query.matches("\\d{1,18}")) any.add(cb.equal(root.get("id"), Long.parseLong(query)));
+                where.add(cb.or(any.toArray(jakarta.persistence.criteria.Predicate[]::new)));
+            }
+            return cb.and(where.toArray(jakarta.persistence.criteria.Predicate[]::new));
+        };
+        org.springframework.data.domain.Sort order = "stock".equalsIgnoreCase(sort)
+                ? org.springframework.data.domain.Sort.by("stockQuantity", "id")
+                : org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id");
+        return PageResponse.from(productRepository.findAll(spec,
+                org.springframework.data.domain.PageRequest.of(Math.max(0, page), Math.min(Math.max(1, size), 100), order)),
+                ProductResponse::fromEntity);
+    }
+
+    /** Products below this many units count as "low stock" in the admin panel. */
+    public static final int LOW_STOCK_THRESHOLD = 5;
+
+    @Transactional(readOnly = true)
+    public PageResponse<com.quickkart.product.dto.StockMovementResponse> stockHistory(Long productId, int page, int size) {
+        if (!productRepository.existsById(productId)) throw new ProductNotFoundException(productId);
+        return PageResponse.from(stockMovements.findByProductIdOrderByIdDesc(productId,
+                org.springframework.data.domain.PageRequest.of(Math.max(0, page), Math.min(Math.max(1, size), 100))),
+                com.quickkart.product.dto.StockMovementResponse::from);
+    }
+
+    private void recordStock(Product product, int change, String reason, String actor) {
+        if (change != 0) {
+            stockMovements.save(new com.quickkart.product.entity.StockMovement(product.getId(), change,
+                    product.getStockQuantity(), reason, null, actor));
+        }
+    }
+
+    /** Products must belong to a known category; the stored name is the category's canonical spelling. */
+    private String canonicalCategory(String name) {
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Category is required");
+        return categoryRepository.findByNameIgnoreCase(name.trim()).map(com.quickkart.product.entity.Category::getName)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown category \"" + name.trim() + "\". Create it under Categories first."));
     }
 
     @Transactional(readOnly = true)
@@ -88,6 +149,12 @@ public class ProductService {
     @Transactional
     @CacheEvict(cacheNames = {SEARCH_CACHE, CATEGORY_CACHE}, allEntries = true)
     public ProductResponse createProduct(ProductRequest request) {
+        return createProduct(request, "ADMIN");
+    }
+
+    @Transactional
+    @CacheEvict(cacheNames = {SEARCH_CACHE, CATEGORY_CACHE}, allEntries = true)
+    public ProductResponse createProduct(ProductRequest request, String actor) {
         log.info("[ProductService] Creating product '{}' and evicting productList cache", request.getName());
         Product product = new Product(
                 request.getName(),
@@ -98,13 +165,14 @@ public class ProductService {
                 request.getRating() != null ? request.getRating() : 4.0,
                 request.getReviewCount() != null ? request.getReviewCount() : 0,
                 request.getStockQuantity(),
-                request.getCategory(),
+                canonicalCategory(request.getCategory()),
                 request.getSku(),
                 request.getImageUrl(),
                 request.getThumbnailUrl(),
                 request.getAvailability() != null ? request.getAvailability() : "IN_STOCK"
         );
         Product saved = productRepository.save(product);
+        recordStock(saved, saved.getStockQuantity(), "INITIAL_STOCK", actor);
         return ProductResponse.fromEntity(saved);
     }
 
@@ -125,6 +193,12 @@ public class ProductService {
     @Transactional
     @CacheEvict(cacheNames = {SEARCH_CACHE, CATEGORY_CACHE}, allEntries = true)
     public ProductResponse updateProduct(Long id, ProductRequest request) {
+        return updateProduct(id, request, "ADMIN");
+    }
+
+    @Transactional
+    @CacheEvict(cacheNames = {SEARCH_CACHE, CATEGORY_CACHE}, allEntries = true)
+    public ProductResponse updateProduct(Long id, ProductRequest request, String actor) {
         log.info("[ProductService] Updating product id={} and evicting cache for id and productList", id);
         Product product = productRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
@@ -136,14 +210,16 @@ public class ProductService {
         if (request.getDiscountPercentage() != null) product.setDiscountPercentage(request.getDiscountPercentage());
         if (request.getRating() != null) product.setRating(request.getRating());
         if (request.getReviewCount() != null) product.setReviewCount(request.getReviewCount());
+        int stockChange = request.getStockQuantity() - product.getStockQuantity();
         product.setStockQuantity(request.getStockQuantity());
-        product.setCategory(request.getCategory());
+        product.setCategory(canonicalCategory(request.getCategory()));
         if (request.getSku() != null) product.setSku(request.getSku());
         product.setImageUrl(request.getImageUrl());
         if (request.getThumbnailUrl() != null) product.setThumbnailUrl(request.getThumbnailUrl());
         if (request.getAvailability() != null) product.setAvailability(request.getAvailability());
 
         Product updated = productRepository.save(product);
+        recordStock(updated, stockChange, "ADMIN_EDIT", actor);
         return ProductResponse.fromEntity(updated);
     }
 
@@ -167,6 +243,12 @@ public class ProductService {
     @Transactional
     @CacheEvict(cacheNames = {SEARCH_CACHE, CATEGORY_CACHE}, allEntries = true)
     public ProductResponse updateStock(Long id, int quantityChange) {
+        return updateStock(id, quantityChange, "ADMIN");
+    }
+
+    @Transactional
+    @CacheEvict(cacheNames = {SEARCH_CACHE, CATEGORY_CACHE}, allEntries = true)
+    public ProductResponse updateStock(Long id, int quantityChange, String actor) {
         log.info("[ProductService] Updating stock for product id={} (change={})", id, quantityChange);
         Product product = productRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
@@ -185,6 +267,7 @@ public class ProductService {
             product.setAvailability("OUT_OF_STOCK");
         }
         Product updated = productRepository.save(product);
+        recordStock(updated, quantityChange, quantityChange > 0 ? "RESTOCK" : "CORRECTION", actor);
         return ProductResponse.fromEntity(updated);
     }
 }

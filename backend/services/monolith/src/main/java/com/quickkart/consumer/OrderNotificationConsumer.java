@@ -21,8 +21,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Consumes ORDER_CREATED events (published by order-service through its transactional outbox)
- * and emails the customer an order confirmation.
+ * Consumes order events published by order-service through its transactional outbox and emails
+ * the customer: ORDER_CREATED (COD confirmation), PAYMENT_SUCCEEDED / PAYMENT_FAILED, and
+ * ORDER_STATUS_CHANGED for shipped, out for delivery, delivered and cancelled.
  *
  * Delivery semantics: Kafka gives at-least-once delivery, so the same event can arrive twice
  * (producer retry, consumer crash before commit, rebalance). Idempotency is DURABLE: the event id
@@ -82,9 +83,7 @@ public class OrderNotificationConsumer {
             log.warn("Order event {}: {}", eventId, message);
         } else {
             // Throws on failure -> retried by the error handler, then dead-lettered.
-            emailService.sendOrderConfirmation(user.getEmail(), user.getName(), event.getOrderId(), event.getTotalAmount(), event.getItems());
-            notificationCount.incrementAndGet();
-            message = "Order confirmation email sent for order #" + event.getOrderId();
+            message = notify(user, event);
         }
 
         try {
@@ -95,6 +94,62 @@ public class OrderNotificationConsumer {
         }
         log.info("Order event {} processed: {}", eventId, message);
         record(event, false, "PROCESSED", message);
+    }
+
+    /** Sends the email that matches the event, if any, and returns a short description for the log. */
+    private String notify(User user, OrderCreatedEvent event) {
+        String type = event.getEventType() == null ? "ORDER_CREATED" : event.getEventType();
+        Long orderId = event.getOrderId();
+        switch (type) {
+            case "ORDER_CREATED" -> {
+                // Online orders are confirmed by PAYMENT_SUCCEEDED instead; events from before payments existed are COD.
+                if (event.getPaymentMethod() != null && !"COD".equals(event.getPaymentMethod())) {
+                    return "Order #" + orderId + " awaits online payment; no email yet";
+                }
+                emailService.sendOrderConfirmation(user.getEmail(), user.getName(), orderId, event.getTotalAmount(), event.getItems());
+                notificationCount.incrementAndGet();
+                return "Order confirmation email sent for order #" + orderId;
+            }
+            case "PAYMENT_SUCCEEDED" -> {
+                return update(user, orderId, "Payment received for order #" + orderId, "Payment received, order placed",
+                        "we received your payment of " + money(event.getTotalAmount()) + ". Your order is placed and we'll let you know when it ships.");
+            }
+            case "PAYMENT_FAILED" -> {
+                return update(user, orderId, "Payment failed for order #" + orderId, "Your payment didn't go through",
+                        "no money was taken. Your items are reserved for 30 minutes: open My Orders to try again or cancel the order.");
+            }
+            case "ORDER_STATUS_CHANGED" -> {
+                String status = event.getStatus() == null ? "" : event.getStatus();
+                return switch (status) {
+                    case "SHIPPED" -> update(user, orderId, "Order #" + orderId + " has shipped", "Your order is on its way",
+                            "order #" + orderId + " has left our warehouse.");
+                    case "OUT_FOR_DELIVERY" -> update(user, orderId, "Order #" + orderId + " is out for delivery", "Arriving today",
+                            "order #" + orderId + " is out for delivery."
+                                    + ("COD".equals(event.getPaymentMethod()) ? " Please keep " + money(event.getTotalAmount()) + " ready for cash on delivery." : ""));
+                    case "DELIVERED" -> update(user, orderId, "Order #" + orderId + " was delivered", "Delivered",
+                            "order #" + orderId + " was delivered. Enjoy it, and tell other shoppers what you think with a review.");
+                    case "CANCELLED" -> update(user, orderId, "Order #" + orderId + " was cancelled", "Your order was cancelled",
+                            "order #" + orderId + " was cancelled." + ("REFUNDED".equals(event.getPaymentStatus())
+                                    ? " Your payment of " + money(event.getTotalAmount()) + " has been refunded." : ""));
+                    default -> "Status " + status + " for order #" + orderId + " needs no email";
+                };
+            }
+            default -> {
+                log.warn("Unknown order event type {} ({}); skipped", type, event.getEventId());
+                return "Unknown event type " + type + "; skipped";
+            }
+        }
+    }
+
+    private String update(User user, Long orderId, String subject, String headline, String message) {
+        emailService.sendOrderUpdate(user.getEmail(), user.getName(), orderId, subject, headline, message);
+        notificationCount.incrementAndGet();
+        return "Email \"" + subject + "\" sent";
+    }
+
+    private static String money(java.math.BigDecimal amount) {
+        return java.text.NumberFormat.getCurrencyInstance(java.util.Locale.forLanguageTag("en-IN"))
+                .format(amount == null ? java.math.BigDecimal.ZERO : amount);
     }
 
     private void record(OrderCreatedEvent event, boolean duplicate, String status, String message) {

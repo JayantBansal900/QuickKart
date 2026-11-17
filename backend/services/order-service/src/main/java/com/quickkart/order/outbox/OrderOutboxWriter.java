@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quickkart.order.dto.OrderCreatedEvent;
 import com.quickkart.order.event.OrderCreatedInternalEvent;
+import com.quickkart.order.event.OrderLifecycleInternalEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -37,10 +38,31 @@ public class OrderOutboxWriter {
         String eventId = "ORDER_CREATED-" + internal.orderId();
         OrderCreatedEvent event = new OrderCreatedEvent(eventId, "ORDER_CREATED", internal.orderId(), internal.userId(),
                 internal.totalAmount(), internal.createdAt(), internal.items());
+        event.setStatus(internal.status());
+        event.setPaymentMethod(internal.paymentMethod());
+        event.setPaymentStatus(internal.paymentStatus());
         try {
             outbox.save(new OutboxEvent(eventId, topic, String.valueOf(internal.orderId()), objectMapper.writeValueAsString(event)));
         } catch (JsonProcessingException ex) {
             throw new IllegalStateException("Could not serialise order event " + eventId, ex);
+        }
+    }
+
+    /** Status changes and payment results go through the same outbox, so they are never lost either. */
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void writeLifecycle(OrderLifecycleInternalEvent internal) {
+        if (outbox.existsByEventId(internal.eventId())) {
+            return; // the same deterministic event was already written (e.g. an idempotent retry)
+        }
+        OrderCreatedEvent event = new OrderCreatedEvent(internal.eventId(), internal.eventType(), internal.orderId(),
+                internal.userId(), internal.totalAmount(), java.time.LocalDateTime.now(), null);
+        event.setStatus(internal.status());
+        event.setPaymentMethod(internal.paymentMethod());
+        event.setPaymentStatus(internal.paymentStatus());
+        try {
+            outbox.save(new OutboxEvent(internal.eventId(), topic, String.valueOf(internal.orderId()), objectMapper.writeValueAsString(event)));
+        } catch (JsonProcessingException ex) {
+            throw new IllegalStateException("Could not serialise order event " + internal.eventId(), ex);
         }
     }
 }

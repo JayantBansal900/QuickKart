@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Banknote, PackageSearch, ShieldCheck } from 'lucide-react';
+import { INFO_LINKS } from '../pages/infoLinks';
 import { Logo } from './Header';
 
 const PROMISES = [
-  { icon: Banknote, title: 'Cash on delivery', text: 'Pay when your order arrives.' },
+  { icon: Banknote, title: 'Pay your way', text: 'Cash on delivery, UPI or card.' },
   { icon: PackageSearch, title: 'Live stock', text: 'Availability is checked again at checkout.' },
   { icon: ShieldCheck, title: 'Verified accounts', text: 'Every account confirms its email.' },
 ];
@@ -26,6 +27,13 @@ export const Footer: React.FC = () => (
       ))}
     </div>
     <div className="border-t border-line">
+      <nav aria-label="Store information" className="qk-container flex flex-wrap gap-x-6 gap-y-2 py-5 text-sm text-muted">
+        {INFO_LINKS.map((l) => (
+          <Link key={l.slug} to={`/info/${l.slug}`} className="hover:text-fg">{l.label}</Link>
+        ))}
+      </nav>
+    </div>
+    <div className="border-t border-line">
       <div className="qk-container flex flex-col gap-4 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Logo />
@@ -33,6 +41,7 @@ export const Footer: React.FC = () => (
         </div>
         <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-2">
           <Link to="/" className="hover:text-fg">Shop</Link>
+          <Link to="/categories" className="hover:text-fg">Categories</Link>
           <Link to="/account/orders" className="hover:text-fg">Orders</Link>
           <Link to="/account/profile" className="hover:text-fg">Account</Link>
           <Link to="/cart" className="hover:text-fg">Cart</Link>

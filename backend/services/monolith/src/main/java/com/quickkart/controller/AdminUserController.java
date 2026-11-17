@@ -26,10 +26,15 @@ public class AdminUserController {
         this.adminUserService = adminUserService;
     }
 
+    /** Paged, newest first; optional search ({@code q}), {@code role} and {@code status} filters. */
     @GetMapping
-    public ResponseEntity<List<UserAdminResponse>> getAllUsers() {
-        List<UserAdminResponse> users = adminUserService.getAllUsers();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<com.quickkart.dto.PageResponse<UserAdminResponse>> getAllUsers(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String role,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String status,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "25") int size) {
+        return ResponseEntity.ok(adminUserService.searchUsers(q, role, status, page, size));
     }
 
     @GetMapping("/{id}")

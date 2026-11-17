@@ -6,14 +6,19 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/formatters';
 import { originalPriceOf } from './ProductCard';
+import { ProductReviews } from './ProductReviews';
+import { api } from '../services/api';
 
 interface ProductDetailsModalProps {
   product: Product | null;
   onClose: () => void;
   onDirectCheckout?: () => void;
+  /** Opens another product (used by "You may also like"). */
+  onSelectProduct?: (product: Product) => void;
 }
 
-export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onClose, onDirectCheckout }) => {
+export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onClose, onDirectCheckout, onSelectProduct }) => {
+  const [related, setRelated] = useState<Product[]>([]);
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [imageFailed, setImageFailed] = useState(false);
@@ -29,6 +34,24 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
       setImageFailed(false);
       setAdded(false);
       setMutationError(null);
+    }
+  }, [product?.id]);
+
+  // Related products: best rated in the same category, excluding this one.
+  useEffect(() => {
+    setRelated([]);
+    if (!product?.category) return;
+    const controller = new AbortController();
+    api.searchProducts({ category: product.category.toUpperCase(), sort: 'rating-desc', size: 5 }, controller.signal)
+      .then((page) => setRelated(page.content.filter((p) => p.id !== product.id).slice(0, 4)))
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [product?.id, product?.category]);
+
+  // Deep link from "Review" in My Orders: /products/42#reviews
+  useEffect(() => {
+    if (product && window.location.hash === '#reviews') {
+      setTimeout(() => document.getElementById('reviews')?.scrollIntoView?.({ behavior: 'smooth' }), 150);
     }
   }, [product?.id]);
 
@@ -172,8 +195,29 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
 
             <div className="mt-6 flex items-center gap-3 rounded-2xl bg-subtle p-4 text-sm">
               <Truck className="h-5 w-5 shrink-0 text-muted" />
-              <span className="text-fg">Cash on delivery available. Stock is confirmed again when you place the order.</span>
+              <span className="text-fg">Cash on delivery, UPI and cards accepted. Stock is confirmed again when you place the order.</span>
             </div>
+
+            <ProductReviews productId={product.id} />
+
+            {related.length > 0 && onSelectProduct && (
+              <div className="mt-6 border-t border-line pt-6">
+                <h3 className="text-sm font-semibold text-fg">You may also like</h3>
+                <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {related.map((p) => (
+                    <li key={p.id}>
+                      <button type="button" onClick={() => onSelectProduct(p)} className="group w-full text-left">
+                        <div className="aspect-square overflow-hidden rounded-xl bg-subtle">
+                          {p.imageUrl && <img src={p.thumbnailUrl || p.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-105" />}
+                        </div>
+                        <p className="mt-1.5 line-clamp-2 text-xs text-fg">{p.name}</p>
+                        <p className="text-xs font-semibold text-fg">{formatPrice(Number(p.price))}</p>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {product.sku && <p className="mt-4 text-xs text-muted">SKU: {product.sku}</p>}
             {mutationError && <p role="alert" className="mt-4 rounded-xl bg-sale-soft p-3 text-sm text-sale">{mutationError}</p>}

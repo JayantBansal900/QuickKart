@@ -32,6 +32,8 @@ public class OrderResponse {
     public String getCancelledBy() {return cancelledBy;}
     private boolean cancellable;
     public boolean getCancellable() {return cancellable;}
+    private boolean payable;
+    public boolean getPayable() {return payable;}
     public OrderResponse() {
     }
 
@@ -89,7 +91,10 @@ public class OrderResponse {
                 items);
         response.recipientName=order.getRecipientName();response.deliveryAddress=order.getDeliveryAddress();response.deliveryPhone=order.getDeliveryPhone();
         response.cancelledAt=order.getCancelledAt();response.cancelledBy=order.getCancelledBy();
-        response.cancellable=order.getCheckoutKey()!=null && java.util.Set.of("PENDING","CONFIRMED","PROCESSING").contains(order.getStatus());
+        response.cancellable=order.getCheckoutKey()!=null && java.util.Set.of("PENDING","PLACED","CONFIRMED","PROCESSING").contains(order.getStatus());
+        // An online order waits in PENDING until the (simulated) gateway confirms payment; a failed attempt can be retried.
+        response.payable="PENDING".equals(order.getStatus()) && !"COD".equals(paymentMethod)
+                && ("PENDING".equals(paymentStatus) || "FAILED".equals(paymentStatus));
         return response;
     }
 

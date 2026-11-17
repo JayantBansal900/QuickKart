@@ -14,9 +14,8 @@ Errors share one shape:
 | 401 | missing, expired or revoked token; wrong credentials |
 | 403 | logged in but wrong role |
 | 404 | not found (also used for another customer's order) |
-| 409 | conflict: stock, state transition, duplicate email, reused idempotency key |
+| 409 | conflict: stock, state transition, duplicate email or category, reused idempotency key, category still in use |
 | 429 | rate limited |
-| 501 | online payment (not built) |
 | 503 | email could not be sent; the signup was rolled back |
 
 ---
@@ -44,14 +43,15 @@ Rate limits are listed in [architecture.md](architecture.md#authentication-and-a
 | Method | Path | Auth | Body |
 |---|---|---|---|
 | GET | `/api/user/profile` | user | – |
-| PUT | `/api/user/profile` | user | `name, phoneNumber` |
+| PUT | `/api/user/profile` | user | `name, phoneNumber?, savedAddress?` (≤ 1000 chars; omit to keep, `""` to remove). The saved address pre-fills checkout. |
 
 ## Catalog — product service
 
 | Method | Path | Auth | Notes |
 |---|---|---|---|
 | GET | `/api/products` | – | Search. See parameters below. Returns `{ content, page, size, totalElements, totalPages, last }` |
-| GET | `/api/products/categories` | – | `[{ category, count }]` |
+| GET | `/api/products/categories` | – | `[{ category, count }]` (on-sale products per category) |
+| GET | `/api/categories` | – | active categories in display order: `[{ id, key, name, description, imageUrl, sortOrder, active, productCount }]`. `key` is the value for `?category=`. |
 | GET | `/api/products/{id}` | – | one product |
 | GET | `/api/products/images/{name}` | – | an uploaded product photo (cached for a year; names are random UUIDs) |
 
@@ -62,7 +62,7 @@ Search parameters (all optional):
 | `q` | ≤ 100 chars. Matches name, brand, description and category. |
 | `category` | exact category, ≤ 60 chars |
 | `minPrice`, `maxPrice` | 0 – 10,000,000, with min ≤ max |
-| `sort` | `featured` (default), `price-asc`, `price-desc`, `rating-desc`, `discount-desc`, `newest`, `name` |
+| `sort` | `featured` (default), `price-asc`, `price-desc`, `rating-desc`, `discount-desc`, `popular` (most reviews), `newest`, `name` |
 | `page`, `size` | page ≥ 0 (≤ 10,000); size 1–48 (default 24) |
 
 Product fields:
@@ -76,6 +76,15 @@ Product fields:
 | Images | `imageUrl`, `thumbnailUrl` |
 
 Responses are cached in Redis for up to 60 s.
+
+### Reviews — product service
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/api/products/{id}/reviews?page=&size=` | – | newest first, `size` ≤ 20. Each review: `id, authorName ("Priya S."), rating, title, comment, verifiedPurchase, mine, createdAt`. The author's email is never returned. |
+| GET | `/api/products/{id}/reviews/eligibility` | user | `{ canReview, reason, myReview }` |
+| POST | `/api/products/{id}/reviews` | user | `{ rating: 1–5, title? (≤120), comment? (≤2000) }`. Only customers with a **delivered** order containing the product (`403` otherwise). Writing again edits the same review. The product's `rating` and `reviewCount` are updated in the same transaction. |
+| DELETE | `/api/products/{id}/reviews/{reviewId}` | user | your own review only |
 
 ## Cart — order service
 
@@ -94,13 +103,14 @@ Responses are cached in Redis for up to 60 s.
 | POST | `/api/orders/checkout` | user | See the body below. Returns `201` with the order. |
 | GET | `/api/orders` | user | the caller's orders, newest first |
 | GET | `/api/orders/{id}` | user | only the caller's own order; otherwise `404` |
-| POST | `/api/orders/{id}/cancel` | user | Allowed before shipping. Stock is restored. |
+| POST | `/api/orders/{id}/pay` | user | Simulated gateway (test mode): `{ "outcome": "SUCCESS" \| "FAILURE" }`. Success: payment `PAID`, order `PENDING → PLACED` (repeating it returns the same order). Failure: payment `FAILED`, the order stays payable. `409` for COD orders or orders no longer waiting for payment. |
+| POST | `/api/orders/{id}/cancel` | user | Allowed before shipping. Stock is restored; a paid online order is refunded (`REFUNDED`). |
 
 Checkout body:
 
 ```json
 {
-  "paymentMethod": "COD",
+  "paymentMethod": "COD | UPI | CARD",
   "idempotencyKey": "uuid generated once per attempt",
   "cartFingerprint": "from GET /api/cart",
   "recipientName": "Asha Verma",
@@ -114,12 +124,14 @@ Checkout body:
 - If the cart changed since the fingerprint was taken → `409`, refresh and confirm again.
 - Not enough stock → `409`.
 
-## Payments — monolith
+Order and payment states:
 
-| Method | Path | Auth | Notes |
-|---|---|---|---|
-| GET | `/api/payments/order/{orderId}` | user | payment record for an order: COD, `COLLECTION_PENDING` → `COLLECTED` on delivery |
-| POST | `/api/payments` | user | `501 Not Implemented`. There is no online payment gateway. |
+| Payment method | After checkout | Then |
+|---|---|---|
+| `COD` | order `PLACED`, payment `COLLECTION_PENDING` | payment `COLLECTED` when the order is delivered, `CANCELLED` if the order is cancelled |
+| `UPI` / `CARD` | order `PENDING`, payment `PENDING`, `payable: true` | `/pay` success → order `PLACED`, payment `PAID`; failure → payment `FAILED` (retry allowed); not paid within 30 minutes → order `CANCELLED` by `SYSTEM`, stock released; cancelled after payment → `REFUNDED` |
+
+Each order response also has `cancellable` and `payable` flags for the UI.
 
 ---
 
@@ -127,20 +139,27 @@ Checkout body:
 
 | Method | Path | Service | Notes |
 |---|---|---|---|
-| GET | `/api/admin/analytics` | monolith | revenue collected, order counts by status, pending orders, low-stock products (1–4 left) |
+| GET | `/api/admin/analytics` | monolith | booked and collected revenue, totals, orders awaiting fulfilment, low-stock (1–4 left) and out-of-stock counts |
+| GET | `/api/admin/analytics/insights?days=30` | monolith | `days` 7–365. Revenue, orders and verified sign-ups per day (every day present), orders by status, payment methods, top 5 products by units, revenue by category |
 | GET | `/api/admin/system/status` | monolith | UP/DOWN and latency for PostgreSQL, Redis, Kafka, product service, order service, outbox backlog |
-| GET | `/api/admin/users` | monolith | all users |
+| GET | `/api/admin/users?q=&role=&status=&page=&size=` | monolith | paged (size ≤ 100, default 25), newest first; `q` matches name, email or exact id |
 | GET | `/api/admin/users/{id}` | monolith | one user |
 | PATCH | `/api/admin/users/{id}/status` | monolith | `{ status: ACTIVE \| SUSPENDED \| DISABLED \| PENDING_VERIFICATION }`. Not allowed on yourself or another admin (`409`). |
-| GET | `/api/admin/orders` | order service | all orders |
+| GET | `/api/admin/orders?q=&status=&page=&size=` | order service | paged, newest first; `q` matches order id (`#41` or `41`), customer email or recipient |
 | GET | `/api/admin/orders/{id}` | order service | one order |
-| PATCH | `/api/admin/orders/{id}/status` | order service | `{ status }`, following `PENDING → CONFIRMED → PROCESSING → SHIPPED → DELIVERED`. `CANCELLED` is allowed before `SHIPPED`. |
-| GET | `/api/admin/products` | product service | all products, including out of stock |
-| POST | `/api/admin/products` | product service | create a product (fields as above) |
+| PATCH | `/api/admin/orders/{id}/status` | order service | `{ status }`, one step at a time: `PLACED → CONFIRMED → PROCESSING → SHIPPED → OUT_FOR_DELIVERY → DELIVERED`. `CANCELLED` is allowed before `SHIPPED`. An unpaid online order (`PENDING`) can only be cancelled. Every change publishes an `ORDER_STATUS_CHANGED` event. |
+| GET | `/api/admin/products?q=&category=&stock=&sort=&page=&size=` | product service | paged, including discontinued; `stock` = `ALL` \| `LOW` (under 5) \| `OUT`; `sort` = `newest` (default) \| `stock` (lowest first) |
+| GET | `/api/admin/products/{id}/stock-movements?page=&size=` | product service | every stock change, newest first: `{ change, stockAfter, reason, reference, actor, createdAt }`; reasons `ORDER_PLACED`, `ORDER_CANCELLED`, `RESTOCK`, `CORRECTION`, `ADMIN_EDIT`, `INITIAL_STOCK` |
+| POST | `/api/admin/products` | product service | create a product (fields as above); `category` must be an existing category name (any case) |
 | PUT | `/api/admin/products/{id}` | product service | update a product |
 | PATCH | `/api/admin/products/{id}/stock` | product service | `{ adjustment: -100000…100000, non-zero }`. The row is locked during the update, and stock can't go below 0 (`400`). |
 | POST | `/api/admin/products/{id}/image` | product service | multipart field `file`: JPEG, PNG or WebP up to 3 MB. The type is checked from the file's bytes, not its name. Replaces (and deletes) the previous uploaded photo. |
 | DELETE | `/api/admin/products/{id}` | product service | `409` if the product is in an order or cart; also deletes its uploaded photo |
+| DELETE | `/api/admin/products/{id}/reviews/{reviewId}` | product service | remove any review (moderation); the rating is recalculated |
+| GET | `/api/admin/categories` | product service | all categories, including hidden ones |
+| POST | `/api/admin/categories` | product service | `{ name, description?, imageUrl? (site path or https URL), sortOrder?, active? }`; duplicate name (any case) → `409` |
+| PUT | `/api/admin/categories/{id}` | product service | same body; renaming also renames the category on its products |
+| DELETE | `/api/admin/categories/{id}` | product service | `409` while products still use it (hide it instead) |
 
 ## Health
 

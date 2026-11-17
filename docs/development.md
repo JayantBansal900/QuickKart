@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-Docker Desktop, JDK 17+ (CI uses Temurin 17), Maven 3.9+, Node 20+.
+Docker Desktop, JDK 17+ (CI uses Temurin 17), Maven 3.9+. Node 22+ for frontend development (the Docker image builds the frontend itself).
 
 ## 1. Configure `.env`
 
@@ -14,7 +14,8 @@ The comments in `.env.example` explain each value. The important ones:
 
 | Variable | Purpose |
 |---|---|
-| `POSTGRES_*`, `REDIS_PASSWORD` | database and cache credentials (any strong values locally) |
+| `POSTGRES_*` | database credentials (any strong values locally) |
+| `REDIS_PASSWORD` | required: Redis runs with `requirepass` (e.g. `openssl rand -hex 24`) |
 | `JWT_SECRET`, `OTP_HASH_SECRET` | long random secrets, e.g. `openssl rand -base64 48` |
 | `SPRING_PROFILES_ACTIVE` | `dev` locally; `prod` enforces SMTP, `ddl-auto=validate` and no dev tools |
 | `DEV_ADMIN_ENABLED`, `DEV_ADMIN_*` | create an admin account on start-up (dev only) |
@@ -26,14 +27,10 @@ The comments in `.env.example` explain each value. The important ones:
 
 ## 2. Build and start
 
-The Dockerfiles copy already-built artifacts (the JARs and `frontend/dist`), so build them first:
+The Java Dockerfiles copy the already-built JARs, so build them first (the frontend image builds the React app itself):
 
 ```bash
 for s in monolith product-service order-service api-gateway; do (cd backend/services/$s && mvn -q package -DskipTests); done
-```
-
-```bash
-cd frontend && npm ci && npm run build && cd ..
 ```
 
 ```bash
@@ -44,7 +41,7 @@ docker compose up -d --build --wait
 docker compose ps
 ```
 
-Startup order is enforced by health checks: PostgreSQL, Redis and Kafka start first, then the services, then the gateway, then the frontend.
+Startup order is enforced by health checks: PostgreSQL, Redis and Kafka start first, then the one-shot `db-migrate` container applies the Flyway migrations, then the services, then the gateway, then the frontend. Only the storefront (:3000) and the gateway (:8080) are meant to be used from the host; PostgreSQL, Redis, Kafka and the services are published on `127.0.0.1` only, for debugging.
 
 | URL | What |
 |---|---|
@@ -64,7 +61,7 @@ After changing one service, rebuild just that one:
 cd frontend && npm ci && npx vite
 ```
 
-Vite serves on :5173 and proxies `/api` and `/actuator` to the gateway on :8080, so the backend must be running (in Docker or as below). Use `npx vite`, not `npm run dev`: the `dev` script starts every service itself.
+Vite serves on :5173 and proxies `/api` and `/actuator` to the gateway on :8080, so the backend must be running (in Docker or as below). `npm run dev` does the same as `npx vite`.
 
 ### Each service in its own terminal (VS Code, Windows PowerShell)
 
@@ -76,6 +73,10 @@ docker compose stop frontend api-gateway order-service product-service backend
 
 ```bash
 docker compose up -d --wait postgres redis kafka
+```
+
+```bash
+docker compose run --rm db-migrate
 ```
 
 Spring Boot does not read `.env`, so each Java terminal loads it first with `scripts/load-env.ps1`. Start them in this order and wait for `Started …Application` in each:
@@ -90,19 +91,17 @@ Spring Boot does not read `.env`, so each Java terminal loads it first with `scr
 
 Open http://localhost:5173. `Ctrl+C` stops a service; run `mvn spring-boot:run` again in that terminal to restart it with your changes. To go back to the all-Docker setup, stop the five terminals and run `docker compose up -d --wait`.
 
-## 3. Database changes
+## 3. Database changes (Flyway)
 
-A fresh database is created from `infrastructure/postgres/init/01-init-schema.sql`. Changes to an existing database go in numbered files under `infrastructure/postgres/migrations/` and are applied by hand, with a backup first:
+A fresh database is created from `infrastructure/postgres/init/01-init-schema.sql` (the schema as of V5). After that, every change is a numbered Flyway migration in `infrastructure/postgres/migrations/` (`V6__categories_reviews_stock_history_addresses.sql`, ...). The `db-migrate` container runs Flyway on every `docker compose up`, before the services start; it applies only migrations that are not yet in `flyway_schema_history`. Databases created before Flyway was added are baselined at V5 automatically, so only V6+ runs on them.
 
-```bash
-docker exec quickkart-postgres pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > backup.sql
-```
+To add a change: create the next `V<n>__description.sql` (additive and safe to re-run where possible), then `docker compose run --rm db-migrate`. Take a backup first on a database you care about:
 
 ```bash
-docker exec -i quickkart-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" < infrastructure/postgres/migrations/005_kafka_outbox_and_idempotency.sql
+docker exec quickkart-postgres pg_dump -U postgres quickkart > backup.sql
 ```
 
-When you add a migration, update the init schema too. In `prod`, Hibernate only validates the schema (`ddl-auto=validate`).
+In `prod`, Hibernate only validates the schema (`ddl-auto=validate`), so a missing migration fails at startup instead of silently changing tables.
 
 ## 4. Tests
 
@@ -136,13 +135,13 @@ node scripts/load-test.mjs --duration 15 --concurrency 20
 
 ## 5. Catalog data
 
-The catalog lives in `backend/services/product-service/src/main/resources/catalog.json`: 144 products (18 per category) with real brands, matching names, approximate Indian street prices and a product photo each. The seeder only inserts SKUs that are missing; it never overwrites existing rows. To push edited names, brands, prices or descriptions into an existing database (stock is left alone), run:
+Categories are managed in the admin panel (Admin → Categories); the eight defaults are created by migration V6 (and by product-service on an empty table). The catalog lives in `backend/services/product-service/src/main/resources/catalog.json`: 144 products (18 per category) with real brands, matching names, approximate Indian street prices and a product photo each. The seeder only inserts SKUs that are missing; it never overwrites existing rows. To push edited names, brands, prices or descriptions into an existing database (stock is left alone), run:
 
 ```bash
 docker exec -i quickkart-postgres psql -U postgres -d quickkart -v ON_ERROR_STOP=1 < scripts/database/refresh-catalog-details.sql
 ```
 
-Product photos live in `frontend/public/products/photos/` (Pixabay, free licence; see [photo-credits.md](photo-credits.md)). Category tiles use `frontend/public/categories/`. Admins can replace any product photo from the admin panel. Check that every product has a valid image with:
+Product photos live in `frontend/public/products/photos/` (Pixabay, free licence; see [photo-credits.md](photo-credits.md)). How they were chosen and how to re-download them is in [scripts/catalog/README.md](../scripts/catalog/README.md). Category tiles use `frontend/public/categories/`. Admins can replace any product photo from the admin panel. Check that every product has a valid image with:
 
 ```bash
 cd frontend && node scripts/validate-catalog.cjs
@@ -152,7 +151,7 @@ To shrink an older database (which had 535 seed products) to the current catalog
 
 ## 6. Cleaning up test data
 
-`scripts/database/cleanup-test-data.sql` removes test accounts (addresses at `example.invalid`, `example.com`, `test.com`, `quickkart.test`, plus old benchmark users) together with their carts and orders, and any products outside the 535-item catalog. Admins and real-looking accounts are kept. By default it only reports what it would delete:
+`scripts/database/cleanup-test-data.sql` removes test accounts (addresses at `example.invalid`, `example.com`, `test.com`, `quickkart.test`, plus old benchmark users) together with their carts and orders, and any product whose SKU is not a catalog SKU (`SKU-<CATEGORY>-NNN`). Check the report first: a product you created in the admin panel with a different SKU would be removed too. Admins and real-looking accounts are kept. By default it only reports what it would delete:
 
 ```bash
 docker exec -i quickkart-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" < scripts/database/cleanup-test-data.sql

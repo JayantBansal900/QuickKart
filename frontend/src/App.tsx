@@ -19,6 +19,8 @@ import { CheckoutModal } from "./components/CheckoutModal";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthPage } from "./pages/AuthPage";
 import { HomePage } from "./pages/HomePage";
+const InfoPage = lazy(() => import("./pages/InfoPage").then((m) => ({ default: m.InfoPage })));
+const CategoriesPage = lazy(() => import("./pages/CategoriesPage").then((m) => ({ default: m.CategoriesPage })));
 const OrdersPage = lazy(() =>
   import("./pages/OrdersPage").then((m) => ({ default: m.OrdersPage })),
 );
@@ -51,6 +53,12 @@ const AdminUsersPage = lazy(() =>
 );
 const AdminSystemPage = lazy(() =>
   import("./pages/admin/AdminSystemPage").then((m) => ({ default: m.AdminSystemPage })),
+);
+const AdminAnalyticsPage = lazy(() =>
+  import("./pages/admin/AdminAnalyticsPage").then((m) => ({ default: m.AdminAnalyticsPage })),
+);
+const AdminCategoriesPage = lazy(() =>
+  import("./pages/admin/AdminCategoriesPage").then((m) => ({ default: m.AdminCategoriesPage })),
 );
 const paths: Record<AppView, string> = {
   store: "/",
@@ -125,6 +133,7 @@ export function ApplicationShell() {
           <div className="qk-container flex flex-col py-2 text-[15px] font-medium">
             {[
               ["/", "Shop"],
+              ["/categories", "Categories"],
               ["/account/orders", "My Orders"],
               ["/account/profile", "My Account"],
               ["/cart", "Cart"],
@@ -184,6 +193,8 @@ export function ApplicationShell() {
                 }
               />
               <Route path="/cart" element={<CommerceRoute />} />
+              <Route path="/categories" element={<CategoriesPage />} />
+              <Route path="/info/:slug" element={<InfoPage />} />
               <Route path="/checkout" element={<CommerceRoute checkout />} />
             </Route>
             <Route
@@ -230,6 +241,8 @@ function AdminRoutes() {
             <Route path="inventory" element={<AdminInventoryPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="users" element={<AdminUsersPage />} />
+            <Route path="analytics" element={<AdminAnalyticsPage />} />
+            <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="system" element={<AdminSystemPage />} />
             <Route path="*" element={<Navigate replace to="/admin" />} />
           </Route>

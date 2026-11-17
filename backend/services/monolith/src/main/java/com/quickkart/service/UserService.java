@@ -37,6 +37,10 @@ public class UserService {
         if (request.getPhoneNumber() != null) {
             user.setPhoneNumber(request.getPhoneNumber().trim());
         }
+        if (request.getSavedAddress() != null) {
+            String address = request.getSavedAddress().trim();
+            user.setSavedAddress(address.isEmpty() ? null : address);
+        }
         user.setUpdatedAt(LocalDateTime.now());
         User updated = userRepository.save(user);
         return UserProfileResponse.fromEntity(updated);

@@ -1,0 +1,766 @@
+{
+ "products": {
+  "air-fryer-1.webp": {
+   "pixabayId": 4814769,
+   "photographer": "mylns65hoasphn",
+   "page": "https://pixabay.com/photos/barbecue-meat-food-bbq-steak-4814769/"
+  },
+  "badminton-racket-i0.webp": {
+   "pixabayId": 2646921,
+   "photographer": "inproperstyle",
+   "page": "https://pixabay.com/photos/badminton-bat-ball-balls-2646921/"
+  },
+  "basketball-0.webp": {
+   "pixabayId": 7121617,
+   "photographer": "daschorsch",
+   "page": "https://pixabay.com/photos/basketball-basket-ball-hits-point-7121617/"
+  },
+  "basketball-1.webp": {
+   "pixabayId": 7610545,
+   "photographer": "daschorsch",
+   "page": "https://pixabay.com/photos/ball-basketball-sports-spalding-7610545/"
+  },
+  "bedding-i2.webp": {
+   "pixabayId": 820149,
+   "photographer": "JayMantri",
+   "page": "https://pixabay.com/photos/pillows-sheets-bed-linen-820149/"
+  },
+  "bicycle-i2.webp": {
+   "pixabayId": 1229677,
+   "photographer": "xiaodlaod",
+   "page": "https://pixabay.com/photos/concept-design-bike-design-modern-1229677/"
+  },
+  "blazer-i3.webp": {
+   "pixabayId": 2688310,
+   "photographer": "clangs",
+   "page": "https://pixabay.com/photos/suit-suits-mens-suits-2688310/"
+  },
+  "books-0.webp": {
+   "pixabayId": 7720589,
+   "photographer": "mirkostoedter",
+   "page": "https://pixabay.com/photos/library-wisdom-reading-knowledge-7720589/"
+  },
+  "books-1.webp": {
+   "pixabayId": 5937716,
+   "photographer": "Hermann",
+   "page": "https://pixabay.com/photos/books-literature-knowledge-5937716/"
+  },
+  "books-2.webp": {
+   "pixabayId": 5615562,
+   "photographer": "Veronika_Andrews",
+   "page": "https://pixabay.com/photos/books-heart-pages-literature-5615562/"
+  },
+  "books-3.webp": {
+   "pixabayId": 3964050,
+   "photographer": "congerdesign",
+   "page": "https://pixabay.com/photos/book-read-book-pages-literature-3964050/"
+  },
+  "books-4.webp": {
+   "pixabayId": 1842261,
+   "photographer": "Pexels",
+   "page": "https://pixabay.com/photos/books-bookshop-bookstore-collection-1842261/"
+  },
+  "books-5.webp": {
+   "pixabayId": 3091212,
+   "photographer": "Ylanite",
+   "page": "https://pixabay.com/photos/literature-library-knowledge-3091212/"
+  },
+  "books-6.webp": {
+   "pixabayId": 1163695,
+   "photographer": "EliFrancis",
+   "page": "https://pixabay.com/photos/books-stack-book-store-1163695/"
+  },
+  "books-8.webp": {
+   "pixabayId": 256261,
+   "photographer": "jarmoluk",
+   "page": "https://pixabay.com/photos/apple-books-still-life-fruit-food-256261/"
+  },
+  "butter-0.webp": {
+   "pixabayId": 599521,
+   "photographer": "markusspiske",
+   "page": "https://pixabay.com/photos/bake-butter-flour-pile-599521/"
+  },
+  "car-mount-i0.webp": {
+   "pixabayId": 1048294,
+   "photographer": "DariuszSankowski",
+   "page": "https://pixabay.com/photos/navigation-car-drive-road-gps-1048294/"
+  },
+  "cereal-i2.webp": {
+   "pixabayId": 8065337,
+   "photographer": "TechyMummy",
+   "page": "https://pixabay.com/photos/cereal-cornflakes-food-snack-8065337/"
+  },
+  "charger-0.webp": {
+   "pixabayId": 1794616,
+   "photographer": "markusspiske",
+   "page": "https://pixabay.com/photos/power-outlet-electricity-energy-1794616/"
+  },
+  "charger-i0.webp": {
+   "pixabayId": 2202185,
+   "photographer": "WikimediaImages",
+   "page": "https://pixabay.com/photos/belkin-surge-protector-2202185/"
+  },
+  "chocolate-i0.webp": {
+   "pixabayId": 1023317,
+   "photographer": "webandi",
+   "page": "https://pixabay.com/photos/chocolate-sweets-sweet-yummy-cocoa-1023317/"
+  },
+  "chyawanprash-k0.webp": {
+   "pixabayId": 5939216,
+   "photographer": "touchngo",
+   "page": "https://pixabay.com/photos/doenjang-sauce-food-soybean-paste-5939216/"
+  },
+  "coffee-i1.webp": {
+   "pixabayId": 316576,
+   "photographer": "PublicDomainPictures",
+   "page": "https://pixabay.com/photos/instant-spoon-spoonful-cacao-316576/"
+  },
+  "compact-powder-i3.webp": {
+   "pixabayId": 4573250,
+   "photographer": "u_i5w01kqm",
+   "page": "https://pixabay.com/photos/brush-set-make-up-cosmetic-tools-4573250/"
+  },
+  "computer-mouse-i2.webp": {
+   "pixabayId": 484251,
+   "photographer": "Trostle",
+   "page": "https://pixabay.com/photos/mouse-computer-white-isolated-484251/"
+  },
+  "cooking-oil-i0.webp": {
+   "pixabayId": 356102,
+   "photographer": "margenauer",
+   "page": "https://pixabay.com/photos/olive-oil-greek-oil-olive-bottle-356102/"
+  },
+  "cooktop-k1.webp": {
+   "pixabayId": 7116220,
+   "photographer": "AnnRve",
+   "page": "https://pixabay.com/photos/express-pot-pressure-cooker-7116220/"
+  },
+  "cookware-i0.webp": {
+   "pixabayId": 554072,
+   "photographer": "Silberfuchs",
+   "page": "https://pixabay.com/photos/pan-cook-fry-frying-pan-554072/"
+  },
+  "cookware-i1.webp": {
+   "pixabayId": 2202193,
+   "photographer": "WikimediaImages",
+   "page": "https://pixabay.com/photos/cast-iron-pan-2202193/"
+  },
+  "cricket-ball-3.webp": {
+   "pixabayId": 9982535,
+   "photographer": "RisingStudio07",
+   "page": "https://pixabay.com/photos/cricket-cricketer-field-sport-game-9982535/"
+  },
+  "cricket-bat-i3.webp": {
+   "pixabayId": 6972297,
+   "photographer": "yogendras31",
+   "page": "https://pixabay.com/photos/cricket-player-bat-cricketer-sport-6972297/"
+  },
+  "denim-jacket-j1.webp": {
+   "pixabayId": 2359612,
+   "photographer": "Engin_Akyurt",
+   "page": "https://pixabay.com/photos/woman-girl-portrait-model-beauty-2359612/"
+  },
+  "dinnerware-k11.webp": {
+   "pixabayId": 1365805,
+   "photographer": "Hans",
+   "page": "https://pixabay.com/photos/plate-soup-plate-dinner-plate-1365805/"
+  },
+  "drinking-glasses-j1.webp": {
+   "pixabayId": 2222825,
+   "photographer": "HG-Fotografie",
+   "page": "https://pixabay.com/photos/water-glass-wine-glass-water-splash-2222825/"
+  },
+  "earbuds-i3.webp": {
+   "pixabayId": 4334557,
+   "photographer": "rupixen",
+   "page": "https://pixabay.com/photos/music-headset-sound-headphones-4334557/"
+  },
+  "earphones-i1.webp": {
+   "pixabayId": 2602313,
+   "photographer": "StockSnap",
+   "page": "https://pixabay.com/photos/earphones-earbuds-cord-2602313/"
+  },
+  "ereader-1.webp": {
+   "pixabayId": 750305,
+   "photographer": "742787",
+   "page": "https://pixabay.com/photos/kindle-paper-white-touchscreen-750305/"
+  },
+  "external-drive-1.webp": {
+   "pixabayId": 3688029,
+   "photographer": "jeanvdmeulen",
+   "page": "https://pixabay.com/photos/lenovo-1tb-portable-hard-drive-hdd-3688029/"
+  },
+  "eyeglasses-i0.webp": {
+   "pixabayId": 5156502,
+   "photographer": "Lenzatic",
+   "page": "https://pixabay.com/photos/glasses-glass-eyes-wallpaper-sight-5156502/"
+  },
+  "face-mask-3.webp": {
+   "pixabayId": 6557552,
+   "photographer": "Tumisu",
+   "page": "https://pixabay.com/photos/woman-wellness-spa-relaxation-6557552/"
+  },
+  "fitness-band-j1.webp": {
+   "pixabayId": 1502602,
+   "photographer": "hayabuzo",
+   "page": "https://pixabay.com/photos/a-bracelet-plastic-wrist-sports-1502602/"
+  },
+  "flour-i0.webp": {
+   "pixabayId": 1581967,
+   "photographer": "Bru-nO",
+   "page": "https://pixabay.com/photos/flour-grain-food-nourishment-loaf-1581967/"
+  },
+  "football-0.webp": {
+   "pixabayId": 2778583,
+   "photographer": "derJani",
+   "page": "https://pixabay.com/photos/football-grass-ball-green-grass-2778583/"
+  },
+  "football-i1.webp": {
+   "pixabayId": 428314,
+   "photographer": "jarmoluk",
+   "page": "https://pixabay.com/photos/football-the-ball-sport-game-428314/"
+  },
+  "foundation-i1.webp": {
+   "pixabayId": 259181,
+   "photographer": "stux",
+   "page": "https://pixabay.com/photos/cosmetics-make-up-paint-brush-259181/"
+  },
+  "ghee-k2.webp": {
+   "pixabayId": 1852934,
+   "photographer": "Pexels",
+   "page": "https://pixabay.com/photos/honey-jar-glass-food-liquid-1852934/"
+  },
+  "hair-dryer-i2.webp": {
+   "pixabayId": 295618,
+   "photographer": "Hans",
+   "page": "https://pixabay.com/photos/hairdryer-hair-dryer-equipment-295618/"
+  },
+  "hair-straightener-i0.webp": {
+   "pixabayId": 15932,
+   "photographer": "PublicDomainPictures",
+   "page": "https://pixabay.com/photos/beauty-brunette-cute-equipment-15932/"
+  },
+  "headphones-i4.webp": {
+   "pixabayId": 8210087,
+   "photographer": "samipathan",
+   "page": "https://pixabay.com/photos/headphones-headset-audio-office-8210087/"
+  },
+  "headset-k2.webp": {
+   "pixabayId": 2118725,
+   "photographer": "Monoar_CGI_Artist",
+   "page": "https://pixabay.com/photos/headphone-music-sound-audio-2118725/"
+  },
+  "heater-k0.webp": {
+   "pixabayId": 6731333,
+   "photographer": "yueban",
+   "page": "https://pixabay.com/photos/fan-heater-portable-heater-cortex-6731333/"
+  },
+  "honey-i1.webp": {
+   "pixabayId": 4926890,
+   "photographer": "phuonghoangthuy",
+   "page": "https://pixabay.com/photos/honey-jar-of-honey-jar-fresh-honey-4926890/"
+  },
+  "hoodie-i3.webp": {
+   "pixabayId": 2252156,
+   "photographer": "ast25rulos",
+   "page": "https://pixabay.com/photos/portrait-guy-model-person-2252156/"
+  },
+  "jam-i1.webp": {
+   "pixabayId": 1547219,
+   "photographer": "elvita",
+   "page": "https://pixabay.com/photos/sweet-jam-gift-jar-food-delicious-1547219/"
+  },
+  "jeans-i3.webp": {
+   "pixabayId": 2405037,
+   "photographer": "Engin_Akyurt",
+   "page": "https://pixabay.com/photos/jeans-pants-fashion-photography-2405037/"
+  },
+  "ketchup-i0.webp": {
+   "pixabayId": 617231,
+   "photographer": "markusspiske",
+   "page": "https://pixabay.com/photos/ketchup-red-ketchup-tomato-sauce-617231/"
+  },
+  "kettle-i1.webp": {
+   "pixabayId": 413744,
+   "photographer": "RonPorter",
+   "page": "https://pixabay.com/photos/electric-kettle-plastic-white-413744/"
+  },
+  "kettle-i3.webp": {
+   "pixabayId": 677561,
+   "photographer": "semihnural",
+   "page": "https://pixabay.com/photos/mass-that-boiler-electronic-677561/"
+  },
+  "keyboard-0.webp": {
+   "pixabayId": 886462,
+   "photographer": "Simon",
+   "page": "https://pixabay.com/photos/keyboard-computer-keys-white-886462/"
+  },
+  "keychain-i0.webp": {
+   "pixabayId": 2148476,
+   "photographer": "Ralphs_Fotos",
+   "page": "https://pixabay.com/photos/key-keychain-door-key-house-keys-2148476/"
+  },
+  "kurta-i2.webp": {
+   "pixabayId": 1854062,
+   "photographer": "Pexels",
+   "page": "https://pixabay.com/photos/casual-colors-colours-design-dress-1854062/"
+  },
+  "laptop-bag-k1.webp": {
+   "pixabayId": 2616768,
+   "photographer": "StockSnap",
+   "page": "https://pixabay.com/photos/macbook-laptop-computer-technology-2616768/"
+  },
+  "leggings-j0.webp": {
+   "pixabayId": 3519153,
+   "photographer": "Engin_Akyurt",
+   "page": "https://pixabay.com/photos/leg-tights-pants-woman-legs-3519153/"
+  },
+  "lentils-i1.webp": {
+   "pixabayId": 166985,
+   "photographer": "PDPics",
+   "page": "https://pixabay.com/photos/daal-chana-lentils-indian-cuisine-166985/"
+  },
+  "lipstick-i4.webp": {
+   "pixabayId": 5893474,
+   "photographer": "VITA_C",
+   "page": "https://pixabay.com/photos/lipsticks-makeup-cosmetics-5893474/"
+  },
+  "luggage-tag-i1.webp": {
+   "pixabayId": 1205231,
+   "photographer": "MonicaVolpin",
+   "page": "https://pixabay.com/photos/luggage-tag-key-old-vintage-retro-1205231/"
+  },
+  "lunch-box-k1.webp": {
+   "pixabayId": 7006658,
+   "photographer": "HirokazuTouwaku",
+   "page": "https://pixabay.com/photos/bento-lunch-box-japanese-food-7006658/"
+  },
+  "mascara-i2.webp": {
+   "pixabayId": 444164,
+   "photographer": "Nikasucha",
+   "page": "https://pixabay.com/photos/mascara-cosmetics-big-purple-444164/"
+  },
+  "micellar-water-k2.webp": {
+   "pixabayId": 4869876,
+   "photographer": "ds_30",
+   "page": "https://pixabay.com/photos/plastic-bottle-container-4869876/"
+  },
+  "milk-powder-i1.webp": {
+   "pixabayId": 526540,
+   "photographer": "shijingsjgem",
+   "page": "https://pixabay.com/photos/milk-powder-convido-netherlands-526540/"
+  },
+  "mixer-grinder-i3.webp": {
+   "pixabayId": 10933,
+   "photographer": "opaye",
+   "page": "https://pixabay.com/photos/blender-mixer-juicer-food-processor-10933/"
+  },
+  "moisturizer-i0.webp": {
+   "pixabayId": 1327847,
+   "photographer": "andreas160578",
+   "page": "https://pixabay.com/photos/cream-can-cosmetics-lid-fragrance-1327847/"
+  },
+  "monitor-i2.webp": {
+   "pixabayId": 17894,
+   "photographer": "PublicDomainPictures",
+   "page": "https://pixabay.com/photos/blank-business-computer-desktop-17894/"
+  },
+  "nvme-ssd-i0.webp": {
+   "pixabayId": 5161898,
+   "photographer": "tonywuphotography",
+   "page": "https://pixabay.com/photos/hard-drive-open-industry-capacity-5161898/"
+  },
+  "oats-i0.webp": {
+   "pixabayId": 701299,
+   "photographer": "dessuil",
+   "page": "https://pixabay.com/photos/oats-oat-breakfast-healthy-701299/"
+  },
+  "oil-bottle-i1.webp": {
+   "pixabayId": 1755310,
+   "photographer": "Mareefe",
+   "page": "https://pixabay.com/photos/rod-pharmacy-glass-bottle-1755310/"
+  },
+  "passport-holder-i1.webp": {
+   "pixabayId": 1986378,
+   "photographer": "xxlkoffer",
+   "page": "https://pixabay.com/photos/leather-case-visitenkartenetui-1986378/"
+  },
+  "perfume-4.webp": {
+   "pixabayId": 8352498,
+   "photographer": "AestheticJourney",
+   "page": "https://pixabay.com/photos/bottle-perfume-cosmetics-liquid-8352498/"
+  },
+  "phone-case-i4.webp": {
+   "pixabayId": 3070734,
+   "photographer": "cocojorden",
+   "page": "https://pixabay.com/photos/telephone-cellular-telephone-3070734/"
+  },
+  "pillow-i1.webp": {
+   "pixabayId": 1738023,
+   "photographer": "Marlon_Delibasic",
+   "page": "https://pixabay.com/photos/pillow-sleep-dream-comfortable-1738023/"
+  },
+  "polo-k3.webp": {
+   "pixabayId": 4871643,
+   "photographer": "OneOldNovelist",
+   "page": "https://pixabay.com/photos/man-smile-people-masculine-face-4871643/"
+  },
+  "power-bank-1.webp": {
+   "pixabayId": 5226459,
+   "photographer": "viarami",
+   "page": "https://pixabay.com/photos/product-minimalist-object-article-5226459/"
+  },
+  "power-bank-k5.webp": {
+   "pixabayId": 925569,
+   "photographer": "StockSnap",
+   "page": "https://pixabay.com/photos/power-bank-battery-technology-925569/"
+  },
+  "pressure-cooker-j1.webp": {
+   "pixabayId": 3083122,
+   "photographer": "1110349",
+   "page": "https://pixabay.com/photos/stove-cooking-cooking-utensils-3083122/"
+  },
+  "puffer-jacket-i2.webp": {
+   "pixabayId": 1869827,
+   "photographer": "Pexels",
+   "page": "https://pixabay.com/photos/casual-cute-fashion-looking-model-1869827/"
+  },
+  "razor-i0.webp": {
+   "pixabayId": 5146216,
+   "photographer": "ds_30",
+   "page": "https://pixabay.com/photos/razors-sharp-shaving-stainless-5146216/"
+  },
+  "rice-i3.webp": {
+   "pixabayId": 960627,
+   "photographer": "Monsterkoi",
+   "page": "https://pixabay.com/photos/rice-food-meal-staple-food-grainy-960627/"
+  },
+  "running-shoes-i1.webp": {
+   "pixabayId": 371625,
+   "photographer": "stux",
+   "page": "https://pixabay.com/photos/running-shoe-shoe-brooks-371625/"
+  },
+  "salt-i3.webp": {
+   "pixabayId": 2819174,
+   "photographer": "No-longer-here",
+   "page": "https://pixabay.com/photos/hand-isolated-white-background-2819174/"
+  },
+  "scarf-k5.webp": {
+   "pixabayId": 4646367,
+   "photographer": "Nika_Akin",
+   "page": "https://pixabay.com/photos/red-silk-scarf-textile-fashion-4646367/"
+  },
+  "serum-i2.webp": {
+   "pixabayId": 6999335,
+   "photographer": "ирина1233215",
+   "page": "https://pixabay.com/photos/massage-oil-essential-oil-serum-6999335/"
+  },
+  "serum-i3.webp": {
+   "pixabayId": 3771703,
+   "photographer": "bujinzhao",
+   "page": "https://pixabay.com/photos/cosmetic-lancome-essence-care-3771703/"
+  },
+  "setting-spray-i1.webp": {
+   "pixabayId": 7458645,
+   "photographer": "Personal_Graphic",
+   "page": "https://pixabay.com/photos/bottle-mockup-perfume-product-7458645/"
+  },
+  "shampoo-i1.webp": {
+   "pixabayId": 1884373,
+   "photographer": "andreas160578",
+   "page": "https://pixabay.com/photos/tube-shampoo-empty-cream-container-1884373/"
+  },
+  "shirt-i0.webp": {
+   "pixabayId": 2650677,
+   "photographer": "Engin_Akyurt",
+   "page": "https://pixabay.com/photos/shirt-blue-male-person-adult-2650677/"
+  },
+  "shorts-j0.webp": {
+   "pixabayId": 1203899,
+   "photographer": "Keifit",
+   "page": "https://pixabay.com/photos/men-standing-position-exercise-1203899/"
+  },
+  "shuttlecock-i2.webp": {
+   "pixabayId": 2646924,
+   "photographer": "inproperstyle",
+   "page": "https://pixabay.com/photos/badminton-ball-balls-ball-sports-2646924/"
+  },
+  "skirt-1.webp": {
+   "pixabayId": 5312753,
+   "photographer": "Engin_Akyurt",
+   "page": "https://pixabay.com/photos/fashion-clothes-genre-style-woman-5312753/"
+  },
+  "smart-speaker-j3.webp": {
+   "pixabayId": 4758340,
+   "photographer": "finnhart",
+   "page": "https://pixabay.com/photos/alexa-echo-smart-home-box-jukebox-4758340/"
+  },
+  "smartwatch-3.webp": {
+   "pixabayId": 8300238,
+   "photographer": "indraprojects",
+   "page": "https://pixabay.com/photos/smartwatch-technology-watch-time-8300238/"
+  },
+  "sneakers-i3.webp": {
+   "pixabayId": 371624,
+   "photographer": "stux",
+   "page": "https://pixabay.com/photos/running-shoe-shoe-brooks-371624/"
+  },
+  "speaker-i0.webp": {
+   "pixabayId": 2343009,
+   "photographer": "Thelocalguide",
+   "page": "https://pixabay.com/photos/jbl-music-splash-portable-speakers-2343009/"
+  },
+  "spices-5.webp": {
+   "pixabayId": 389914,
+   "photographer": "PDPics",
+   "page": "https://pixabay.com/photos/spices-bowl-cardamon-food-389914/"
+  },
+  "sports-bag-k6.webp": {
+   "pixabayId": 1324445,
+   "photographer": "stux",
+   "page": "https://pixabay.com/photos/backpack-sports-leisure-time-blue-1324445/"
+  },
+  "sports-bag-k8.webp": {
+   "pixabayId": 139758,
+   "photographer": "39839",
+   "page": "https://pixabay.com/photos/bags-travel-bag-blue-luggage-139758/"
+  },
+  "sports-bottle-i0.webp": {
+   "pixabayId": 7663829,
+   "photographer": "Artist_atsite",
+   "page": "https://pixabay.com/photos/aluminum-blank-space-bottle-7663829/"
+  },
+  "steam-iron-i1.webp": {
+   "pixabayId": 3215794,
+   "photographer": "Alexas_Fotos",
+   "page": "https://pixabay.com/photos/iron-house-work-household-smoothing-3215794/"
+  },
+  "storage-jars-i1.webp": {
+   "pixabayId": 5501657,
+   "photographer": "ds_30",
+   "page": "https://pixabay.com/photos/empty-jars-glass-canister-5501657/"
+  },
+  "suitcase-i3.webp": {
+   "pixabayId": 1429587,
+   "photographer": "Alexas_Fotos",
+   "page": "https://pixabay.com/photos/suitcase-trolley-travel-farewell-1429587/"
+  },
+  "sunglasses-k10.webp": {
+   "pixabayId": 357126,
+   "photographer": "AndreasAux",
+   "page": "https://pixabay.com/photos/glasses-water-splash-water-surface-357126/"
+  },
+  "sunscreen-4.webp": {
+   "pixabayId": 7256345,
+   "photographer": "Bellahu123",
+   "page": "https://pixabay.com/photos/sunscreen-sun-block-sun-protection-7256345/"
+  },
+  "table-tennis-2.webp": {
+   "pixabayId": 1205609,
+   "photographer": "Brett_Hondow",
+   "page": "https://pixabay.com/photos/ping-pong-table-tennis-paddles-1205609/"
+  },
+  "table-tennis-i1.webp": {
+   "pixabayId": 2819293,
+   "photographer": "No-longer-here",
+   "page": "https://pixabay.com/photos/table-tennis-ping-pong-bat-paddle-2819293/"
+  },
+  "tablet-i1.webp": {
+   "pixabayId": 4766996,
+   "photographer": "jeanvdmeulen",
+   "page": "https://pixabay.com/photos/black-business-cell-cellphone-4766996/"
+  },
+  "tea-i3.webp": {
+   "pixabayId": 3542450,
+   "photographer": "Mohamed_hassan",
+   "page": "https://pixabay.com/photos/lemon-tea-antioxidant-nutrition-3542450/"
+  },
+  "tennis-ball-i2.webp": {
+   "pixabayId": 1551550,
+   "photographer": "41330",
+   "page": "https://pixabay.com/photos/ball-racket-white-yellow-1551550/"
+  },
+  "tennis-racket-i0.webp": {
+   "pixabayId": 5025174,
+   "photographer": "jeanvdmeulen",
+   "page": "https://pixabay.com/photos/activity-badminton-ball-black-5025174/"
+  },
+  "towels-j1.webp": {
+   "pixabayId": 3279694,
+   "photographer": "Alexas_Fotos",
+   "page": "https://pixabay.com/photos/towels-yellow-orange-multicoloured-3279694/"
+  },
+  "trimmer-i2.webp": {
+   "pixabayId": 4840,
+   "photographer": "TonyZhu",
+   "page": "https://pixabay.com/photos/shaver-household-appliances-4840/"
+  },
+  "trousers-i3.webp": {
+   "pixabayId": 2685231,
+   "photographer": "clangs",
+   "page": "https://pixabay.com/photos/trousers-clothing-mens-pants-2685231/"
+  },
+  "tshirt-i2.webp": {
+   "pixabayId": 2643876,
+   "photographer": "humblehustler",
+   "page": "https://pixabay.com/photos/buy-online-t-shirts-2643876/"
+  },
+  "umbrella-i0.webp": {
+   "pixabayId": 898076,
+   "photographer": "AlexandruPetre",
+   "page": "https://pixabay.com/photos/umbrella-chinese-screen-china-japan-898076/"
+  },
+  "usb-cable-1.webp": {
+   "pixabayId": 4875319,
+   "photographer": "ds_30",
+   "page": "https://pixabay.com/photos/cable-computer-usb-technology-4875319/"
+  },
+  "usb-hub-k10.webp": {
+   "pixabayId": 4875319,
+   "photographer": "ds_30",
+   "page": "https://pixabay.com/photos/cable-computer-usb-technology-4875319/"
+  },
+  "volleyball-i2.webp": {
+   "pixabayId": 2105107,
+   "photographer": "Zowrer",
+   "page": "https://pixabay.com/photos/ball-volleyball-sport-2105107/"
+  },
+  "wallet-i0.webp": {
+   "pixabayId": 522549,
+   "photographer": "stevepb",
+   "page": "https://pixabay.com/photos/credit-squeeze-taxation-purse-tax-522549/"
+  },
+  "wallet-i3.webp": {
+   "pixabayId": 1934036,
+   "photographer": "Andrew-Art",
+   "page": "https://pixabay.com/photos/money-wallet-banknotes-1934036/"
+  },
+  "water-bottle-1.webp": {
+   "pixabayId": 4423681,
+   "photographer": "Felix-Mittermeier",
+   "page": "https://pixabay.com/photos/clean-kanteen-metal-bottle-bottle-4423681/"
+  },
+  "webcam-j0.webp": {
+   "pixabayId": 8670926,
+   "photographer": "MrTozzo",
+   "page": "https://pixabay.com/photos/camera-photography-photographer-8670926/"
+  },
+  "womens-top-i0.webp": {
+   "pixabayId": 1623091,
+   "photographer": "3179289",
+   "page": "https://pixabay.com/photos/fashion-woman-clothing-female-1623091/"
+  },
+  "wristwatch-i0.webp": {
+   "pixabayId": 3091031,
+   "photographer": "PIRO4D",
+   "page": "https://pixabay.com/photos/time-clock-wrist-watch-chronometer-3091031/"
+  },
+  "wristwatch-i4.webp": {
+   "pixabayId": 2133289,
+   "photographer": "stevepb",
+   "page": "https://pixabay.com/photos/swatch-watch-wristwatch-time-watch-2133289/"
+  },
+  "yoga-mat-0.webp": {
+   "pixabayId": 3053487,
+   "photographer": "lograstudio",
+   "page": "https://pixabay.com/photos/yoga-fitness-exercise-health-body-3053487/"
+  },
+  "yoga-mat-i2.webp": {
+   "pixabayId": 2573216,
+   "photographer": "StockSnap",
+   "page": "https://pixabay.com/photos/woman-yoga-stretching-meditation-2573216/"
+  }
+ },
+ "categories": {
+  "all": {
+   "pixabayId": 8210087,
+   "photographer": "samipathan",
+   "page": "https://pixabay.com/photos/headphones-headset-audio-office-8210087/",
+   "size": [
+    480,
+    480
+   ]
+  },
+  "electronics": {
+   "pixabayId": 4758340,
+   "photographer": "finnhart",
+   "page": "https://pixabay.com/photos/alexa-echo-smart-home-box-jukebox-4758340/",
+   "size": [
+    480,
+    480
+   ]
+  },
+  "fashion": {
+   "pixabayId": 2359612,
+   "photographer": "Engin_Akyurt",
+   "page": "https://pixabay.com/photos/woman-girl-portrait-model-beauty-2359612/",
+   "size": [
+    480,
+    480
+   ]
+  },
+  "home-living": {
+   "pixabayId": 677561,
+   "photographer": "semihnural",
+   "page": "https://pixabay.com/photos/mass-that-boiler-electronic-677561/",
+   "size": [
+    480,
+    480
+   ]
+  },
+  "sports": {
+   "pixabayId": 428314,
+   "photographer": "jarmoluk",
+   "page": "https://pixabay.com/photos/football-the-ball-sport-game-428314/",
+   "size": [
+    480,
+    480
+   ]
+  },
+  "books": {
+   "pixabayId": 5937716,
+   "photographer": "Hermann",
+   "page": "https://pixabay.com/photos/books-literature-knowledge-5937716/",
+   "size": [
+    480,
+    480
+   ]
+  },
+  "beauty": {
+   "pixabayId": 5893474,
+   "photographer": "VITA_C",
+   "page": "https://pixabay.com/photos/lipsticks-makeup-cosmetics-5893474/",
+   "size": [
+    480,
+    480
+   ]
+  },
+  "groceries": {
+   "pixabayId": 389914,
+   "photographer": "PDPics",
+   "page": "https://pixabay.com/photos/spices-bowl-cardamon-food-389914/",
+   "size": [
+    480,
+    480
+   ]
+  },
+  "accessories": {
+   "pixabayId": 2133289,
+   "photographer": "stevepb",
+   "page": "https://pixabay.com/photos/swatch-watch-wristwatch-time-watch-2133289/",
+   "size": [
+    480,
+    480
+   ]
+  },
+  "auth": {
+   "pixabayId": 5312753,
+   "photographer": "Engin_Akyurt",
+   "page": "https://pixabay.com/photos/fashion-clothes-genre-style-woman-5312753/",
+   "size": [
+    900,
+    1200
+   ]
+  }
+ }
+}

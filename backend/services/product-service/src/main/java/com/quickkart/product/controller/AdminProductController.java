@@ -1,6 +1,9 @@
 package com.quickkart.product.controller;
 
+import com.quickkart.product.dto.PageResponse;
 import com.quickkart.product.dto.ProductRequest;
+import com.quickkart.product.dto.StockMovementResponse;
+import org.springframework.security.core.Authentication;
 import com.quickkart.product.dto.ProductResponse;
 import com.quickkart.product.dto.StockAdjustmentRequest;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -52,22 +55,42 @@ public class AdminProductController {
         return ResponseEntity.ok(change.product());
     }
 
+    /**
+     * Paged admin catalog (includes discontinued products).
+     * {@code stock}: ALL, LOW (under 5) or OUT. {@code sort}: newest (default) or stock (lowest first).
+     */
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getAllProductsForAdmin() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<PageResponse<ProductResponse>> getAllProductsForAdmin(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String stock,
+            @RequestParam(required = false) String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
+        return ResponseEntity.ok(productService.searchForAdmin(q, category, stock, sort, page, size));
+    }
+
+    /** Every stock change of a product, newest first (checkout, cancellation, restock, edits). */
+    @GetMapping("/{id}/stock-movements")
+    public ResponseEntity<PageResponse<StockMovementResponse>> stockHistory(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(productService.stockHistory(id, page, size));
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request) {
-        ProductResponse created = productService.createProduct(request);
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request, Authentication auth) {
+        ProductResponse created = productService.createProduct(request, auth.getName());
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable Long id,
-            @Valid @RequestBody ProductRequest request) {
-        ProductResponse updated = productService.updateProduct(id, request);
+            @Valid @RequestBody ProductRequest request,
+            Authentication auth) {
+        ProductResponse updated = productService.updateProduct(id, request, auth.getName());
         return ResponseEntity.ok(updated);
     }
 
@@ -75,11 +98,12 @@ public class AdminProductController {
     @PatchMapping("/{id}/stock")
     public ResponseEntity<ProductResponse> adjustStock(
             @PathVariable Long id,
-            @Valid @RequestBody StockAdjustmentRequest request) {
+            @Valid @RequestBody StockAdjustmentRequest request,
+            Authentication auth) {
         if (request.getAdjustment() == 0) {
             throw new IllegalArgumentException("Adjustment must not be zero");
         }
-        return ResponseEntity.ok(productService.updateStock(id, request.getAdjustment()));
+        return ResponseEntity.ok(productService.updateStock(id, request.getAdjustment(), auth.getName()));
     }
 
     @DeleteMapping("/{id}")

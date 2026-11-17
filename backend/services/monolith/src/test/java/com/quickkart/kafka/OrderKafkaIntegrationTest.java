@@ -14,7 +14,6 @@ import com.quickkart.consumer.ConsumedOrderEventRecord;
 import com.quickkart.consumer.OrderNotificationConsumer;
 import com.quickkart.dto.OrderCreatedEvent;
 import com.quickkart.dto.OrderItemSummary;
-import com.quickkart.producer.OrderEventProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrderKafkaIntegrationTest {
 
     @Autowired
-    private OrderEventProducer orderEventProducer;
+    private org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate;
 
     @Autowired
     private OrderNotificationConsumer orderNotificationConsumer;
@@ -58,7 +57,6 @@ class OrderKafkaIntegrationTest {
     @BeforeEach
     void setUp() {
         orderNotificationConsumer.reset();
-        orderEventProducer.resetStats();
         Mockito.reset(emailService);
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -119,7 +117,7 @@ class OrderKafkaIntegrationTest {
     void testProducerSendsEvent_AndConsumerProcessesNotification() throws Exception {
         User user = customer();
         String eventId = "ORDER_CREATED-" + UUID.randomUUID();
-        orderEventProducer.sendOrderCreatedEvent(event(eventId, 123L, user.getId()));
+        send(event(eventId, 123L, user.getId()));
 
         assertTrue(waitForCondition(() -> processedEvents.existsById(eventId), 10), "event must be recorded in processed_events");
         verify(emailService).sendOrderConfirmation(eq(user.getEmail()), eq(user.getName()), eq(123L), eq(new BigDecimal("2499.00")), anyList());
@@ -134,12 +132,12 @@ class OrderKafkaIntegrationTest {
     void testDuplicateEvent_DoesNotTriggerNotificationTwice() throws Exception {
         User user = customer();
         String sharedEventId = "ORDER_CREATED-dup-" + UUID.randomUUID();
-        orderEventProducer.sendOrderCreatedEvent(event(sharedEventId, 789L, user.getId()));
+        send(event(sharedEventId, 789L, user.getId()));
         assertTrue(waitForCondition(() -> processedEvents.existsById(sharedEventId), 10));
 
         // Simulate a restart: in-memory statistics are gone, the database record is not.
         orderNotificationConsumer.reset();
-        orderEventProducer.sendOrderCreatedEvent(event(sharedEventId, 789L, user.getId()));
+        send(event(sharedEventId, 789L, user.getId()));
         assertTrue(waitForCondition(() -> orderNotificationConsumer.getDuplicateCount() >= 1, 10));
 
         verify(emailService, times(1)).sendOrderConfirmation(eq(user.getEmail()), any(), eq(789L), any(), anyList());
@@ -159,7 +157,7 @@ class OrderKafkaIntegrationTest {
                 new org.apache.kafka.common.serialization.StringDeserializer(),
                 new org.apache.kafka.common.serialization.StringDeserializer()).createConsumer()) {
             broker.consumeFromAnEmbeddedTopic(dlt, "quickkart.order-events.DLT");
-            orderEventProducer.sendOrderCreatedEvent(event(eventId, 555L, user.getId()));
+            send(event(eventId, 555L, user.getId()));
 
             var record = org.springframework.kafka.test.utils.KafkaTestUtils.getSingleRecord(dlt, "quickkart.order-events.DLT", java.time.Duration.ofSeconds(30));
             assertTrue(record.value().contains(eventId), "the original event is preserved on the DLT");
@@ -183,5 +181,9 @@ class OrderKafkaIntegrationTest {
     @FunctionalInterface
     interface ConditionCheck {
         boolean isSatisfied();
+    }
+
+    private void send(OrderCreatedEvent e) {
+        kafkaTemplate.send("quickkart.order-events", String.valueOf(e.getOrderId()), e);
     }
 }

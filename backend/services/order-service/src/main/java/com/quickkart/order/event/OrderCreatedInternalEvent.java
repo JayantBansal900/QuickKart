@@ -11,6 +11,9 @@ public record OrderCreatedInternalEvent(
         Long userId,
         BigDecimal totalAmount,
         LocalDateTime createdAt,
-        List<OrderItemSummary> items
+        List<OrderItemSummary> items,
+        String status,
+        String paymentMethod,
+        String paymentStatus
 ) {
 }

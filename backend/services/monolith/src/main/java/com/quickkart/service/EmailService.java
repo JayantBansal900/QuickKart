@@ -17,4 +17,10 @@ public interface EmailService {
     /** Order confirmation, sent by the Kafka notification consumer after checkout. */
     void sendOrderConfirmation(String toEmail, String userName, Long orderId, java.math.BigDecimal total,
                                java.util.List<com.quickkart.dto.OrderItemSummary> items);
+
+    /**
+     * Short transactional update about an existing order (shipped, delivered, cancelled, payment
+     * received or failed). {@code headline} and {@code message} are plain text; implementations escape them.
+     */
+    void sendOrderUpdate(String toEmail, String userName, Long orderId, String subject, String headline, String message);
 }

@@ -23,7 +23,7 @@ it("handles non-JSON failures without reading the response body twice", async ()
         new Response("<html>bad gateway</html>", { status: 502 }),
       ),
   );
-  await expect(api.getProducts()).rejects.toThrow("Request failed (502)");
+  await expect(api.getAdminProducts()).rejects.toThrow("Request failed (502)");
 });
 it("a delayed response from an old token cannot clear the new session", async () => {
   localStorage.setItem(TOKEN_KEY, "old");

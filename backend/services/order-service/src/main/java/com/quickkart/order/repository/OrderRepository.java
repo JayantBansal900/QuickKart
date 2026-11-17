@@ -8,7 +8,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, Long> {
+public interface OrderRepository extends JpaRepository<Order, Long>,
+        org.springframework.data.jpa.repository.JpaSpecificationExecutor<Order> {
+
+    /** Online orders still waiting for payment, oldest first (for the expiry job). */
+    @org.springframework.data.jpa.repository.Query("select o.id from Order o where o.status = 'PENDING' and o.createdAt < :before order by o.id")
+    List<Long> findUnpaidBefore(@org.springframework.data.repository.query.Param("before") java.time.LocalDateTime before);
 
     Optional<Order> findByUserIdAndCheckoutKey(Long userId,String checkoutKey);
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)

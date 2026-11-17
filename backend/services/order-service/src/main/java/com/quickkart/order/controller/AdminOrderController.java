@@ -1,6 +1,8 @@
 package com.quickkart.order.controller;
 
 import com.quickkart.order.dto.OrderResponse;
+import com.quickkart.order.dto.PageResponse;
+import org.springframework.web.bind.annotation.RequestParam;
 import com.quickkart.order.dto.UpdateOrderStatusRequest;
 import com.quickkart.order.service.OrderService;
 import jakarta.validation.Valid;
@@ -25,10 +27,14 @@ public class AdminOrderController {
         this.orderService = orderService;
     }
 
+    /** Paged, newest first. {@code q} matches order id, customer email or recipient name. */
     @GetMapping
-    public ResponseEntity<List<OrderResponse>> getAllOrders() {
-        List<OrderResponse> orders = orderService.getAllOrders();
-        return ResponseEntity.ok(orders);
+    public ResponseEntity<PageResponse<OrderResponse>> getAllOrders(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
+        return ResponseEntity.ok(orderService.searchForAdmin(q, status, page, size));
     }
 
     @GetMapping("/{id}")

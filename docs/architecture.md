@@ -19,9 +19,9 @@ Routes are matched top to bottom ([application.yml](../backend/services/api-gate
 
 | Path | Service |
 |---|---|
-| `/api/products/**`, `/api/admin/products/**` | product service |
-| `/api/cart/**`, `/api/orders/**`, `/api/admin/orders/**` | order service |
-| `/api/auth/**`, `/api/payments/**`, `/api/admin/**`, any other `/api/**` | monolith |
+| `/api/products/**`, `/api/admin/products/**`, `/api/categories/**`, `/api/admin/categories/**` | product service (catalog, categories, reviews, stock history) |
+| `/api/cart/**`, `/api/orders/**`, `/api/admin/orders/**` | order service (cart, checkout, payments) |
+| `/api/auth/**`, `/api/admin/**`, any other `/api/**` | monolith (auth, profile, users, analytics, system) |
 
 Cart, order and catalog code used to live in the monolith too. After the split, those copies were deleted, so each endpoint has exactly one implementation.
 
@@ -100,7 +100,9 @@ sequenceDiagram
 
 - **Cart fingerprint.** A hash of the cart's contents and prices that the customer confirmed. If the cart changed in another tab, checkout fails instead of charging for something the customer didn't see.
 - **Idempotency key.** Generated per checkout attempt in the browser. A retry after a timeout returns the original order.
-- **Order lifecycle.** `PENDING → CONFIRMED → PROCESSING → SHIPPED → DELIVERED`. An order can be cancelled before it ships, and cancellation puts the stock back. Marking an order `DELIVERED` sets the COD payment to `COLLECTED`; revenue analytics count only collected payments.
+- **Order lifecycle.** `PLACED → CONFIRMED → PROCESSING → SHIPPED → OUT_FOR_DELIVERY → DELIVERED`, one step at a time. An order can be cancelled before it ships, and cancellation puts the stock back. Marking a COD order `DELIVERED` sets its payment to `COLLECTED`.
+- **Online payments (simulated gateway).** A UPI or card checkout creates the order in `PENDING` with a `PENDING` payment; the stock is already reserved. `POST /api/orders/{id}/pay` plays the gateway callback: success sets the payment `PAID` and the order `PLACED` (a repeated success is idempotent), failure sets `FAILED` and the customer can retry. `UnpaidOrderExpiry` runs every minute and cancels orders still unpaid after 30 minutes, each in its own transaction under the order's row lock, so a payment arriving at the same moment either wins or sees `CANCELLED`. Cancelling a paid order marks it `REFUNDED`. Collected revenue counts `PAID` and `COLLECTED` payments.
+- **Stock history.** Every stock change (checkout, cancellation, admin restock / correction / edit) writes a `stock_movements` row in the same transaction as the change.
 
 ---
 
@@ -113,9 +115,19 @@ flowchart LR
     R -->|"acks=all, idempotent producer, key = orderId"| K{{"quickkart.order-events"}}
     K --> C["OrderNotificationConsumer (monolith)"]
     C -->|"eventId seen?"| PE[("processed_events")]
-    C -->|"new"| E["order confirmation email"]
+    C -->|"new"| E["email: confirmation, payment, shipped, delivered, cancelled"]
     C -->|"3 retries failed"| D{{"quickkart.order-events.DLT"}}
 ```
+
+Events on the topic (all written through the outbox, keyed by order id so one order's events stay in order):
+
+| Event | Written when | Email |
+|---|---|---|
+| `ORDER_CREATED` | checkout | order confirmation (COD orders; online orders wait for the payment) |
+| `PAYMENT_SUCCEEDED` / `PAYMENT_FAILED` | `/pay` | payment received / payment failed, with how to retry |
+| `ORDER_STATUS_CHANGED` | every status change | shipped, out for delivery, delivered, cancelled (with refund note); none for internal steps |
+
+Event ids are deterministic (`ORDER_STATUS-41-SHIPPED`), so a retried write or a redelivery is de-duplicated.
 
 Why not publish to Kafka directly after commit? If the process dies or Kafka is down between the commit and the send, the event is lost. With the outbox:
 
@@ -133,3 +145,13 @@ Why not publish to Kafka directly after commit? If the process dies or Kafka is 
 - `X-Correlation-ID` is created at the gateway (or accepted from the client), passed downstream, and put in the SLF4J MDC, so one request can be followed through all service logs.
 - `GET /api/admin/system/status` probes each dependency with a 2 s timeout. It returns only UP/DOWN, latency, and a fixed description, never hostnames or exception text.
 - Errors return a JSON body with a safe message. `500` responses never include exception details; those go to the log.
+
+## Schema migrations
+
+The init script creates the schema as of V5 on an empty volume. Later changes are Flyway migrations (`infrastructure/postgres/migrations/V<n>__*.sql`) applied by a one-shot `db-migrate` container before any service starts (`depends_on: service_completed_successfully`). Older databases are baselined at V5. In `prod`, Hibernate only validates the schema, so a missing migration stops the service at startup instead of letting it change tables.
+
+## Browser security and network surface
+
+- nginx sends a strict **Content-Security-Policy** (`script-src 'self'`, no inline scripts: the theme pre-paint script is a file), `frame-ancestors 'none'`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` and a restrictive `Permissions-Policy`. The CSP matters most because the JWT is kept in `localStorage`: it blocks injected scripts from reading it.
+- Redis requires a password (`requirepass`); the services pass it from `.env`.
+- Only nginx (:3000) and the gateway (:8080) are meant to be reached from outside. PostgreSQL, Redis, Kafka and the three services are published on `127.0.0.1` only (for local debugging) and talk to each other on the Compose network. The production overlay removes those ports entirely.

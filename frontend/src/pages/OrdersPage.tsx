@@ -1,18 +1,23 @@
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-import { AlertCircle, ArrowRight, CheckCircle2, Package, RefreshCw, XCircle } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Clock, Package, RefreshCw, Star, XCircle } from 'lucide-react';
+import { useConfirm } from '../components/ConfirmDialog';
+import { PaymentPanel } from '../components/PaymentPanel';
 import { api } from '../services/api';
 import { OrderResponse } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { formatINR } from '../utils/formatters';
 
-const STEPS: OrderResponse['status'][] = ['CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED'];
+const STEPS: OrderResponse['status'][] = ['PLACED', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
 const STEP_LABEL: Record<string, string> = {
-  PENDING: 'Pending', CONFIRMED: 'Confirmed', PROCESSING: 'Processing', SHIPPED: 'Shipped', DELIVERED: 'Delivered', CANCELLED: 'Cancelled',
+  PENDING: 'Awaiting payment', PLACED: 'Placed', CONFIRMED: 'Confirmed', PROCESSING: 'Packed', SHIPPED: 'Shipped',
+  OUT_FOR_DELIVERY: 'Out for delivery', DELIVERED: 'Delivered', CANCELLED: 'Cancelled',
 };
 const PAYMENT_LABEL: Record<string, string> = {
-  COLLECTION_PENDING: 'Pay on delivery', COLLECTED: 'Paid', CANCELLED: 'Not charged', MANUAL_REVIEW_REQUIRED: 'Under review',
+  COLLECTION_PENDING: 'Pay on delivery', COLLECTED: 'Paid', PAID: 'Paid', PENDING: 'Not paid yet', FAILED: 'Payment failed',
+  REFUNDED: 'Refunded', CANCELLED: 'Not charged', MANUAL_REVIEW_REQUIRED: 'Under review',
 };
+const METHOD_LABEL: Record<string, string> = { COD: 'Cash on delivery', UPI: 'UPI', CARD: 'Card' };
 
 function formatDate(value?: string) {
   if (!value) return '';
@@ -22,6 +27,13 @@ function formatDate(value?: string) {
 
 /** Horizontal progress tracker for an order's fulfilment status. */
 function StatusTracker({ status }: { status: OrderResponse['status'] }) {
+  if (status === 'PENDING') {
+    return (
+      <div className="flex items-center gap-2 rounded-xl bg-amber-100 px-4 py-3 text-sm font-medium text-amber-900 dark:bg-amber-500/15 dark:text-amber-200">
+        <Clock className="h-4 w-4" /> Waiting for payment. Unpaid orders are cancelled after 30 minutes.
+      </div>
+    );
+  }
   if (status === 'CANCELLED') {
     return (
       <div className="flex items-center gap-2 rounded-xl bg-sale-soft px-4 py-3 text-sm font-medium text-sale">
@@ -31,7 +43,7 @@ function StatusTracker({ status }: { status: OrderResponse['status'] }) {
   }
   const current = Math.max(0, STEPS.indexOf(status));
   return (
-    <ol className="grid grid-cols-4 gap-2" aria-label={`Order status: ${STEP_LABEL[status] ?? status}`}>
+    <ol className="grid grid-cols-3 gap-x-2 gap-y-3 sm:grid-cols-6" aria-label={`Order status: ${STEP_LABEL[status] ?? status}`}>
       {STEPS.map((step, i) => {
         const done = i <= current;
         return (
@@ -54,6 +66,8 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<number | null>(null);
+  const [paying, setPaying] = useState<OrderResponse | null>(null);
+  const [confirmDialog, confirm] = useConfirm();
 
   const fetchOrders = async () => {
     if (!isAuthenticated) return;
@@ -74,7 +88,14 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
   }, [isAuthenticated]);
 
   const cancel = async (order: OrderResponse) => {
-    if (!window.confirm(`Cancel order #${order.id}?`)) return;
+    const ok = await confirm({
+      title: `Cancel order #${order.id}?`,
+      message: order.paymentStatus === 'PAID' ? `Your payment of ${formatINR(order.totalAmount)} will be refunded.` : 'The items go back on sale. This can’t be undone.',
+      confirmLabel: 'Cancel order',
+      cancelLabel: 'Keep order',
+      danger: true,
+    });
+    if (!ok) return;
     setCancellingId(order.id);
     setError(null);
     try {
@@ -97,14 +118,37 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
     );
   }
 
-  const confirmedId = (location.state as { confirmedOrderId?: number } | null)?.confirmedOrderId;
+  const state = location.state as { confirmedOrderId?: number; paymentMethod?: string; paid?: boolean } | null;
+  const confirmedId = state?.confirmedOrderId;
+  const confirmedOrder = orders.find((o) => o.id === confirmedId);
+  const confirmation = !confirmedOrder
+    ? `Order #${confirmedId} created.`
+    : confirmedOrder.paymentMethod === 'COD'
+      ? `Order #${confirmedId} placed. You’ll pay in cash when it’s delivered.`
+      : confirmedOrder.paymentStatus === 'PAID'
+        ? `Payment received. Order #${confirmedId} is placed.`
+        : `Order #${confirmedId} is waiting for payment. Use “Pay now” below.`;
 
   return (
     <div className="qk-container max-w-4xl py-10">
+      {confirmDialog}
+      {paying && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setPaying(null)} aria-hidden="true" />
+          <section role="dialog" aria-modal="true" aria-labelledby="pay-title" className="relative w-full rounded-t-[28px] bg-surface p-6 shadow-2xl sm:max-w-md sm:rounded-[28px]">
+            <h2 id="pay-title" className="qk-display mb-4 text-3xl text-fg">Complete payment</h2>
+            <PaymentPanel
+              order={paying}
+              onPaid={() => { setPaying(null); void fetchOrders(); }}
+              onLater={() => { setPaying(null); void fetchOrders(); }}
+            />
+          </section>
+        </div>
+      )}
       {confirmedId && (
         <div role="status" className="mb-8 flex items-center gap-3 rounded-2xl border border-success/30 bg-success-soft p-4 text-sm text-fg animate-rise">
           <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
-          <span>Order #{confirmedId} created. You’ll pay in cash when it’s delivered.</span>
+          <span>{confirmation}</span>
         </div>
       )}
 
@@ -150,7 +194,7 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
                 <div className="text-right">
                   <p className="text-lg font-semibold text-fg">{formatINR(order.totalAmount)}</p>
                   <p className="text-xs text-muted">
-                    {order.paymentMethod === 'COD' ? 'Cash on delivery' : order.paymentMethod || 'Payment'} ·{' '}
+                    {METHOD_LABEL[order.paymentMethod ?? ''] ?? order.paymentMethod ?? 'Payment'} ·{' '}
                     {PAYMENT_LABEL[order.paymentStatus ?? ''] ?? order.paymentStatus ?? 'Unknown'}
                   </p>
                 </div>
@@ -165,18 +209,31 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
                       <span className="min-w-0 text-fg">
                         <span className="text-muted">{item.quantity} ×</span> {item.productName}
                       </span>
-                      <span className="shrink-0 text-fg">{formatINR(item.subtotal)}</span>
+                      <span className="flex shrink-0 items-center gap-3">
+                        {order.status === 'DELIVERED' && (
+                          <Link to={`/products/${item.productId}#reviews`} className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
+                            <Star className="h-3.5 w-3.5" /> Review
+                          </Link>
+                        )}
+                        <span className="text-fg">{formatINR(item.subtotal)}</span>
+                      </span>
                     </li>
                   ))}
                 </ul>
 
-                {(order.deliveryAddress || order.cancellable) && (
+                {(order.deliveryAddress || order.cancellable || order.payable) && (
                   <div className="flex flex-col gap-4 rounded-2xl bg-subtle p-4 sm:flex-row sm:items-center sm:justify-between">
                     {order.deliveryAddress && (
                       <div className="text-sm">
                         <p className="font-medium text-fg">Delivering to {order.recipientName}</p>
                         <p className="mt-0.5 text-muted">{order.deliveryAddress} · {order.deliveryPhone}</p>
                       </div>
+                    )}
+                    <div className="flex shrink-0 gap-2">
+                    {order.payable && (
+                      <button type="button" className="qk-btn qk-btn-primary h-10 px-4" onClick={() => setPaying(order)}>
+                        Pay now
+                      </button>
                     )}
                     {order.cancellable && (
                       <button
@@ -188,6 +245,7 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
                         {cancellingId === order.id ? 'Cancelling…' : 'Cancel order'}
                       </button>
                     )}
+                    </div>
                   </div>
                 )}
                 {order.cancelledAt && (

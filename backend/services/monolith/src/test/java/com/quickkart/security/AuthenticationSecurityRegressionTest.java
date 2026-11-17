@@ -4,7 +4,6 @@ import com.quickkart.dto.*;
 import com.quickkart.entity.*;
 import com.quickkart.repository.*;
 import com.quickkart.service.*;
-import com.quickkart.producer.OrderEventProducer;
 import com.quickkart.exception.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,6 @@ class AuthenticationSecurityRegressionTest {
     @Autowired DataSource dataSource;
     @Autowired Environment env;
     @MockBean EmailService email;
-    @MockBean OrderEventProducer producer;
     private String address;
     private String delivered;
     @BeforeEach void setup() {
@@ -132,7 +130,7 @@ class AuthenticationSecurityRegressionTest {
         User u=account(true,"ACTIVE","USER");
         String userToken=jwt.generateToken(u);
         mvc.perform(get("/api/admin/users").header("Authorization","Bearer "+userToken)).andExpect(status().isForbidden());
-        mvc.perform(get("/api/kafka/events").header("Authorization","Bearer "+userToken)).andExpect(status().isForbidden());
+        mvc.perform(get("/api/kafka/events").header("Authorization","Bearer "+userToken)).andExpect(status().isNotFound()); // dev endpoint removed
         u.setRole("ADMIN");users.save(u);
         String adminToken=jwt.generateToken(u);
         mvc.perform(get("/api/admin/users").header("Authorization","Bearer "+adminToken)).andExpect(status().isOk());

@@ -18,14 +18,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findByIdAndUserId(Long id, Long userId);
 
-    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status != 'CANCELLED'")
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status NOT IN ('CANCELLED', 'PENDING')")
     java.math.BigDecimal calculateTotalRevenue();
 
     long countByStatus(String status);
 
     long countByStatusIn(java.util.Collection<String> statuses);
 
-    /** Money actually received: COD payments are marked COLLECTED when the order is delivered. */
-    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = 'COLLECTED'")
+    /** Money actually received: online payments (PAID) plus COD collected at delivery. Refunds are excluded. */
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status IN ('COLLECTED', 'PAID')")
     java.math.BigDecimal calculateCollectedRevenue();
 }

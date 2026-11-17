@@ -2,7 +2,9 @@ import React from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import {
   Activity,
+  BarChart3,
   Boxes,
+  Tags,
   LayoutDashboard,
   LogOut,
   Moon,
@@ -17,7 +19,9 @@ import { useTheme } from "../../context/ThemeContext";
 
 const NAV = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, end: true },
+  { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/admin/products", label: "Products", icon: Package },
+  { to: "/admin/categories", label: "Categories", icon: Tags },
   { to: "/admin/inventory", label: "Inventory", icon: Boxes },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { to: "/admin/users", label: "Customers", icon: Users },

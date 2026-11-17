@@ -21,6 +21,18 @@ public class OrderCreatedEvent {
 
     private List<OrderItemSummary> items = new ArrayList<>();
 
+    /** Set on every event since payments/status events were added; null on older ORDER_CREATED events (= COD). */
+    private String status;
+    private String paymentMethod;
+    private String paymentStatus;
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
+
     public OrderCreatedEvent() {
     }
 

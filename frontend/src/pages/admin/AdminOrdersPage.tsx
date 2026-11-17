@@ -1,78 +1,93 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { api } from "../../services/api";
-import { OrderResponse } from "../../types";
+import { OrderResponse, OrderStatus, PageResponse } from "../../types";
 import { formatINR } from "../../utils/formatters";
+import { useConfirm } from "../../components/ConfirmDialog";
 import {
   AdminPageHeader,
   ErrorBanner,
   LoadingRow,
+  PAGE_SIZE,
+  Pager,
   StatusBadge,
   TableShell,
   errorMessage,
   formatDateTime,
   tdClass,
   thClass,
+  useDebounced,
 } from "../../components/admin/AdminUi";
 
-type Status = OrderResponse["status"];
-
-/** Mirrors the server-side state machine in order-service; the server still validates every transition. */
-export const NEXT_STATUS: Record<Status, Status[]> = {
-  PENDING: ["CONFIRMED"],
+/**
+ * Mirrors the server-side state machine in order-service; the server still validates every transition.
+ * PENDING -> PLACED only happens when an online payment succeeds, so admins can't skip it.
+ */
+export const NEXT_STATUS: Record<OrderStatus, OrderStatus[]> = {
+  PENDING: [],
+  PLACED: ["CONFIRMED"],
   CONFIRMED: ["PROCESSING"],
   PROCESSING: ["SHIPPED"],
-  SHIPPED: ["DELIVERED"],
+  SHIPPED: ["OUT_FOR_DELIVERY"],
+  OUT_FOR_DELIVERY: ["DELIVERED"],
   DELIVERED: [],
   CANCELLED: [],
 };
 
-const ALL_STATUSES: Status[] = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
+const ALL_STATUSES: OrderStatus[] = ["PENDING", "PLACED", "CONFIRMED", "PROCESSING", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"];
+
+const label = (s: string) => s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
 
 export function AdminOrdersPage() {
-  const [orders, setOrders] = useState<OrderResponse[]>([]);
+  const [result, setResult] = useState<PageResponse<OrderResponse> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | Status>("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | OrderStatus>("ALL");
+  const [page, setPage] = useState(0);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [confirmDialog, confirm] = useConfirm();
+  const q = useDebounced(query.trim());
+
+  useEffect(() => setPage(0), [q, statusFilter]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      setOrders(await api.getAllAdminOrders());
+      setResult(await api.getAdminOrders({ q, status: statusFilter === "ALL" ? undefined : statusFilter, page, size: PAGE_SIZE }));
     } catch (err) {
       setError(errorMessage(err, "Failed to load orders."));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [q, statusFilter, page]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  const visible = useMemo(() => {
-    const q = query.trim().toLowerCase().replace(/^#/, "");
-    return orders.filter(
-      (o) =>
-        (statusFilter === "ALL" || o.status === statusFilter) &&
-        (!q ||
-          String(o.id) === q ||
-          (o.userEmail ?? "").toLowerCase().includes(q) ||
-          (o.recipientName ?? "").toLowerCase().includes(q)),
-    );
-  }, [orders, query, statusFilter]);
+  const orders = result?.content ?? [];
 
-  const changeStatus = async (order: OrderResponse, next: Status) => {
-    if (next === "CANCELLED" && !window.confirm(`Cancel order #${order.id}? Stock will be returned to inventory.`)) return;
+  const changeStatus = async (order: OrderResponse, next: OrderStatus) => {
+    if (
+      next === "CANCELLED" &&
+      !(await confirm({
+        title: `Cancel order #${order.id}?`,
+        message: order.paymentStatus === "PAID"
+          ? "Stock goes back to inventory and the online payment is refunded."
+          : "Stock goes back to inventory. The customer is emailed.",
+        confirmLabel: "Cancel order",
+        cancelLabel: "Keep order",
+        danger: true,
+      }))
+    ) return;
     setUpdatingId(order.id);
     setError(null);
     try {
       const updated = await api.updateOrderStatus(order.id, { status: next });
-      setOrders((list) => list.map((o) => (o.id === updated.id ? updated : o)));
+      setResult((r) => r && { ...r, content: r.content.map((o) => (o.id === updated.id ? updated : o)) });
     } catch (err) {
       setError(errorMessage(err, "Failed to update order status."));
     } finally {
@@ -82,7 +97,13 @@ export function AdminOrdersPage() {
 
   return (
     <>
-      <AdminPageHeader title="Orders" subtitle={`${orders.length} orders`} onRefresh={load} refreshing={loading} />
+      {confirmDialog}
+      <AdminPageHeader
+        title="Orders"
+        subtitle={result ? `${result.totalElements} ${statusFilter === "ALL" && !q ? "orders in total" : "matching orders"}` : "Loading…"}
+        onRefresh={load}
+        refreshing={loading}
+      />
       <ErrorBanner message={error} />
 
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -99,12 +120,12 @@ export function AdminOrdersPage() {
         <select
           aria-label="Filter by status"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as "ALL" | Status)}
+          onChange={(e) => setStatusFilter(e.target.value as "ALL" | OrderStatus)}
           className="rounded-lg border border-line bg-surface px-3 py-2 text-sm"
         >
           <option value="ALL">All statuses</option>
           {ALL_STATUSES.map((s) => (
-            <option key={s} value={s}>{s}</option>
+            <option key={s} value={s}>{label(s)}</option>
           ))}
         </select>
       </div>
@@ -123,11 +144,11 @@ export function AdminOrdersPage() {
         <tbody>
           {loading && orders.length === 0 ? (
             <LoadingRow colSpan={6} />
-          ) : visible.length === 0 ? (
+          ) : orders.length === 0 ? (
             <LoadingRow colSpan={6} text="No orders match your filters." />
           ) : (
-            visible.map((o) => {
-              const nextOptions = [...NEXT_STATUS[o.status], ...(o.cancellable ? (["CANCELLED"] as Status[]) : [])];
+            orders.map((o) => {
+              const nextOptions = [...NEXT_STATUS[o.status], ...(o.cancellable ? (["CANCELLED"] as OrderStatus[]) : [])];
               const isOpen = expanded === o.id;
               return (
                 <React.Fragment key={o.id}>
@@ -152,18 +173,18 @@ export function AdminOrdersPage() {
                     <td className={tdClass}><StatusBadge value={o.status} /></td>
                     <td className={`${tdClass} text-right`}>
                       {nextOptions.length === 0 ? (
-                        <span className="text-xs text-muted">Final</span>
+                        <span className="text-xs text-muted">{o.status === "PENDING" ? "Awaiting payment" : "Final"}</span>
                       ) : (
                         <select
                           aria-label={`Update status for order ${o.id}`}
                           disabled={updatingId === o.id}
                           value=""
-                          onChange={(e) => e.target.value && void changeStatus(o, e.target.value as Status)}
+                          onChange={(e) => e.target.value && void changeStatus(o, e.target.value as OrderStatus)}
                           className="rounded-md border border-line bg-surface px-2 py-1.5 text-xs font-semibold"
                         >
                           <option value="">Move to…</option>
                           {nextOptions.map((s) => (
-                            <option key={s} value={s}>{s}</option>
+                            <option key={s} value={s}>{label(s)}</option>
                           ))}
                         </select>
                       )}
@@ -203,6 +224,9 @@ export function AdminOrdersPage() {
           )}
         </tbody>
       </TableShell>
+      {result && (
+        <Pager page={result.page} totalPages={result.totalPages} totalElements={result.totalElements} onPage={setPage} label="orders" />
+      )}
     </>
   );
 }

@@ -27,17 +27,12 @@ export function AdminOverviewPage() {
     try {
       const [stats, orders, products] = await Promise.all([
         api.getAdminAnalytics(),
-        api.getAllAdminOrders(),
-        api.getProducts(),
+        api.getAdminOrders({ size: 6 }),
+        api.getAdminProducts({ stock: "LOW", sort: "stock", size: 8 }),
       ]);
       setAnalytics(stats);
-      setRecentOrders(orders.slice(0, 6));
-      setLowStock(
-        products
-          .filter((p) => p.stockQuantity < 5)
-          .sort((a, b) => a.stockQuantity - b.stockQuantity)
-          .slice(0, 8),
-      );
+      setRecentOrders(orders.content);
+      setLowStock(products.content);
     } catch (err) {
       setError(errorMessage(err, "Failed to load dashboard data."));
     } finally {
@@ -58,8 +53,8 @@ export function AdminOverviewPage() {
       <ErrorBanner message={error} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard label="Booked revenue" value={show(formatINR(a?.totalRevenue))} hint="All non-cancelled orders" icon={<IndianRupee className="h-4 w-4" />} />
-        <StatCard label="Collected revenue" value={show(formatINR(a?.collectedRevenue))} hint="Cash on delivery received" tone="good" icon={<Wallet className="h-4 w-4" />} />
+        <StatCard label="Booked revenue" value={show(formatINR(a?.totalRevenue))} hint="Placed orders, not cancelled" icon={<IndianRupee className="h-4 w-4" />} />
+        <StatCard label="Collected revenue" value={show(formatINR(a?.collectedRevenue))} hint="Paid online or COD collected" tone="good" icon={<Wallet className="h-4 w-4" />} />
         <StatCard label="Orders" value={show(a?.totalOrders)} hint={a ? `${a.pendingOrdersCount} awaiting fulfilment` : undefined} icon={<ShoppingBag className="h-4 w-4" />} />
         <StatCard label="Products" value={show(a?.totalProducts)} icon={<Package className="h-4 w-4" />} />
         <StatCard
@@ -80,7 +75,7 @@ export function AdminOverviewPage() {
           {recentOrders.length === 0 ? (
             <p className="text-sm text-muted">{loading ? "Loading…" : "No orders yet."}</p>
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-line">
               {recentOrders.map((o) => (
                 <li key={o.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                   <div className="min-w-0">
@@ -102,7 +97,7 @@ export function AdminOverviewPage() {
           {lowStock.length === 0 ? (
             <p className="text-sm text-muted">{loading ? "Loading…" : "All products are well stocked."}</p>
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-line">
               {lowStock.map((p) => (
                 <li key={p.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                   <span className="min-w-0 truncate">{p.name}</span>

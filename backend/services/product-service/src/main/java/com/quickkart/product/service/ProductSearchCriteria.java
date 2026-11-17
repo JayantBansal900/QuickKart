@@ -33,6 +33,7 @@ public final class ProductSearchCriteria {
             "price-desc", Sort.by(Sort.Order.desc("price"), Sort.Order.asc("id")),
             "rating-desc", Sort.unsorted(),
             "discount-desc", Sort.unsorted(),
+            "popular", Sort.unsorted(),
             "name", Sort.by(Sort.Order.asc("name"), Sort.Order.asc("id")),
             "newest", Sort.by(Sort.Order.desc("id"))
     );
@@ -46,6 +47,7 @@ public final class ProductSearchCriteria {
         return switch (sort) {
             case "rating-desc" -> "rating";
             case "discount-desc" -> "discountPercentage";
+            case "popular" -> "reviewCount";
             default -> null;
         };
     }

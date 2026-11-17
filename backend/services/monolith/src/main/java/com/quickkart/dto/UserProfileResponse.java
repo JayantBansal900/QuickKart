@@ -39,7 +39,17 @@ public class UserProfileResponse {
                 user.isEmailVerified(),
                 user.getAccountStatus(),
                 user.getCreatedAt()
-        );
+        ).withSavedAddress(user.getSavedAddress());
+    }
+
+    private String savedAddress;
+
+    public String getSavedAddress() { return savedAddress; }
+    public void setSavedAddress(String savedAddress) { this.savedAddress = savedAddress; }
+
+    private UserProfileResponse withSavedAddress(String address) {
+        this.savedAddress = address;
+        return this;
     }
 
     public Long getId() {

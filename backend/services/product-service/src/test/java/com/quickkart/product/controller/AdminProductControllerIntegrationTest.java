@@ -76,7 +76,7 @@ class AdminProductControllerIntegrationTest {
                 "High performance RTX GPU laptop",
                 new BigDecimal("1499.99"),
                 10,
-                "Computers"
+                "electronics"
         );
 
         mockMvc.perform(post("/api/admin/products")
@@ -87,7 +87,15 @@ class AdminProductControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.name").value("Gaming Laptop Ultra"))
                 .andExpect(jsonPath("$.price").value(1499.99))
-                .andExpect(jsonPath("$.stockQuantity").value(10));
+                .andExpect(jsonPath("$.stockQuantity").value(10))
+                .andExpect(jsonPath("$.category").value("Electronics")); // stored with the category's canonical name
+
+        request.setCategory("Not A Category");
+        mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
