@@ -244,6 +244,22 @@ public class GlobalExceptionHandler {
         return org.springframework.http.ResponseEntity.notFound().build();
     }
 
+    /**
+     * Email delivery failed (SMTP down, bad credentials, timeout). The surrounding transaction rolls
+     * back, so no half-registered account is left behind; the user can simply try again.
+     */
+    @ExceptionHandler(org.springframework.mail.MailException.class)
+    public ResponseEntity<ErrorResponse> handleMailException(org.springframework.mail.MailException ex) {
+        org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class)
+                .error("Verification email could not be sent: {}", ex.getClass().getSimpleName());
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Service Unavailable",
+                "We couldn't send the verification email right now. Please try again in a minute."
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse(
