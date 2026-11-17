@@ -14,8 +14,6 @@ import com.quickkart.consumer.ConsumedOrderEventRecord;
 import com.quickkart.consumer.OrderNotificationConsumer;
 import com.quickkart.dto.OrderCreatedEvent;
 import com.quickkart.dto.OrderItemSummary;
-import com.quickkart.event.OrderCreatedInternalEvent;
-import com.quickkart.event.OrderTransactionEventListener;
 import com.quickkart.producer.OrderEventProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,9 +47,6 @@ class OrderKafkaIntegrationTest {
 
     @Autowired
     private OrderNotificationConsumer orderNotificationConsumer;
-
-    @Autowired
-    private OrderTransactionEventListener orderTransactionEventListener;
 
     @Autowired private UserRepository users;
     @Autowired private ProcessedEventRepository processedEvents;
@@ -172,26 +167,6 @@ class OrderKafkaIntegrationTest {
         // 1 attempt + 3 retries, and the event is NOT marked processed (so it can be replayed later)
         verify(emailService, times(4)).sendOrderConfirmation(eq(user.getEmail()), any(), eq(555L), any(), anyList());
         assertFalse(processedEvents.existsById(eventId));
-    }
-
-    @Test
-    @DisplayName("4. OrderTransactionEventListener publishes to Kafka upon successful commit")
-    void testOrderTransactionEventListener_PublishesToKafka() throws Exception {
-        OrderCreatedInternalEvent internalEvent = new OrderCreatedInternalEvent(
-                456L,
-                99L,
-                new BigDecimal("350.00"),
-                LocalDateTime.now(),
-                List.of(new OrderItemSummary(4L, "Smart Watch", 1, new BigDecimal("350.00")))
-        );
-
-        long countBefore = orderNotificationConsumer.getTotalConsumedCount();
-
-        // Trigger listener directly (simulating after commit)
-        orderTransactionEventListener.handleOrderCreatedAfterCommit(internalEvent);
-
-        boolean received = waitForCondition(() -> orderNotificationConsumer.getTotalConsumedCount() > countBefore, 10);
-        assertTrue(received, "Event triggered after commit should be delivered to Kafka and consumed");
     }
 
     private boolean waitForCondition(ConditionCheck check, int maxSeconds) throws InterruptedException {

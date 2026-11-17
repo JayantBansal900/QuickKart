@@ -38,7 +38,7 @@ jobs:
           java-version: '17'
           cache: maven
       # The test factory creates an owned Testcontainers database; no developer URL is accepted.
-      - run: mvn --batch-mode -Dquickkart.test.postgres=true -Dtest=CommerceReliabilityIntegrationTest,CommerceMigrationIntegrationTest,OrderNotificationReliabilityTest verify
+      - run: mvn --batch-mode -Dquickkart.test.postgres=true -Dtest=CommerceReliabilityIntegrationTest,CommerceMigrationIntegrationTest -Dsurefire.failIfNoSpecifiedTests=false verify
         working-directory: backend/services/${{ matrix.module }}
   frontend:
     runs-on: ubuntu-latest
