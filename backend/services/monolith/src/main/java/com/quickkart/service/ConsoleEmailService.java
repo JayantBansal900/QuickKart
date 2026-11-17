@@ -29,4 +29,17 @@ public class ConsoleEmailService implements EmailService {
                 ================================================================================
                 """, toEmail, userName, otp);
     }
+
+    @Override
+    public void sendPasswordResetOtp(String toEmail, String userName, String otp) {
+        log.info("""
+                ================================================================================
+                [QUICKKART NOTIFICATION SERVICE - EMAIL DISPATCH]
+                To: {} ({})
+                Subject: Reset Your QuickKart Password
+                Reset Code: {}
+                Validity: 5 Minutes
+                ================================================================================
+                """, toEmail, userName, otp);
+    }
 }

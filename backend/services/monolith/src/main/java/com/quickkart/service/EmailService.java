@@ -10,4 +10,7 @@ public interface EmailService {
      * @param otp       The plaintext OTP (only used in-memory for dispatch; never persisted or logged in plain production logs)
      */
     void sendVerificationOtp(String toEmail, String userName, String otp);
+
+    /** Sends the one-time code for resetting a forgotten password. */
+    void sendPasswordResetOtp(String toEmail, String userName, String otp);
 }

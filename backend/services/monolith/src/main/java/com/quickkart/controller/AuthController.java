@@ -1,6 +1,8 @@
 package com.quickkart.controller;
 
 import com.quickkart.dto.AuthResponse;
+import com.quickkart.dto.ForgotPasswordRequest;
+import com.quickkart.dto.ResetPasswordRequest;
 import com.quickkart.dto.LoginRequest;
 import com.quickkart.dto.RegisterRequest;
 import com.quickkart.dto.ResendOtpRequest;
@@ -46,6 +48,23 @@ public class AuthController {
         authService.resendOtp(request);
         return ResponseEntity.ok(Map.of(
                 "message", "If this email is awaiting verification, a new code has been sent."
+        ));
+    }
+
+    /** Always answers the same way, so it can't be used to discover which emails have accounts. */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(Map.of(
+                "message", "If an account exists for this email, a reset code has been sent."
+        ));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(Map.of(
+                "message", "Your password has been reset. Please sign in with your new password."
         ));
     }
 

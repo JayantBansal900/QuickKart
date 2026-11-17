@@ -48,6 +48,18 @@ public class User {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
+    /** Set on every password change; JWTs issued before this instant are rejected (see AccountAccessService). */
+    @Column(name = "password_changed_at")
+    private LocalDateTime passwordChangedAt;
+
+    public LocalDateTime getPasswordChangedAt() {
+        return passwordChangedAt;
+    }
+
+    public void setPasswordChangedAt(LocalDateTime passwordChangedAt) {
+        this.passwordChangedAt = passwordChangedAt;
+    }
+
     public User() {
     }
 

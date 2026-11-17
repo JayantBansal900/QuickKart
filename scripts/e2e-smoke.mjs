@@ -14,6 +14,13 @@ const env = Object.fromEntries(
     .map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]),
 );
 
+// This script reads OTP codes from the monolith log, which only works with console email delivery.
+// With MAIL_TRANSPORT=smtp it would also try to email the fake @example.invalid test addresses.
+if ((env.MAIL_TRANSPORT || "console") !== "console") {
+  console.error("e2e-smoke needs MAIL_TRANSPORT=console (OTPs are read from the log). Set it in .env and recreate the backend container.");
+  process.exit(2);
+}
+
 const results = [];
 let failures = 0;
 function check(name, ok, detail = "") {

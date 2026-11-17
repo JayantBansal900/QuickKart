@@ -78,6 +78,25 @@ export const api = {
     return handleResponse<{ message: string }>(res);
   },
 
+  /** Always resolves with the same message, whether or not the account exists. */
+  async forgotPassword(request: { email: string }): Promise<{ message: string }> {
+    const res = await apiFetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse<{ message: string }>(res);
+  },
+
+  async resetPassword(request: { email: string; otp: string; newPassword: string }): Promise<{ message: string }> {
+    const res = await apiFetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse<{ message: string }>(res);
+  },
+
   // ─── User Profile API ────────────────────────────────────────────────────────
 
   async getMyProfile(): Promise<UserProfileResponse> {

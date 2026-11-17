@@ -3,16 +3,20 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ApiError } from "../services/http";
 import { safeDestination } from "../routing";
+import { api } from "../services/api";
+
+type Mode = "login" | "register" | "verify" | "forgot" | "reset";
+const MODES: Record<string, Mode> = {
+  "/register": "register",
+  "/verify-email": "verify",
+  "/forgot-password": "forgot",
+  "/reset-password": "reset",
+};
 export function AuthPage() {
   const auth = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const mode =
-    location.pathname === "/register"
-      ? "register"
-      : location.pathname === "/verify-email"
-        ? "verify"
-        : "login";
+  const mode: Mode = MODES[location.pathname] ?? "login";
   const next = safeDestination(
     new URLSearchParams(location.search).get("next"),
     auth.isAdmin ? "/admin" : "/account/profile",
@@ -23,6 +27,7 @@ export function AuthPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -37,6 +42,7 @@ export function AuthPage() {
     setShownMode(mode);
     setError("");
     setPassword("");
+    setConfirmPassword("");
     setOtp("");
   }
   useEffect(() => {
@@ -62,10 +68,28 @@ export function AuthPage() {
     setError("");
     setNotice("");
     try {
-      if (resend) {
+      if (resend && mode === "reset") {
+        await api.forgotPassword({ email: email.trim() });
+        setNotice("If an account exists for this email, a new reset code has been sent.");
+        setCooldown(60);
+      } else if (resend) {
         await auth.resendOtp({ email: email.trim() });
         setNotice("A new code has been sent.");
         setCooldown(60);
+      } else if (mode === "forgot") {
+        await api.forgotPassword({ email: email.trim() });
+        setCooldown(60);
+        navigate("/reset-password" + suffix);
+        // Same message whether or not the account exists (no account enumeration).
+        setNotice("If an account exists for this email, we've sent a 6-digit reset code.");
+      } else if (mode === "reset") {
+        if (password !== confirmPassword) {
+          setError("The two passwords don't match.");
+          return;
+        }
+        await api.resetPassword({ email: email.trim(), otp, newPassword: password });
+        navigate("/login" + suffix);
+        setNotice("Password updated. Sign in with your new password — other devices have been signed out.");
       } else if (mode === "login") await auth.login(email, password);
       else if (mode === "register") {
         await auth.register(name, email, password, phone || undefined);
@@ -98,6 +122,8 @@ export function AuthPage() {
     login: ["Sign In", "Welcome back. Sign in to continue shopping."],
     register: ["Create Account", "Join QuickKart in less than a minute."],
     verify: ["Verify Your Email", "Enter the 6-digit code we sent to your inbox."],
+    forgot: ["Forgot Password", "Enter your email and we'll send you a code to reset it."],
+    reset: ["Reset Password", "Enter the code from your email and choose a new password."],
   } as const;
   const [title, subtitle] = titles[mode];
   const tab = (to: string, label: string, active: boolean) => (
@@ -132,7 +158,7 @@ export function AuthPage() {
 
       {/* Form */}
       <section className="mx-auto w-full max-w-md">
-        {mode !== "verify" && (
+        {(mode === "login" || mode === "register") && (
           <div className="mb-8 flex rounded-full bg-subtle p-1">
             {tab("/login", "Sign in", mode === "login")}
             {tab("/register", "Create account", mode === "register")}
@@ -182,22 +208,9 @@ export function AuthPage() {
               <input className="qk-input" type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </label>
           )}
-          {mode !== "verify" ? (
+          {(mode === "verify" || mode === "reset") && (
             <label className="qk-label">
-              Password
-              <input
-                className="qk-input"
-                type="password"
-                required
-                minLength={mode === "register" ? 6 : undefined}
-                autoComplete={mode === "register" ? "new-password" : "current-password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </label>
-          ) : (
-            <label className="qk-label">
-              Verification Code
+              {mode === "reset" ? "Reset Code" : "Verification Code"}
               <input
                 className="qk-input text-center text-2xl font-semibold tracking-[0.5em]"
                 required
@@ -211,6 +224,41 @@ export function AuthPage() {
               />
             </label>
           )}
+          {(mode === "login" || mode === "register" || mode === "reset") && (
+            <label className="qk-label">
+              {mode === "reset" ? "New Password" : "Password"}
+              <input
+                className="qk-input"
+                type="password"
+                required
+                minLength={mode === "login" ? undefined : 6}
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
+          )}
+          {mode === "reset" && (
+            <label className="qk-label">
+              Confirm New Password
+              <input
+                className="qk-input"
+                type="password"
+                required
+                minLength={6}
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </label>
+          )}
+          {mode === "login" && (
+            <div className="-mt-1 text-right">
+              <Link to={"/forgot-password" + suffix} className="text-sm font-medium text-accent hover:underline">
+                Forgot password?
+              </Link>
+            </div>
+          )}
           <button
             className="qk-btn qk-btn-primary h-12 w-full"
             disabled={busy || (limited && cooldown > 0)}
@@ -220,13 +268,15 @@ export function AuthPage() {
               ? "Please wait…"
               : limited && cooldown > 0
                 ? `Try again in ${cooldown}s`
-                : mode === "register"
-                  ? "Create Account"
-                  : mode === "verify"
-                    ? "Verify & Activate Account"
-                    : "Sign In"}
+                : {
+                    login: "Sign In",
+                    register: "Create Account",
+                    verify: "Verify & Activate Account",
+                    forgot: "Send Reset Code",
+                    reset: "Reset Password",
+                  }[mode]}
           </button>
-          {mode === "verify" && (
+          {(mode === "verify" || mode === "reset") && (
             <button
               type="button"
               className="w-full text-center text-sm font-medium text-accent disabled:text-muted"
@@ -238,7 +288,7 @@ export function AuthPage() {
           )}
         </form>
         <nav aria-label="Account options" className="mt-8 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-muted">
-          {mode === "verify" ? (
+          {mode === "verify" || mode === "forgot" || mode === "reset" ? (
             <Link to={"/login" + suffix} className="hover:text-fg">Back to sign in</Link>
           ) : (
             <Link to={"/verify-email" + suffix} className="hover:text-fg">Have a verification code?</Link>
