@@ -134,7 +134,6 @@ class AuthenticationSecurityRegressionTest {
         String userToken=jwt.generateToken(u);
         mvc.perform(get("/api/admin/users").header("Authorization","Bearer "+userToken)).andExpect(status().isForbidden());
         mvc.perform(get("/api/kafka/events").header("Authorization","Bearer "+userToken)).andExpect(status().isForbidden());
-        mvc.perform(post("/api/dev/redis-test/evict/1").header("Authorization","Bearer "+userToken)).andExpect(status().isForbidden());
         u.setRole("ADMIN");users.save(u);
         String adminToken=jwt.generateToken(u);
         mvc.perform(get("/api/admin/users").header("Authorization","Bearer "+adminToken)).andExpect(status().isOk());

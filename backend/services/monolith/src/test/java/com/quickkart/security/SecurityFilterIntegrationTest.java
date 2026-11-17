@@ -30,9 +30,6 @@ class SecurityFilterIntegrationTest {
         mockMvc.perform(get("/api/hello"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("QuickKart backend is running"));
-
-        mockMvc.perform(get("/api/products"))
-                .andExpect(status().isOk());
     }
 
     @Test

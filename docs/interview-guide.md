@@ -14,7 +14,7 @@ How to explain this project in an interview. Every answer here matches the code;
 > - **No lost events:** order events go through a transactional outbox to Kafka, and an idempotent consumer sends the confirmation email.
 > - **Account security:** sign-up and password reset use emailed one-time codes, and a password reset revokes every old JWT.
 >
-> Catalog search is server-side with a Redis cache. I load-tested it: about 687 requests per second with the cache warm versus 324 without, p95 50 ms versus 105 ms. There are about 330 automated tests running in GitHub Actions.
+> Catalog search is server-side with a Redis cache. I load-tested it: about 687 requests per second with the cache warm versus 324 without, p95 50 ms versus 105 ms. There are about 250 automated tests running in GitHub Actions.
 >
 > Payment is cash on delivery only; I didn't integrate a real payment gateway."
 
@@ -24,7 +24,7 @@ How to explain this project in an interview. Every answer here matches the code;
 |---|---|
 | Services | gateway :8080, monolith :8081, product :8082, order :8083, plus PostgreSQL, Redis, Kafka, nginx |
 | Catalog | 535 products, 8 categories |
-| Tests | 171 monolith + 42 order + 40 product + 7 gateway + 73 frontend = **333**, plus a 49-check end-to-end script |
+| Tests | 92 monolith + 42 order + 40 product + 7 gateway + 73 frontend = **254**, plus a 49-check end-to-end script |
 | Search, cache hit | 687 req/s, p95 49.6 ms (20 concurrent clients, local Docker) |
 | Search, cache miss | 324 req/s, p95 105.2 ms |
 | Cache TTL | 60 s |
@@ -203,7 +203,6 @@ All jobs pass on `main`.
 | Shared database | Separate databases per service, with stock reservation done through an API or a saga. |
 | Not deployed | Docker images are ready. Next: ECS or a small VM, managed PostgreSQL/Redis, secrets in a secret manager. |
 | Migrations applied by hand | Flyway, so every environment applies them automatically and in order. |
-| Legacy cart/order controllers still in the monolith | Delete them. The gateway already routes those paths elsewhere. |
 | `LIKE` search | PostgreSQL full-text search (`tsvector` + GIN index), or OpenSearch for a large catalog. |
 | No metrics dashboard | Micrometer → Prometheus → Grafana, including outbox lag and consumer lag. |
 
@@ -216,3 +215,4 @@ All jobs pass on `main`.
 5. **Spoofable rate-limit IP.** Rate limiting could be keyed on an IP header the client controlled. Now the gateway sets `X-Client-IP` from the real peer address, and services trust it only from internal addresses.
 6. **Stale frontend after a deploy.** nginx cached `index.html`. Fixed with `no-cache` for `index.html` and `immutable` for the hashed assets.
 7. **Error messages leaking internals.** `500` responses included exception messages. They now return a generic message, and the details go to the log.
+8. **Dead code left behind by the split.** After extracting the order and product services, the monolith still had its own cart, order and product controllers and services. The gateway never routed to them, but their tests kept passing, which hid the problem. I deleted them along with 79 tests that duplicated the order and product services' own tests, and fixed the end-to-end check that was still looking for the old log format.

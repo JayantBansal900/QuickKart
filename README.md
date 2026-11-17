@@ -102,7 +102,7 @@ With `MAIL_TRANSPORT=console` (the default), OTP emails are written to the monol
 
 | Suite | Count | Command |
 |---|---:|---|
-| Monolith (auth, admin, email, Kafka consumer, security) | 171 | `mvn verify` in `backend/services/monolith` |
+| Monolith (auth, admin, email, Kafka consumer, security) | 92 | `mvn verify` in `backend/services/monolith` |
 | Order service (cart, checkout, outbox) | 42 | `mvn verify` in `backend/services/order-service` |
 | Product service (search, cache, admin) | 40 | `mvn verify` in `backend/services/product-service` |
 | API gateway | 7 | `mvn verify` in `backend/services/api-gateway` |

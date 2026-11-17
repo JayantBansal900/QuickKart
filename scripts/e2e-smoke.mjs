@@ -185,10 +185,13 @@ const v2 = await call("POST", "/auth/verify-otp", { body: { email: email2, otp: 
 const idor = await call("GET", `/orders/${orderId}`, { token: v2.json?.token });
 check("other customer cannot read this order (IDOR)", idor.status === 404, `status=${idor.status}`);
 
-// Kafka: ORDER_CREATED consumed by one of the consumers
-await sleep(3000);
-const kafkaSeen = [dockerLogs("quickkart-order-service"), dockerLogs("quickkart-monolith")].some((l) => new RegExp(`Order ID: ${orderId}\\b`).test(l));
-check("Kafka ORDER_CREATED event consumed", kafkaSeen, `order #${orderId}`);
+// Kafka: order-service's outbox relay publishes ORDER_CREATED; the monolith consumer handles it once.
+let kafkaSeen = false;
+for (let i = 0; i < 30 && !kafkaSeen; i++) {
+  await sleep(500);
+  kafkaSeen = new RegExp(`Order event ORDER_CREATED-${orderId} processed`).test(dockerLogs("quickkart-monolith", "2m"));
+}
+check("Kafka ORDER_CREATED event consumed (outbox → Kafka → consumer)", kafkaSeen, `order #${orderId}`);
 
 // Admin fulfils order → COD collected
 for (const s of ["PROCESSING", "SHIPPED", "DELIVERED"]) await call("PATCH", `/admin/orders/${orderId}/status`, { token: A, body: { status: s } });

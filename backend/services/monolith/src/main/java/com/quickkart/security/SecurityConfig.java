@@ -51,22 +51,16 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers(HttpMethod.GET, "/api/hello", "/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/verify-otp", "/api/auth/resend-otp", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
-                        .requestMatchers("/api/dev/redis-test/**").hasRole("ADMIN")
 
                         // Protected developer endpoints (Kafka event testing requires authenticated JWT)
                         .requestMatchers("/api/kafka/**").hasRole("ADMIN")
 
-                        // Product write endpoints now require ADMIN
-                        .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
-
                         // Admin-only endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // Protected user endpoints (payments, cart, orders, user profile, auth/me)
-                        .requestMatchers("/api/payments", "/api/payments/**", "/api/cart", "/api/cart/**", "/api/orders", "/api/orders/**", "/api/auth/me", "/api/user/**").authenticated()
+                        // Protected user endpoints (payments, user profile, auth/me). Catalog, cart and orders live in
+                        // product-service and order-service; the gateway never routes them here.
+                        .requestMatchers("/api/payments", "/api/payments/**", "/api/auth/me", "/api/user/**").authenticated()
 
                         // Any other requests require authentication
                         .anyRequest().authenticated()

@@ -23,7 +23,7 @@ Routes are matched top to bottom ([application.yml](../backend/services/api-gate
 | `/api/cart/**`, `/api/orders/**`, `/api/admin/orders/**` | order service |
 | `/api/auth/**`, `/api/payments/**`, `/api/admin/**`, any other `/api/**` | monolith |
 
-The monolith still contains older cart/order/product controllers from before the split. The gateway never routes those paths to the monolith, so they are dead code. They are the next cleanup candidate.
+Cart, order and catalog code used to live in the monolith too. After the split, those copies were deleted, so each endpoint has exactly one implementation.
 
 ### Why a shared database?
 
