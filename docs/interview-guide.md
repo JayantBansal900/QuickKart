@@ -1,0 +1,218 @@
+# QuickKart — interview guide
+
+How to explain this project in an interview. Every answer here matches the code; where something is *not* built, say so plainly. Interviewers respect honest scope much more than inflated claims.
+
+---
+
+## 1. The 60-second pitch
+
+> "QuickKart is a full-stack e-commerce app I built with Spring Boot and React. The backend is split into an API gateway, a product service, an order service and a monolith for auth and admin, with PostgreSQL, Redis and Kafka, all running on Docker Compose.
+>
+> I focused on the problems real shops actually hit:
+> - **No overselling:** checkout uses row locks.
+> - **No duplicate orders:** checkout takes an idempotency key.
+> - **No lost events:** order events go through a transactional outbox to Kafka, and an idempotent consumer sends the confirmation email.
+> - **Account security:** sign-up and password reset use emailed one-time codes, and a password reset revokes every old JWT.
+>
+> Catalog search is server-side with a Redis cache. I load-tested it: about 687 requests per second with the cache warm versus 324 without, p95 50 ms versus 105 ms. There are about 330 automated tests running in GitHub Actions.
+>
+> Payment is cash on delivery only; I didn't integrate a real payment gateway."
+
+## 2. Numbers to remember
+
+| Fact | Value |
+|---|---|
+| Services | gateway :8080, monolith :8081, product :8082, order :8083, plus PostgreSQL, Redis, Kafka, nginx |
+| Catalog | 535 products, 8 categories |
+| Tests | 171 monolith + 42 order + 40 product + 7 gateway + 73 frontend = **333**, plus a 49-check end-to-end script |
+| Search, cache hit | 687 req/s, p95 49.6 ms (20 concurrent clients, local Docker) |
+| Search, cache miss | 324 req/s, p95 105.2 ms |
+| Cache TTL | 60 s |
+| OTP | 6 digits, 5 min expiry, 5 attempts, HMAC-stored |
+| JWT | 24 h, re-checked against the DB on every request |
+| Kafka retry | 3 retries, 2 s apart, then dead-letter topic |
+
+## 3. Draw this on the whiteboard
+
+```
+Browser → nginx (React) → API Gateway ─┬─> Product service ─> Redis cache
+                                       ├─> Order service ──> outbox table ─> relay ─> Kafka
+                                       └─> Monolith (auth/admin) <─ Kafka consumer → SMTP email
+                         all services → one PostgreSQL (each owns its tables)
+```
+
+Walk one request end to end, for example "place an order", using the checkout flow in section 4.3.
+
+---
+
+## 4. Deep-dive questions
+
+### 4.1 Architecture
+
+**Q: Why microservices? Isn't this overkill for a small shop?**
+Honestly, for this traffic a well-structured monolith would be fine. I split out the two parts with different needs:
+- The **catalog** is read-heavy and cacheable, so it gets its own service and Redis.
+- **Cart and checkout** are write-heavy and need strict locking.
+
+Auth and admin stayed in the monolith because splitting them gave no benefit. The gateway gives the frontend one origin and one place for CORS and correlation IDs.
+
+**Q: All services share one database. Isn't that an anti-pattern?**
+It is a known compromise. Each service owns its tables and endpoints, but they share one PostgreSQL. I kept that while the boundaries settled, to avoid distributed transactions. The one cross-service write is checkout decrementing stock under a row lock. To fully separate the databases, I'd replace that write with a stock-reservation API, or with events plus compensation (a saga). The outbox is already in place to make those events reliable.
+
+**Q: How does the gateway decide where to send a request?**
+By path prefix, top to bottom:
+- product paths → product service
+- cart and order paths → order service
+- everything else under `/api` → monolith
+
+It also adds an `X-Correlation-ID` header so one request can be traced across all the logs, and it sets `X-Client-IP` for rate limiting.
+
+### 4.2 Security
+
+**Q: How does login work?**
+1. Register: the account starts as `PENDING_VERIFICATION`, and a 6-digit code is emailed.
+2. Verify the code: the account becomes `ACTIVE`.
+3. Log in: the user gets a signed JWT (HMAC, 24 h).
+
+Every service validates the JWT and also checks the database that the account still exists, is active and verified, and has the same role. So suspending a user takes effect immediately, not after the token expires.
+
+**Q: JWTs are stateless. How do you log someone out everywhere after a password reset?**
+I store `password_changed_at` on the user. Each request compares the token's issued-at time with it, and a token issued before the reset is rejected with `401`. This works in all three services without a Redis blacklist. Since I already look up the account on every request, it costs no extra query.
+
+**Q: How do you store OTPs?**
+Never in plain text. I store an HMAC-SHA256 of `purpose | email | nonce | otp` with a server secret.
+- Because the purpose is part of the hash, a sign-up code can't be replayed as a password-reset code.
+- Verification locks the row, so two concurrent requests can't both use the same code.
+- Codes expire after 5 minutes and allow at most 5 attempts.
+
+**Q: What is account enumeration and how did you prevent it?**
+It means an attacker learning which emails are registered. I prevent it in three ways:
+- **Same responses.** Forgot-password, resend and verify return the same message for known and unknown emails.
+- **Same login timing.** Login runs a dummy BCrypt check for unknown emails, so it takes the same time.
+- **Same reset timing.** The reset email is sent *after* the transaction commits, on a background thread, so the response time doesn't reveal whether an email went out.
+
+**Q: Rate limiting?**
+Redis counters (`INCR` + `EXPIRE` in a Lua script), keyed per action and email, plus a per-IP limit. For example: login 10 per 5 min, forgot-password 3 per 5 min, 60 requests per minute per IP. The client IP comes from the gateway's `X-Client-IP` header, which services trust only from internal addresses, so clients can't spoof it.
+
+### 4.3 Checkout and concurrency
+
+**Q: Two users buy the last item at the same time. What happens?**
+Checkout runs in one transaction and locks each product row with `SELECT … FOR UPDATE` before checking stock. The second transaction waits for the first. When it continues, it sees stock 0 and fails with `409`. So the item can never be oversold.
+
+**Q: Why pessimistic locks rather than optimistic versioning?**
+For a hot item, optimistic locking means many transactions fail and retry. Row locks make them queue instead, and checkout transactions are short. I also lock the user row, which serializes one user's cart edits against their own checkout, even across the two services that touch the cart.
+
+**Q: The user double-clicks "Place order", or the network times out and the browser retries.**
+The frontend generates an idempotency key (UUID) once per checkout attempt.
+- The server looks up `(user, key)`. If it exists, it returns the same order instead of creating a second one.
+- If the same key arrives with *different* details, the server returns `409`.
+
+**Q: The price changed while the user was on the checkout screen.**
+The cart response includes a fingerprint: a hash of product IDs, quantities, prices and names. Checkout sends it back, and if the cart changed, the server refuses (`409`) and the UI asks the user to review again. Nobody pays a price they didn't see.
+
+**Q: What about Redis locks for stock?**
+I don't use them. The database row lock is the source of truth, so a separate Redis lock would only add a failure mode.
+
+### 4.4 Kafka and the outbox
+
+**Q: Why the transactional outbox? Why not just send to Kafka after saving the order?**
+"Save, then send" has a gap. If the app crashes or Kafka is down right after the commit, the event is lost forever. Sending *before* the commit is worse: if the transaction then rolls back, you've announced an order that doesn't exist.
+
+With the outbox:
+1. I insert the event into an `outbox_events` table in the **same transaction** as the order. Both commit or neither does.
+2. A scheduled relay reads unpublished rows every second, oldest first, and sends them to Kafka with `acks=all` and an idempotent producer.
+3. The relay marks a row published only after Kafka confirms it.
+
+**Q: What if Kafka is down for ten minutes?**
+- **Orders:** checkout keeps working, because it only writes to PostgreSQL.
+- **Relay:** the row stays pending, the relay records the attempt and the error, stops the batch to keep ordering, and retries on the next tick.
+- **Monitoring:** the admin System page turns DOWN if any event has waited more than 2 minutes.
+- **Recovery:** when Kafka returns, the backlog drains in order.
+
+**Q: Kafka can deliver a message twice. How do you avoid sending two emails?**
+Delivery is at least once, so the consumer is idempotent. Every event has an `eventId` (`ORDER_CREATED-<orderId>`). Before handling an event, the consumer checks a `processed_events` table; after handling it, the consumer inserts the ID there (primary key), and duplicates are skipped.
+
+One honest edge case: if the process crashes after SMTP accepts the email but before the row is saved, that one email can be sent twice. SMTP can't take part in a database transaction, so exactly-once for an external side effect isn't really possible. You just make the window small.
+
+**Q: What if one message keeps failing?**
+The error handler retries 3 times, 2 seconds apart, then publishes the message to `quickkart.order-events.DLT` and moves on. One bad message can't block the partition. The dead-letter topic can be inspected and replayed.
+
+**Q: Why key messages by order ID?**
+Kafka keeps order within a partition, and the key decides the partition. So all events for one order are processed in order.
+
+**Q: How did you test this?**
+- **Integration test with an embedded Kafka broker:** a checkout produces exactly one outbox row, the relay delivers it to the topic, and a published row is never sent again.
+- **Rollback test:** a checkout that rolls back leaves no outbox row.
+- **Unit tests:** a Kafka outage keeps rows pending and preserves order, then recovers on the next run.
+- **Consumer tests:** duplicate events are skipped, and a failing message ends up in the DLT.
+
+### 4.5 Search and caching
+
+**Q: How does search work?**
+The product service builds a JPA `Specification` from the filters: text query, category, price range and sort. PostgreSQL does the filtering, sorting and paging, and the API returns one page plus the total count. Inputs are validated first (page size ≤ 48, query ≤ 100 characters, known sort names), so bad requests fail with `400` before reaching the database.
+
+**Q: How does the cache stay correct?**
+- **Expiry.** Entries expire after 60 s, which bounds how stale a page can get.
+- **Eviction.** Admin writes evict the cache only after their transaction commits (`transactionAware`), so readers never cache data that was rolled back.
+- **Checkout.** Checkout never trusts the cache; it reads live stock under a lock. The worst case is a listing that is up to a minute stale, never a wrong order.
+
+**Q: What if Redis goes down?**
+A `CacheErrorHandler` logs the error and the request goes straight to PostgreSQL. The site gets slower but keeps working. Also, cache deserialization only allows known DTO and JDK types, so a poisoned cache entry can't make Jackson instantiate an arbitrary class.
+
+**Q: Measured impact?**
+- Throughput: 687 vs 324 requests per second.
+- p95 latency: 49.6 ms vs 105.2 ms.
+
+Same query, 20 concurrent clients, on my laptop's Docker. I'd call those comparison numbers, not production capacity.
+
+### 4.6 Frontend
+
+**Q: What's in the frontend?**
+React 19, TypeScript, Vite and Tailwind 4, with light and dark themes using CSS variables. Notable details:
+- **No theme flash:** a small script sets the theme before the first paint.
+- **Shareable search:** the search state lives in the URL, so a link reproduces the results.
+- **Fewer requests:** input is debounced, and an `AbortController` cancels outdated requests.
+- **Timeouts:** every API call gives up after 15 s.
+- **Admin routes** are separate and role-protected.
+
+The frontend has 73 Vitest + Testing Library tests.
+
+**Q: How is it served?**
+In Docker, nginx serves the built files and proxies `/api` to the gateway. `index.html` is `no-cache` and the hashed asset files are cached for a year (`immutable`), so a deploy is picked up immediately but assets are only downloaded once.
+
+### 4.7 Testing and CI
+
+**Q: How do you test things that depend on PostgreSQL behaviour, like row locks?**
+Most tests use H2 in PostgreSQL mode for speed. Locking and migration tests run against a real PostgreSQL in Testcontainers in CI, because H2 doesn't behave like PostgreSQL there.
+
+**Q: What does CI run?**
+- **Backend:** `mvn verify` for each of the four services, plus a check that no test-only libraries ended up in the runtime JAR.
+- **PostgreSQL suite:** the Testcontainers tests.
+- **Frontend:** typecheck, tests, build and `npm audit`.
+- **Compose:** `docker compose config` validation.
+
+All jobs pass on `main`.
+
+---
+
+## 5. Weaknesses — say these before they ask
+
+| Weakness | What I'd do next |
+|---|---|
+| Payment is COD only | Razorpay or Stripe in test mode: create the order, verify the signature in a webhook, then mark the payment. |
+| Shared database | Separate databases per service, with stock reservation done through an API or a saga. |
+| Not deployed | Docker images are ready. Next: ECS or a small VM, managed PostgreSQL/Redis, secrets in a secret manager. |
+| Migrations applied by hand | Flyway, so every environment applies them automatically and in order. |
+| Legacy cart/order controllers still in the monolith | Delete them. The gateway already routes those paths elsewhere. |
+| `LIKE` search | PostgreSQL full-text search (`tsvector` + GIN index), or OpenSearch for a large catalog. |
+| No metrics dashboard | Micrometer → Prometheus → Grafana, including outbox lag and consumer lag. |
+
+## 6. Bugs I found and fixed (good "tell me about a bug" stories)
+
+1. **Account enumeration.** Different error messages and timings revealed which emails were registered. Fixed with generic messages, a dummy BCrypt check, and sending the email after commit.
+2. **Reset codes could verify sign-ups.** OTP hashes didn't include the purpose. Fixed by putting the purpose into the HMAC input.
+3. **Old tokens survived a password reset.** Fixed with the `password_changed_at` vs JWT `iat` check in every service.
+4. **Lost Kafka events.** Events used to be sent in an `AFTER_COMMIT` listener, so if Kafka was down at that moment, the event was gone. Replaced with the transactional outbox.
+5. **Spoofable rate-limit IP.** Rate limiting could be keyed on an IP header the client controlled. Now the gateway sets `X-Client-IP` from the real peer address, and services trust it only from internal addresses.
+6. **Stale frontend after a deploy.** nginx cached `index.html`. Fixed with `no-cache` for `index.html` and `immutable` for the hashed assets.
+7. **Error messages leaking internals.** `500` responses included exception messages. They now return a generic message, and the details go to the log.
