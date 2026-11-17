@@ -8,6 +8,6 @@ jobs:
     steps:
       - name: No configured AWS deployment target
         run: |
-          echo "AWS deployment is not configured or verified. Follow docs/engineering/phase-5-deployment.md."
+          echo "AWS deployment is not configured or verified. The app runs locally with Docker Compose; see docs/development.md."
           echo "This workflow intentionally fails rather than reporting an unperformed deployment as successful."
           exit 1

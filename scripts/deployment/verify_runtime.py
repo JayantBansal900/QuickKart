@@ -21,7 +21,6 @@ def main():
         jars = list((ROOT/'backend/services'/service/'target').glob('*.jar'))
         if len(jars) != 1: raise RuntimeError(f'Expected one freshly built JAR for {service}')
         result[service] = inspect(jars[0])
-    output = ROOT/'docs/engineering/phase-6-runtime-libraries.json'
-    output.write_text(json.dumps(result, indent=2), encoding='utf-8')
+    print(json.dumps(result, indent=2))
     print('PASS: four JARs contain no forbidden test/broker libraries')
 if __name__ == '__main__': main()

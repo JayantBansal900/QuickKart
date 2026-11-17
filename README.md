@@ -1,206 +1,142 @@
-# QuickKart — Production-Ready Microservice E-Commerce Platform
+# QuickKart
 
-QuickKart is a full-stack, enterprise-grade e-commerce application built with Java 17, Spring Boot 3.3.4, React 18, and TypeScript. It demonstrates modern distributed software engineering practices including API Gateway routing, microservice domain isolation, distributed caching, atomic stock locking, event-driven messaging, zero-dependency correlation ID tracing (`X-Correlation-ID` + MDC), GitHub Actions CI/CD pipelines, and a production-ready AWS deployment architecture.
+A full-stack e-commerce app: a React storefront and admin panel on top of Spring Boot services behind an API gateway, with PostgreSQL, Redis and Kafka. It runs locally with Docker Compose.
 
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
-[![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
-[![Docker](https://img.shields.io/badge/Docker%20Compose-v2-blue.svg)](https://www.docker.com/)
-[![CI/CD](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-blue.svg)](.github/workflows/ci.yml)
-[![AWS](https://img.shields.io/badge/AWS-ECS%20%7C%20RDS%20%7C%20ElastiCache-orange.svg)](docs/development/aws-deployment.md)
+**Stack:** Java 17 · Spring Boot 3.5 · Spring Cloud Gateway · Spring Security (JWT) · JPA/Hibernate · PostgreSQL 15 · Redis 7 · Apache Kafka 3.7 (KRaft) · React 19 · TypeScript · Vite · Tailwind CSS 4 · Docker Compose · GitHub Actions
+
+> **Scope note.** Payment is **cash on delivery only**. There is no card/UPI gateway, and `POST /api/payments` deliberately returns `501`. The project is not deployed to the cloud; it runs on Docker Compose.
 
 ---
 
-## 🚀 Key Architectural & Operational Features
+## What it does
 
-- **Unified API Gateway**: Spring Cloud Gateway (:8080) providing single-entry routing, CORS handling, and correlation ID generation.
-- **Decomposed Microservices**: Isolated services for Product Catalog (`:8082`) and Cart & Orders (`:8083`), alongside Monolith Auth & Payments (`:8081`).
-- **Distributed Caching & Stock Locking**: Redis caching for catalog queries and atomic `SET NX PX` distributed locks to prevent overselling during flash sales.
-- **Asynchronous Event-Driven Stream**: Apache Kafka integration emitting `OrderCreatedEvent` payloads using `@TransactionalEventListener(phase = AFTER_COMMIT)` to guarantee zero ghost events.
-- **Distributed Correlation ID Tracing**: Zero-dependency request correlation (`X-Correlation-ID` + SLF4J MDC) propagating correlation IDs across Gateway and microservices so every log line displays `[correlationId=...]`.
-- **Environment Configuration & Profiles**: Environment variable bindings with local defaults, `.env.example` template, and `dev` vs `prod` Spring Boot profiles.
-- **GitHub Actions CI/CD Pipeline**: Continuous integration workflow validating TypeScript types, Vite production build, Maven tests across all 4 services, and Docker Compose configuration.
-- **Production-Ready AWS Architecture**: Portfolio-friendly AWS architecture design utilizing ECS Fargate, RDS PostgreSQL, ElastiCache Redis, MSK/EC2 Kafka, CloudWatch, and VPC Security Groups.
+**Customers**
+- Sign up with email + password, then verify the account with a 6-digit code sent by email (real SMTP, e.g. Gmail).
+- Forgot / reset password by emailed code. A reset signs the account out on every device.
+- Browse 535 products with server-side search, category filter, price range, sort and pagination.
+- Cart, then COD checkout with delivery details, order history with a status tracker, and cancellation (stock is restored).
+- Get an order-confirmation email, sent asynchronously through Kafka.
+- Light / dark theme.
+
+**Admins** (`/admin`)
+- Overview: revenue collected, orders by status, low-stock alerts.
+- Orders: move an order through `PENDING → CONFIRMED → PROCESSING → SHIPPED → DELIVERED` (or cancel it).
+- Products: create, edit and delete products, and adjust stock.
+- Users: suspend or reactivate customer accounts. Admins can't change their own account or other admins.
+- System: live UP/DOWN status of PostgreSQL, Redis, Kafka, both services and the order-event outbox.
 
 ---
 
-## 📐 System Architecture Diagram
+## Architecture
 
-```
-                      +-----------------------------+
-                      |    React + TypeScript UI    |
-                      |      (Vite / Port 3000)     |
-                      +--------------+--------------+
-                                     |
-                                     v
-                      +-----------------------------+
-                      |   Spring Cloud API Gateway  |
-                      |         (Port 8080)         |
-                      |   X-Correlation-ID Filter   |
-                      +--------------+--------------+
-                                     |
-         +---------------------------+---------------------------+
-         |                           |                           |
-         v                           v                           v
-+------------------+        +------------------+        +------------------+
-| Monolith Service |        | Product Service  |        |  Order Service   |
-|   (Port 8081)    |        |   (Port 8082)    |        |   (Port 8083)    |
-| Auth & Payments  |        | Product Catalog  |        | Cart & Orders    |
-| MDC Logging      |        | Redis Cache      |        | Redis Locking    |
-+--------+---------+        +--------+---------+        +--------+---------+
-         |                           |                           |
-         +---------------------------+---------------------------+
-                                     |
-                     +---------------+---------------+
-                     |                               |
-                     v                               v
-          +--------------------+           +--------------------+
-          | PostgreSQL Database|           |    Redis Cache     |
-          |    (Port 5432)     |           |    (Port 6379)     |
-          +--------------------+           +--------------------+
-                     ^                               ^
-                     |       +---------------+       |
-                     +-------| Apache Kafka  |-------+
-                             |  (Port 9092)  |
-                             +---------------+
+```mermaid
+flowchart LR
+    B[Browser] -->|:3000| N[nginx<br/>React SPA]
+    N -->|/api| G[API Gateway :8080<br/>routing · CORS · correlation id]
+    G -->|/api/products/**<br/>/api/admin/products/**| P[Product service :8082<br/>catalog · search]
+    G -->|/api/cart/** /api/orders/**<br/>/api/admin/orders/**| O[Order service :8083<br/>cart · checkout · outbox]
+    G -->|/api/auth/** /api/admin/**<br/>everything else| M[Monolith :8081<br/>auth · users · admin · email]
+    P <--> R[(Redis<br/>catalog cache)]
+    P --> DB[(PostgreSQL)]
+    O --> DB
+    M --> DB
+    O -->|outbox relay| K{{Kafka<br/>quickkart.order-events}}
+    K -->|consumer| M
+    M -->|SMTP| E[Email]
 ```
 
+All services share one PostgreSQL database, and each service owns its own tables and endpoints. More detail is in [docs/architecture.md](docs/architecture.md).
+
+### Engineering highlights
+
+| Problem | How QuickKart handles it |
+|---|---|
+| Overselling when two people buy the last item | Checkout locks the product rows (`SELECT … FOR UPDATE`) and the user row, and checks stock inside one transaction. |
+| Double orders from a double-click or a retry | Each checkout carries an idempotency key and a cart fingerprint. A repeat returns the same order, and a reused key with different details is rejected (`409`). |
+| Losing order events if Kafka is down | **Transactional outbox.** The event row is written in the same transaction as the order, and a relay publishes it later (oldest first, retried until Kafka accepts). |
+| Sending the same email twice | The consumer records each `eventId` in `processed_events` and skips duplicates (at-least-once delivery, idempotent handling). Failed messages are retried 3× and then go to a dead-letter topic. |
+| Slow catalog queries | Search runs on the server (JPA Specifications + DB indexes). Results are cached in Redis for 60 s, evicted on writes, and fall back to the DB if Redis fails. |
+| Stolen JWT still valid after a password reset | Each request re-checks the account in the DB, and tokens issued before `password_changed_at` are rejected. |
+| OTP brute force / account enumeration | Codes are stored as purpose-bound HMACs. Login, verify, resend, forgot and reset are rate-limited per email and per IP. Unknown emails get the same responses and timing as real ones. |
+
 ---
 
-## 📦 Microservice Directory & Port Mapping
+## Measured performance
 
-| Service Module | Host Port | Technology Stack | Core Responsibilities |
-|---|---|---|---|
-| Frontend UI | `3000` | React 18, TypeScript, Vite, Tailwind | Single Page App UI for customers & admins |
-| `services/api-gateway` | `8080` | Spring Cloud Gateway | Path routing, CORS, `X-Correlation-ID` generation |
-| `services/monolith` | `8081` | Spring Boot, Spring Security, JPA | User Auth (JWT), User Profiles, Payments |
-| `services/product-service` | `8082` | Spring Boot, JPA, Redis | Product catalog CRUD, search, Redis cache |
-| `services/order-service` | `8083` | Spring Boot, JPA, Redis, Kafka | Cart persistence, checkout, Redis locking |
-| PostgreSQL | `5432` | PostgreSQL 15 | Relational data persistence |
-| Redis Cache | `6379` | Redis 7 | Distributed locking, catalog cache, token blacklist |
-| Apache Kafka | `9092` | Apache Kafka 3.7 (KRaft) | Asynchronous event stream for order processing |
+Measured on the local Docker stack (16 vCPU, 8 GB for Docker), 20 concurrent clients, 15 s per scenario, through the gateway. Command: `node scripts/load-test.mjs`.
+
+| Scenario | req/s | p50 | p95 | p99 | Errors |
+|---|---:|---:|---:|---:|---:|
+| Catalog search, Redis cache hit | 687 | 26.7 ms | 49.6 ms | 66.7 ms | 0 |
+| Catalog search, cache miss (hits PostgreSQL) | 324 | 56.8 ms | 105.2 ms | 134.2 ms | 0 |
+| Category counts (cached) | 1108 | 16.8 ms | 29.7 ms | 39.4 ms | 0 |
+| Gateway health (routing overhead baseline) | 1495 | 12.3 ms | 23.4 ms | 32.4 ms | 0 |
+
+Caching roughly doubles search throughput and halves p95 latency. These are local numbers for comparison, not a production SLA. See [docs/performance.md](docs/performance.md).
 
 ---
 
-## 📁 Repository Directory Structure
+## Run it locally
 
-```
-quickkart/
-├── .github/                     # GitHub Actions CI/CD Workflows
-│   └── workflows/
-│       ├── ci.yml               # Automated test, build, and typecheck workflow
-│       └── deploy-aws.yml       # AWS ECR & ECS Fargate deployment workflow
-├── docs/                        # Engineering & Deployment Documentation Suite
-│   ├── api/                     # REST API reference catalog
-│   ├── architecture/            # Architectural diagrams & sequence flows
-│   ├── development/             # Local native, Docker, CI/CD, and AWS setup guides
-│   └── engineering/             # Redis, Kafka, Security, Microservices, Observability
-├── infrastructure/              # Infrastructure Configuration & Dockerfiles
-│   └── docker/                  # Multi-stage Dockerfiles & Nginx config
-├── services/                    # Backend Maven Microservice Modules
-│   ├── api-gateway/             # Spring Cloud API Gateway (:8080)
-│   ├── monolith/                # Auth & Payments Monolith (:8081)
-│   ├── order-service/           # Cart & Order Microservice (:8083)
-│   └── product-service/         # Product Catalog Microservice (:8082)
-├── src/                         # React 18 TypeScript Frontend Source
-├── scripts/                     # Cross-platform startup & verification scripts
-├── docker-compose.yml           # Master Production-Ready Compose Stack
-├── .env.example                 # Environment variables template
-└── README.md                    # Master Project Documentation
+**Needs:** Docker Desktop, JDK 17+, Maven 3.9+, Node 20+.
+
+```bash
+cp .env.example .env          # then fill in the secrets (see comments in the file)
 ```
 
----
-
-## ⚡ Quick Start Guide
-
-### Option 1: Running with Docker Compose (Recommended)
-
-To start all 8 containerized services in detached mode:
+```bash
+cd backend/services/monolith && mvn -q package -DskipTests && cd ../product-service && mvn -q package -DskipTests && cd ../order-service && mvn -q package -DskipTests && cd ../api-gateway && mvn -q package -DskipTests && cd ../../..
+```
 
 ```bash
 docker compose up -d --build
 ```
 
-Verify container status:
-```bash
-docker compose ps
+- Storefront: http://localhost:3000
+- Admin panel: http://localhost:3000/admin/login (dev admin from `DEV_ADMIN_*` in `.env`)
+- Gateway health: http://localhost:8080/actuator/health
+
+With `MAIL_TRANSPORT=console` (the default), OTP emails are written to the monolith log instead of being sent (`docker logs quickkart-monolith`). To send real email, set `MAIL_TRANSPORT=smtp` and the `SMTP_*` values (Gmail needs an App Password). More detail is in [docs/development.md](docs/development.md).
+
+## Tests
+
+| Suite | Count | Command |
+|---|---:|---|
+| Monolith (auth, admin, email, Kafka consumer, security) | 171 | `mvn verify` in `backend/services/monolith` |
+| Order service (cart, checkout, outbox) | 42 | `mvn verify` in `backend/services/order-service` |
+| Product service (search, cache, admin) | 40 | `mvn verify` in `backend/services/product-service` |
+| API gateway | 7 | `mvn verify` in `backend/services/api-gateway` |
+| Frontend (Vitest + Testing Library) | 73 | `npm test` in `frontend` |
+| End-to-end against the running stack | 49 checks | `node scripts/e2e-smoke.mjs .` (needs `MAIL_TRANSPORT=console`) |
+
+Kafka tests use an embedded broker. PostgreSQL-specific tests (locking, migrations) run against a Testcontainers database in CI. GitHub Actions runs all of these on every push ([ci.yml](.github/workflows/ci.yml)).
+
+## Repository layout
+
+```
+backend/services/
+  api-gateway/       Spring Cloud Gateway: routes, CORS, client-IP + correlation-id filters
+  monolith/          auth, OTP, password reset, users, admin APIs, email, Kafka consumer
+  product-service/   catalog, search, Redis cache, admin product + stock APIs
+  order-service/     cart, checkout, order lifecycle, transactional outbox relay
+frontend/            React 19 + TypeScript storefront and admin panel
+infrastructure/
+  docker/            Dockerfiles and nginx config
+  postgres/          init schema + numbered SQL migrations
+scripts/             e2e smoke test, load test, test-data cleanup SQL
+docs/                architecture, API reference, development, performance, interview guide
 ```
 
-Access Points:
-- **Frontend UI**: [http://localhost:3000](http://localhost:3000)
-- **API Gateway**: [http://localhost:8080](http://localhost:8080)
-- **Actuator Health Checks**: [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
+## Documentation
 
-Run automated Docker End-to-End verification:
-```bash
-node scripts/verify-docker-e2e.cjs
-```
+- [Architecture and design decisions](docs/architecture.md)
+- [API reference](docs/api.md)
+- [Development guide](docs/development.md)
+- [Performance](docs/performance.md)
+- [Interview guide](docs/interview-guide.md)
 
----
+## Not built (yet)
 
-### Option 2: Native Local Development
-
-1. **Install Node Dependencies**:
-   ```bash
-   npm install
-   ```
-2. **Launch Stack**:
-   ```bash
-   npm run dev
-   ```
-   This script verifies local PostgreSQL and Redis availability, compiles missing Maven JARs, starts all 4 Java backend microservices in the background, and launches Vite on `http://localhost:3000`.
-
----
-
-## 🧪 Testing & Automated Verification
-
-Run the full verification suite:
-
-```bash
-# 1. Typecheck & Build Frontend
-npx tsc --noEmit
-npm run build
-
-# 2. Run Backend Unit & Integration Tests
-mvn test -f services/monolith/pom.xml
-mvn test -f services/product-service/pom.xml
-mvn test -f services/order-service/pom.xml
-mvn test -f services/api-gateway/pom.xml
-
-# 3. Validate Docker Compose Spec
-docker compose config
-
-# 4. Run E2E Verification Scripts
-node scripts/verify-docker-e2e.cjs
-node scripts/verify-gateway.cjs
-node scripts/verify-all.cjs
-```
-
----
-
-## 📚 Engineering Documentation Index
-
-Full documentation is available in the [`docs/`](./docs) directory:
-
-- 📊 **[Performance Benchmarks](./docs/engineering/performance.md)** — Empirical latency benchmarks, Redis cache speedup, & checkout metrics.
-- 📐 **[Engineering Decisions (ADR)](./docs/engineering/engineering-decisions.md)** — Core architectural choices, trade-offs, & design rationale.
-- 🎯 **[Interview Preparation Guide](./docs/interview/project-interview-guide.md)** — 35 deep technical Q&As for software engineering interviews.
-- 🏛️ **[System Architecture](./docs/architecture/architecture.md)** — Multi-tier microservice architecture overview.
-- 🔄 **[System Flows](./docs/architecture/system-flow.md)** — Checkout sequence, Kafka AFTER_COMMIT, and Redis locking.
-- 🔌 **[API Documentation](./docs/api/api-documentation.md)** — REST API endpoint reference catalog.
-- 💻 **[Local Development Guide](./docs/development/local-setup.md)** — Native development & Maven setup.
-- 🐳 **[Docker Setup Guide](./docs/development/docker-setup.md)** — Docker Compose stack & environment configuration.
-- ⚙️ **[CI/CD Pipeline Guide](./docs/development/ci-cd.md)** — GitHub Actions automated build & test workflows.
-- ☁️ **[AWS Deployment Architecture](./docs/development/aws-deployment.md)** — Production AWS ECS Fargate, RDS, ElastiCache, MSK, & Security setup.
-- 🔍 **[Observability & Logging Guide](./docs/engineering/observability.md)** — Health checks, correlation ID propagation (`X-Correlation-ID`), and SLF4J MDC.
-- ⚡ **[Redis Engineering Guide](./docs/engineering/redis.md)** — Caching, distributed stock locking, and token revocation.
-- 📩 **[Kafka Engineering Guide](./docs/engineering/kafka.md)** — Topic taxonomy, schemas, and transactional event publishing.
-- 🧱 **[Microservices Rationale](./docs/engineering/microservices.md)** — Domain decomposition and database boundaries.
-- 🔒 **[Security Architecture](./docs/engineering/security.md)** — JWT, RBAC permissions, and CORS policies.
-
----
-
-## 📜 License
-
-This project is open-source under the [MIT License](LICENSE).
+- Online payments (Razorpay or Stripe test mode). Today, checkout is COD only.
+- Cloud deployment. The `deploy-aws.yml` workflow is a placeholder with no target.
+- Separate databases per service. Today, one shared PostgreSQL with clear table ownership.
