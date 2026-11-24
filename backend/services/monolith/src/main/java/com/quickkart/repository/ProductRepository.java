@@ -24,4 +24,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     long countByStockQuantityBetween(int min, int max);
 
     long countByStockQuantityLessThanEqual(int threshold);
+
+    // On-sale products only: discontinued rows stay in the table (orders reference them) but are not
+    // part of the store, so admin counts match what shoppers can see.
+    String ON_SALE = "(p.availability IS NULL OR UPPER(p.availability) <> 'DISCONTINUED')";
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE " + ON_SALE)
+    long countOnSale();
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE " + ON_SALE + " AND p.stockQuantity BETWEEN :min AND :max")
+    long countOnSaleWithStockBetween(@Param("min") int min, @Param("max") int max);
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE " + ON_SALE + " AND p.stockQuantity <= 0")
+    long countOnSaleOutOfStock();
 }

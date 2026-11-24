@@ -96,6 +96,15 @@ class CatalogFeaturesIntegrationTest {
                 .andExpect(jsonPath("$.active").value(false));
         assertEquals("Toys", jdbc.queryForObject("select category from products where id=?", String.class, toy.getId()));
         mvc.perform(get("/api/categories")).andExpect(jsonPath("$[?(@.name=='Toys')]").isEmpty());
+        // Hidden category: its products leave search and the category counts too.
+        mvc.perform(get("/api/products").param("q", toy.getName().toLowerCase()))
+                .andExpect(jsonPath("$.totalElements").value(0));
+        mvc.perform(get("/api/products/categories")).andExpect(jsonPath("$[?(@.category=='TOYS')]").isEmpty());
+        mvc.perform(put("/api/admin/categories/" + id).header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Toys\",\"active\":true}"))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/products").param("q", toy.getName().toLowerCase()))
+                .andExpect(jsonPath("$.totalElements").value(1));
 
         mvc.perform(delete("/api/admin/categories/" + id).header("Authorization", admin)).andExpect(status().isConflict());
         products.delete(toy);

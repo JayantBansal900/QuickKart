@@ -4,7 +4,7 @@ A full-stack e-commerce app: a React storefront and admin panel on top of Spring
 
 **Stack:** Java 17 · Spring Boot 3.5 · Spring Cloud Gateway · Spring Security (JWT) · JPA/Hibernate · PostgreSQL 15 · Flyway · Redis 7 · Apache Kafka 3.7 (KRaft) · React 19 · TypeScript · Vite · Tailwind CSS 4 · Docker Compose · GitHub Actions
 
-> **Scope note.** Payments are **cash on delivery** or **UPI / card through a simulated gateway** (test mode: no real money, no card data; the shopper picks success or failure). The project is not deployed to the cloud; it runs on Docker Compose.
+> **Scope note.** Payments are **cash on delivery** or **UPI / card through a simulated gateway** (test mode: no real money, no card data; the shopper picks success or failure). Because the shopper decides the outcome, the simulated gateway is **switched off in the `prod` profile**, where only cash on delivery is offered. The project is not deployed to the cloud; it runs on Docker Compose.
 
 ---
 
@@ -121,10 +121,10 @@ With `MAIL_TRANSPORT=console` (the default), OTP emails are written to the monol
 | Suite | Count | Command |
 |---|---:|---|
 | Monolith (auth, admin, analytics, email, Kafka consumer, security) | 98 | `mvn verify` in `backend/services/monolith` |
-| Order service (cart, checkout, payments, outbox) | 49 | `mvn verify` in `backend/services/order-service` |
+| Order service (cart, checkout, payments, outbox) | 50 | `mvn verify` in `backend/services/order-service` |
 | Product service (search, cache, admin, categories, reviews, stock history) | 48 | `mvn verify` in `backend/services/product-service` |
 | API gateway | 7 | `mvn verify` in `backend/services/api-gateway` |
-| Frontend (Vitest + Testing Library) | 83 | `npm test` in `frontend` |
+| Frontend (Vitest + Testing Library) | 85 | `npm test` in `frontend` |
 | End-to-end against the running stack | 73 checks | `node scripts/e2e-smoke.mjs .` (needs `MAIL_TRANSPORT=console`) |
 
 Kafka tests use an embedded broker. PostgreSQL-specific tests (locking, migrations) run against a Testcontainers database in CI. GitHub Actions runs all of these on every push ([ci.yml](.github/workflows/ci.yml)).

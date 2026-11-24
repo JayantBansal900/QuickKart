@@ -25,6 +25,7 @@ import {
   ReviewEligibility,
   StockMovement,
   AnalyticsInsights,
+  PaymentMethod,
 } from '../types';
 
 /** Builds "?a=1&b=2" from the defined, non-empty values. */
@@ -411,6 +412,13 @@ export const api = {
       body: JSON.stringify(request),
     });
     return handleResponse<OrderResponse>(res);
+  },
+
+  /** Payment methods checkout accepts right now (COD always; UPI/CARD only while the simulated gateway is on). */
+  async getPaymentMethods(): Promise<PaymentMethod[]> {
+    const res = await apiFetch(`${API_BASE_URL}/orders/payment-methods`, { headers: getAuthHeaders() });
+    const data = await handleResponse<{ methods?: PaymentMethod[] }>(res);
+    return Array.isArray(data?.methods) ? data.methods : ['COD'];
   },
 
   /** Simulated payment gateway (test mode): no card data is sent, the outcome is chosen by the caller. */

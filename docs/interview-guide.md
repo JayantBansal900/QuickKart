@@ -15,7 +15,7 @@ How to explain this project in an interview. Every answer here matches the code;
 > - **Payments that can fail:** online orders wait in `PENDING` until a (simulated) gateway confirms; failures can be retried and unpaid orders release their stock after 30 minutes.
 > - **Account security:** sign-up and password reset use emailed one-time codes, and a password reset revokes every old JWT.
 >
-> Catalog search is server-side with a Redis cache. I load-tested it: about 914 requests per second with the cache warm versus 611 without on the 144-product catalog, and 867 versus 317 when it had 535 products: the cache matters more as the table grows. There are about 285 automated tests running in GitHub Actions.
+> Catalog search is server-side with a Redis cache. I load-tested it: about 914 requests per second with the cache warm versus 611 without on the 144-product catalog, and 867 versus 317 when it had 535 products: the cache matters more as the table grows. There are about 288 automated tests running in GitHub Actions.
 >
 > The payment gateway is simulated (test mode, no real provider), and it isn't deployed to the cloud."
 
@@ -25,7 +25,7 @@ How to explain this project in an interview. Every answer here matches the code;
 |---|---|
 | Services | gateway :8080, monolith :8081, product :8082, order :8083, plus PostgreSQL, Redis, Kafka, nginx |
 | Catalog | 144 products (18 per category) with photos, 8 categories |
-| Tests | 98 monolith + 49 order + 48 product + 7 gateway + 83 frontend = **285**, plus a 73-check end-to-end script against the running stack |
+| Tests | 98 monolith + 50 order + 48 product + 7 gateway + 85 frontend = **288**, plus a 73-check end-to-end script against the running stack |
 | Search, cache hit | 914 req/s, p95 39 ms (144 products, 20 concurrent clients, local Docker) |
 | Search, cache miss | 611 req/s, p95 57 ms (317 req/s with 535 products) |
 | Cache TTL | 60 s |
@@ -119,6 +119,9 @@ The gateway is simulated, but the state machine is the real one. A UPI/card chec
 - **Cancelled after paying:** the payment becomes `REFUNDED`.
 
 With a real provider (Razorpay/Stripe test mode) only the callback changes: verify the provider's signature, then run the same transitions.
+
+**Q: Couldn't a user just call /pay with SUCCESS and get free goods?**
+Yes, with the simulated gateway they could, which is why it's behind a flag that the `prod` profile forces off: production only accepts cash on delivery until a real provider's signed callback replaces it. A test runs the service with the flag off and checks that UPI is refused and not offered.
 
 **Q: What about Redis locks for stock?**
 I don't use them. The database row lock is the source of truth, so a separate Redis lock would only add a failure mode.

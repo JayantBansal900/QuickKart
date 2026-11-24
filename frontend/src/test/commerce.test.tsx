@@ -9,12 +9,12 @@ import {readAttempt} from '../services/checkoutAttempt';
 import type {CartResponse,OrderResponse} from '../types';
 const auth=vi.hoisted(()=>({isAuthenticated:true,user:{id:7,name:'Test Customer',phoneNumber:'9876543210'}}));
 vi.mock('../context/AuthContext',()=>({useAuth:()=>auth}));
-vi.mock('../services/api',()=>({api:{getCart:vi.fn(),addToCart:vi.fn(),updateCartItemQuantity:vi.fn(),removeFromCart:vi.fn(),clearCart:vi.fn(),checkout:vi.fn(),getMyProfile:vi.fn(),updateMyProfile:vi.fn(),payOrder:vi.fn()}}));
+vi.mock('../services/api',()=>({api:{getCart:vi.fn(),addToCart:vi.fn(),updateCartItemQuantity:vi.fn(),removeFromCart:vi.fn(),clearCart:vi.fn(),checkout:vi.fn(),getMyProfile:vi.fn(),updateMyProfile:vi.fn(),payOrder:vi.fn(),getPaymentMethods:vi.fn()}}));
 const cart=(q=0):CartResponse=>({cartId:1,fingerprint:'quote-'+q,totalAmount:q*12.5,items:q?[{productId:1,productName:'Test item',quantity:q,price:12.5,subtotal:q*12.5,availableQuantity:5}]:[]});
 function deferred<T>(){let resolve!:(value:T)=>void;let reject!:(error:Error)=>void;const promise=new Promise<T>((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};}
 let context:ReturnType<typeof useCart>;
 function Harness(){context=useCart();return <><output data-testid="count">{context.itemsCount}</output><output data-testid="error">{context.error}</output><output data-testid="uncertain">{String(context.needsRefresh)}</output><button onClick={()=>void context.addToCart(1).catch(()=>{})}>Add</button><button onClick={()=>void context.fetchCart().catch(()=>{})}>Refresh</button></>;}
-beforeEach(()=>{vi.resetAllMocks();sessionStorage.clear();auth.user.id=7;auth.isAuthenticated=true;vi.mocked(api.getCart).mockResolvedValue(cart());vi.mocked(api.getMyProfile).mockResolvedValue({id:7,name:'Test Customer',email:'t@example.invalid',role:'USER',emailVerified:true,accountStatus:'ACTIVE',savedAddress:null});vi.mocked(api.updateMyProfile).mockImplementation(async(r)=>({id:7,name:r.name,email:'t@example.invalid',role:'USER',emailVerified:true,accountStatus:'ACTIVE',savedAddress:r.savedAddress}));});
+beforeEach(()=>{vi.resetAllMocks();sessionStorage.clear();auth.user.id=7;auth.isAuthenticated=true;vi.mocked(api.getCart).mockResolvedValue(cart());vi.mocked(api.getPaymentMethods).mockResolvedValue(['COD','UPI','CARD']);vi.mocked(api.getMyProfile).mockResolvedValue({id:7,name:'Test Customer',email:'t@example.invalid',role:'USER',emailVerified:true,accountStatus:'ACTIVE',savedAddress:null});vi.mocked(api.updateMyProfile).mockImplementation(async(r)=>({id:7,name:r.name,email:'t@example.invalid',role:'USER',emailVerified:true,accountStatus:'ACTIVE',savedAddress:r.savedAddress}));});
 it('does not acknowledge a cart mutation until the server confirms and rejects duplicate clicks',async()=>{
  const pending=deferred<CartResponse>();vi.mocked(api.addToCart).mockReturnValue(pending.promise);render(<CartProvider><Harness/></CartProvider>);await waitFor(()=>expect(api.getCart).toHaveBeenCalledOnce());
  fireEvent.click(screen.getByText('Add'));fireEvent.click(screen.getByText('Add'));expect(api.addToCart).toHaveBeenCalledOnce();expect(screen.getByTestId('count').textContent).toBe('0');
@@ -79,4 +79,9 @@ it('online payment opens the test-mode gateway and only reports success once pai
  await screen.findByText(/Payment failed: no money was taken/);expect(success).not.toHaveBeenCalled();
  fireEvent.click(screen.getByRole('button',{name:/^Pay ₹/}));
  await waitFor(()=>expect(success).toHaveBeenCalledWith(expect.objectContaining({paymentStatus:'PAID'})));
+});
+it('offers only cash on delivery when the server has online payment switched off',async()=>{
+ vi.mocked(api.getPaymentMethods).mockResolvedValue(['COD']);await checkout();
+ await waitFor(()=>expect(screen.queryByRole('radio',{name:/UPI/})).toBeNull());
+ expect(screen.getByRole('radio',{name:/Cash on delivery/})).toBeTruthy();
 });

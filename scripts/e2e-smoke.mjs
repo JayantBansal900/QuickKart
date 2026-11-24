@@ -271,6 +271,8 @@ check("profile saves a default delivery address", prof.status === 200 && prof.js
 // ---------- Simulated online payment ----------
 await call("POST", "/cart/items", { token: C, body: { productId: target.id, quantity: 1 } });
 const cart2 = await call("GET", "/cart", { token: C });
+const methods = await call("GET", "/orders/payment-methods", { token: C });
+check("dev profile offers COD, UPI and card", JSON.stringify(methods.json?.methods) === JSON.stringify(["COD", "UPI", "CARD"]), JSON.stringify(methods.json));
 const online = await call("POST", "/orders/checkout", {
   token: C,
   body: { paymentMethod: "UPI", idempotencyKey: `e2e-upi-${stamp}`, cartFingerprint: cart2.json?.fingerprint,

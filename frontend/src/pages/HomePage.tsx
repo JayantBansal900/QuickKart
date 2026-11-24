@@ -191,6 +191,15 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
     return () => controller.abort();
   }, [searchQuery, debouncedQuery, selectedCategory, sortBy, page, minPrice, maxPrice, reloadKey]);
 
+  // Links such as /?category=BOOKS#catalog-results (from the Categories page) land on the results,
+  // once they have loaded, instead of the top of the page.
+  const scrolledToHash = React.useRef(false);
+  useEffect(() => {
+    if (scrolledToHash.current || !results || location.hash !== '#catalog-results') return;
+    scrolledToHash.current = true;
+    requestAnimationFrame(() => scrollToCatalog());
+  }, [results, location.hash]);
+
   const products = results?.content ?? [];
   const totalResults = results?.totalElements ?? 0;
   const totalPages = results?.totalPages ?? 0;

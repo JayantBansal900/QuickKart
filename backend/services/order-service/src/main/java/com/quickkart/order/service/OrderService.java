@@ -28,6 +28,10 @@ public class OrderService {
     private final ApplicationEventPublisher events;
     private final StockMovementRepository stockMovements;
     @PersistenceContext private EntityManager entityManager;
+    @org.springframework.beans.factory.annotation.Value("${app.payments.simulated-online.enabled:true}")
+    private boolean simulatedOnlinePayments=true;
+    /** Payment methods checkout accepts right now (COD always; UPI/CARD only while the simulated gateway is on). */
+    public List<String> paymentMethods() { return simulatedOnlinePayments ? List.of("COD","UPI","CARD") : List.of("COD"); }
     static final Set<String> PAYMENT_METHODS=Set.of("COD","UPI","CARD");
     static final Set<String> STATUSES=Set.of("PENDING","PLACED","CONFIRMED","PROCESSING","SHIPPED","OUT_FOR_DELIVERY","DELIVERED","CANCELLED");
     public OrderService(OrderRepository orders, CartRepository carts, CartItemRepository cartItems,
@@ -52,6 +56,7 @@ public class OrderService {
         String method=request.getPaymentMethod()==null ? "" : request.getPaymentMethod().trim().toUpperCase(Locale.ROOT);
         if(!PAYMENT_METHODS.contains(method)) throw bad("Unsupported payment method. Choose COD, UPI or CARD.");
         boolean online=!"COD".equals(method);
+        if(online && !simulatedOnlinePayments) throw bad("Online payment is not available. Please choose cash on delivery.");
         String key=required(request.getIdempotencyKey(),1,80,"idempotency key");
         String quote=required(request.getCartFingerprint(),1,64,"cart confirmation");
         String name=required(request.getRecipientName(),1,120,"recipient name");
@@ -153,6 +158,7 @@ public class OrderService {
         if(!order.getUser().getId().equals(user(email).getId())) throw new OrderNotFoundException(id);
         Payment payment=payments.findByOrderId(order.getId()).orElseThrow(()->conflict("Order has no payment record"));
         if("COD".equals(payment.getPaymentMethod())) throw conflict("Cash on delivery orders are paid when they arrive");
+        if(!simulatedOnlinePayments) throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,"Online payment is not available");
         if("PAID".equals(payment.getStatus())) return response(order); // repeated success callback: idempotent
         if(!"PENDING".equals(order.getStatus())) throw conflict("Order is not awaiting payment");
         if(succeed) {

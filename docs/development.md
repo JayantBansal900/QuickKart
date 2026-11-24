@@ -147,6 +147,8 @@ Product photos live in `frontend/public/products/photos/` (Pixabay, free licence
 cd frontend && node scripts/validate-catalog.cjs
 ```
 
+The first seed gave 20 catalog products 0 stock. catalog.json is fixed; for an existing database run `scripts/database/fix-seed-stock.sql` (it only changes those products while they are still at 0, and records each change in the stock history).
+
 To shrink an older database (which had 535 seed products) to the current catalog, run `scripts/database/trim-to-catalog.sql` after a backup. Products that appear in past orders are kept but marked `DISCONTINUED`, which hides them from search and category counts.
 
 ## 6. Cleaning up test data

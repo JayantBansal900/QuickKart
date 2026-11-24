@@ -33,6 +33,12 @@ public class OrderController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    /** Methods the checkout accepts right now, so the UI only offers those. */
+    @GetMapping("/payment-methods")
+    public java.util.Map<String,java.util.List<String>> paymentMethods() {
+        return java.util.Map.of("methods",orderService.paymentMethods());
+    }
+
     /** Simulated payment gateway: {"outcome":"SUCCESS"} or {"outcome":"FAILURE"} (test mode, no card data). */
     @PostMapping("/{id}/pay")
     public ResponseEntity<OrderResponse> pay(Authentication authentication,@PathVariable Long id,

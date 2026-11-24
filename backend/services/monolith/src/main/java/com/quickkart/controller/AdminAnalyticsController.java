@@ -38,10 +38,10 @@ public class AdminAnalyticsController {
 
     @GetMapping
     public ResponseEntity<AdminAnalyticsResponse> getAnalytics() {
-        long totalProducts = productRepository.count();
+        long totalProducts = productRepository.countOnSale();
         // Low stock = still sellable but running out (1-4); out-of-stock is reported separately.
-        long lowStockCount = productRepository.countByStockQuantityBetween(1, LOW_STOCK_THRESHOLD - 1);
-        long outOfStockCount = productRepository.countByStockQuantityLessThanEqual(0);
+        long lowStockCount = productRepository.countOnSaleWithStockBetween(1, LOW_STOCK_THRESHOLD - 1);
+        long outOfStockCount = productRepository.countOnSaleOutOfStock();
 
         long totalOrders = orderRepository.count();
         // Booked revenue = all placed orders that are not cancelled (COD not yet collected included, unpaid online orders excluded).

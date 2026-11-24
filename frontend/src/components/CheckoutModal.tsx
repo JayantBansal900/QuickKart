@@ -33,6 +33,17 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
   const [address, setAddress] = useState(attempt?.deliveryAddress ?? '');
   const [phone, setPhone] = useState(attempt?.deliveryPhone ?? user?.phoneNumber ?? '');
   const [method, setMethod] = useState<PaymentMethod>(attempt?.paymentMethod ?? 'COD');
+  // Only offer what the server accepts (online payment is switched off in production).
+  const [available, setAvailable] = useState<PaymentMethod[]>(['COD']);
+  useEffect(() => {
+    if (!isOpen) return;
+    let alive = true;
+    api.getPaymentMethods().then((m) => alive && setAvailable(m.length ? m : ['COD'])).catch(() => alive && setAvailable(['COD']));
+    return () => { alive = false; };
+  }, [isOpen]);
+  useEffect(() => {
+    if (!attempt && !available.includes(method)) setMethod('COD');
+  }, [available, method, attempt]);
   const [savedAddress, setSavedAddress] = useState<string | null>(null);
   const [saveAddress, setSaveAddress] = useState(true);
   const [awaitingPayment, setAwaitingPayment] = useState<OrderResponse | null>(null);
@@ -202,7 +213,7 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
             <div>
               <h3 id="payment-method-label" className="text-sm font-semibold text-fg">Payment</h3>
               <div role="radiogroup" aria-labelledby="payment-method-label" className="mt-3 grid gap-2">
-                {METHODS.map(({ id, label, hint, icon: Icon }) => (
+                {METHODS.filter((m) => available.includes(m.id)).map(({ id, label, hint, icon: Icon }) => (
                   <label
                     key={id}
                     className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4 transition-colors ${method === id ? 'border-fg' : 'border-line hover:border-muted'} ${locked ? 'cursor-not-allowed opacity-70' : ''}`}

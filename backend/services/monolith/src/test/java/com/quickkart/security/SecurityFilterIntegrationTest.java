@@ -27,9 +27,12 @@ class SecurityFilterIntegrationTest {
 
     @Test
     void publicEndpointsShouldBeAccessibleWithoutToken() throws Exception {
-        mockMvc.perform(get("/api/hello"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("QuickKart backend is running"));
+        // Public = no 401/403 (the status itself is 503 here, because tests run without Redis/Kafka).
+        mockMvc.perform(get("/actuator/health"))
+                .andExpect(r -> org.junit.jupiter.api.Assertions.assertFalse(
+                        r.getResponse().getStatus() == 401 || r.getResponse().getStatus() == 403));
+        mockMvc.perform(get("/api/hello")) // the old demo endpoint was removed
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

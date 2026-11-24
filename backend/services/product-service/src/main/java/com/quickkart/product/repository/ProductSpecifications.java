@@ -54,6 +54,13 @@ public final class ProductSpecifications {
             }
             // Discontinued products stay in the database (orders reference them) but leave the storefront.
             predicates.add(cb.or(cb.isNull(root.get("availability")), cb.notEqual(cb.upper(root.get("availability")), "DISCONTINUED")));
+            // A category the admin has hidden takes its products off the storefront too.
+            var hidden = query.subquery(Long.class);
+            var category = hidden.from(com.quickkart.product.entity.Category.class);
+            hidden.select(category.get("id")).where(
+                    cb.equal(cb.upper(category.get("name")), cb.upper(root.get("category"))),
+                    cb.isFalse(category.get("active")));
+            predicates.add(cb.not(cb.exists(hidden)));
             return cb.and(predicates.toArray(Predicate[]::new));
         };
     }

@@ -48,7 +48,9 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public PageResponse<ReviewResponse> list(Long productId, int page, int size, String viewerEmail) {
         if (!products.existsById(productId)) throw new ProductNotFoundException(productId);
-        Long viewerId = viewerEmail == null ? null : account(viewerEmail).id();
+        // Public list: an unknown or deleted account just reads it as a guest instead of getting 401.
+        Long viewerId = viewerEmail == null ? null : jdbc.queryForList("select id from users where email = ?", Long.class, viewerEmail)
+                .stream().findFirst().orElse(null);
         var result = reviews.findByProductIdOrderByCreatedAtDescIdDesc(productId,
                 PageRequest.of(Math.max(0, page), Math.min(Math.max(1, size), MAX_PAGE_SIZE)));
         Map<Long, String> names = new HashMap<>();

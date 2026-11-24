@@ -105,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
             <span className="flex shrink-0 items-center gap-1">
               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
               <span className="font-medium text-fg">{rating.toFixed(1)}</span>
-              {reviews !== null && <span>({reviews})</span>}
+              {reviews !== null && <span title={`${reviews} ratings`}>({reviews.toLocaleString('en-IN')})</span>}
             </span>
           )}
         </div>

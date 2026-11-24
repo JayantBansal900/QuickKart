@@ -36,6 +36,7 @@ class OtpAndAdminUserSecurityIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired private com.quickkart.security.OtpHasher otpHasher;
+    @Autowired private com.quickkart.repository.ProductRepository productRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -127,6 +128,18 @@ class OtpAndAdminUserSecurityIntegrationTest {
                 .andExpect(jsonPath("$.days").value(365));
         mockMvc.perform(get("/api/admin/analytics/insights").header("Authorization", "Bearer " + customerToken))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void analyticsCountsOnlyProductsOnSale() throws Exception {
+        long before = productRepository.countOnSale();
+        var gone = new com.quickkart.entity.Product("Old model", "d", new java.math.BigDecimal("10.00"), 0, "Electronics");
+        gone.setAvailability("DISCONTINUED");
+        productRepository.saveAndFlush(gone);
+        productRepository.saveAndFlush(new com.quickkart.entity.Product("Current model", "d", new java.math.BigDecimal("10.00"), 0, "Electronics"));
+        mockMvc.perform(get("/api/admin/analytics").header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalProducts").value(before + 1));
     }
 
     @Test

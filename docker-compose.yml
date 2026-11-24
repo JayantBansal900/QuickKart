@@ -210,6 +210,8 @@ services:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       DEV_TOOLS_ENABLED: ${DEV_TOOLS_ENABLED:-false}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      # Simulated UPI/card gateway; the prod profile always turns it off.
+      SIMULATED_ONLINE_PAYMENTS: ${SIMULATED_ONLINE_PAYMENTS:-true}
       KAFKA_EMBEDDED_ENABLED: "false"
     depends_on:
       db-migrate:

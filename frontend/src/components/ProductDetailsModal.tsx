@@ -159,7 +159,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
               <div className="mt-3 flex items-center gap-1.5 text-sm">
                 <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                 <span className="font-medium text-fg">{rating.toFixed(1)}</span>
-                {reviews !== null && <span className="text-muted">· {reviews} reviews</span>}
+                {reviews !== null && <span className="text-muted">· {reviews.toLocaleString('en-IN')} ratings</span>}
               </div>
             )}
 

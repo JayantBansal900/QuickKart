@@ -99,7 +99,7 @@ export function ProductReviews({ productId, onChanged }: { productId: number; on
     <section id="reviews" className="mt-6 border-t border-line pt-6" aria-labelledby="reviews-title">
       <div className="flex items-center justify-between gap-3">
         <h3 id="reviews-title" className="text-sm font-semibold text-fg">
-          Customer reviews{data && data.totalElements > 0 ? ` (${data.totalElements})` : ''}
+          Written reviews{data && data.totalElements > 0 ? ` (${data.totalElements})` : ''}
         </h3>
         {eligibility?.canReview && !formOpen && (
           <button type="button" onClick={() => setFormOpen(true)} className="text-xs font-semibold text-accent hover:underline">
@@ -139,7 +139,7 @@ export function ProductReviews({ productId, onChanged }: { productId: number; on
       )}
 
       {!data || data.content.length === 0 ? (
-        <p className="mt-3 text-sm text-muted">No customer reviews yet. Reviews come from shoppers who received this product.</p>
+        <p className="mt-3 text-sm text-muted">No written reviews yet. The star rating above counts all ratings; written reviews come from shoppers who received this product.</p>
       ) : (
         <ul className="mt-4 space-y-4">
           {data.content.map((r) => (

@@ -19,6 +19,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     @Query("SELECT new com.quickkart.product.dto.CategoryCount(UPPER(p.category), COUNT(p)) "
             + "FROM Product p WHERE p.category IS NOT NULL "
             + "AND (p.availability IS NULL OR UPPER(p.availability) <> 'DISCONTINUED') "
+            + "AND NOT EXISTS (SELECT c.id FROM Category c WHERE UPPER(c.name) = UPPER(p.category) AND c.active = false) "
             + "GROUP BY UPPER(p.category) ORDER BY UPPER(p.category)")
     List<com.quickkart.product.dto.CategoryCount> countByCategory();
 

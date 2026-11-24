@@ -103,6 +103,7 @@ Responses are cached in Redis for up to 60 s.
 | POST | `/api/orders/checkout` | user | See the body below. Returns `201` with the order. |
 | GET | `/api/orders` | user | the caller's orders, newest first |
 | GET | `/api/orders/{id}` | user | only the caller's own order; otherwise `404` |
+| GET | `/api/orders/payment-methods` | user | `{ "methods": ["COD","UPI","CARD"] }`, or only `["COD"]` when the simulated gateway is off (always in `prod`). |
 | POST | `/api/orders/{id}/pay` | user | Simulated gateway (test mode): `{ "outcome": "SUCCESS" \| "FAILURE" }`. Success: payment `PAID`, order `PENDING → PLACED` (repeating it returns the same order). Failure: payment `FAILED`, the order stays payable. `409` for COD orders or orders no longer waiting for payment. |
 | POST | `/api/orders/{id}/cancel` | user | Allowed before shipping. Stock is restored; a paid online order is refunded (`REFUNDED`). |
 

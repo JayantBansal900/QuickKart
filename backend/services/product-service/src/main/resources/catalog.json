@@ -7,11 +7,11 @@
     "discountPercentage": 17,
     "rating": 4.8,
     "reviewCount": 2893,
-    "stockQuantity": 0,
+    "stockQuantity": 36,
     "sku": "SKU-ELEC-001",
     "imageUrl": "/products/photos/headphones-i4.webp",
     "thumbnailUrl": "/products/photos/headphones-i4.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Industry-leading noise cancellation, 30-hour battery and multipoint Bluetooth."
   },
   {
@@ -67,11 +67,11 @@
     "discountPercentage": 16,
     "rating": 4.5,
     "reviewCount": 685,
-    "stockQuantity": 0,
+    "stockQuantity": 31,
     "sku": "SKU-ELEC-015",
     "imageUrl": "/products/photos/smartwatch-3.webp",
     "thumbnailUrl": "/products/photos/smartwatch-3.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Fitness tracking, crash detection and heart-rate notifications."
   },
   {
@@ -247,11 +247,11 @@
     "discountPercentage": 13,
     "rating": 4.1,
     "reviewCount": 3641,
-    "stockQuantity": 0,
+    "stockQuantity": 42,
     "sku": "SKU-ELEC-043",
     "imageUrl": "/products/photos/ereader-1.webp",
     "thumbnailUrl": "/products/photos/ereader-1.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "6.8-inch glare-free display with adjustable warm light."
   },
   {
@@ -277,11 +277,11 @@
     "discountPercentage": 39,
     "rating": 3.8,
     "reviewCount": 1525,
-    "stockQuantity": 0,
+    "stockQuantity": 15,
     "sku": "SKU-FASH-001",
     "imageUrl": "/products/photos/jeans-i3.webp",
     "thumbnailUrl": "/products/photos/jeans-i3.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Stretch denim slim fit with a classic five-pocket design."
   },
   {
@@ -427,11 +427,11 @@
     "discountPercentage": 19,
     "rating": 4.4,
     "reviewCount": 1141,
-    "stockQuantity": 0,
+    "stockQuantity": 12,
     "sku": "SKU-FASH-017",
     "imageUrl": "/products/photos/blazer-i3.webp",
     "thumbnailUrl": "/products/photos/blazer-i3.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Tailored single-button blazer for work."
   },
   {
@@ -547,11 +547,11 @@
     "discountPercentage": 28,
     "rating": 4.7,
     "reviewCount": 821,
-    "stockQuantity": 0,
+    "stockQuantity": 4,
     "sku": "SKU-HOME-001",
     "imageUrl": "/products/photos/pressure-cooker-j1.webp",
     "thumbnailUrl": "/products/photos/pressure-cooker-j1.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Aluminium cooker with spillage-control lid."
   },
   {
@@ -1087,11 +1087,11 @@
     "discountPercentage": 26,
     "rating": 3.9,
     "reviewCount": 44,
-    "stockQuantity": 0,
+    "stockQuantity": 32,
     "sku": "SKU-BOOK-001",
     "imageUrl": "/products/photos/books-1.webp",
     "thumbnailUrl": "/products/photos/books-1.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "The big ideas behind reliable, scalable and maintainable systems."
   },
   {
@@ -1147,11 +1147,11 @@
     "discountPercentage": 5,
     "rating": 4.1,
     "reviewCount": 590,
-    "stockQuantity": 0,
+    "stockQuantity": 23,
     "sku": "SKU-BOOK-011",
     "imageUrl": "/products/photos/books-3.webp",
     "thumbnailUrl": "/products/photos/books-3.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Your journey to mastery."
   },
   {
@@ -1237,11 +1237,11 @@
     "discountPercentage": 5,
     "rating": 3.7,
     "reviewCount": 854,
-    "stockQuantity": 0,
+    "stockQuantity": 14,
     "sku": "SKU-BOOK-021",
     "imageUrl": "/products/photos/books-8.webp",
     "thumbnailUrl": "/products/photos/books-8.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "An easy and proven way to build good habits and break bad ones."
   },
   {
@@ -1357,11 +1357,11 @@
     "discountPercentage": 9,
     "rating": 4.6,
     "reviewCount": 4273,
-    "stockQuantity": 0,
+    "stockQuantity": 30,
     "sku": "SKU-BEAU-001",
     "imageUrl": "/products/photos/serum-i3.webp",
     "thumbnailUrl": "/products/photos/serum-i3.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Reduces blemishes and controls excess oil."
   },
   {
@@ -1447,11 +1447,11 @@
     "discountPercentage": 27,
     "rating": 4.1,
     "reviewCount": 30,
-    "stockQuantity": 0,
+    "stockQuantity": 27,
     "sku": "SKU-BEAU-017",
     "imageUrl": "/products/photos/compact-powder-i3.webp",
     "thumbnailUrl": "/products/photos/compact-powder-i3.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Lightweight compact for a natural glow."
   },
   {
@@ -1492,11 +1492,11 @@
     "discountPercentage": 27,
     "rating": 3.8,
     "reviewCount": 32,
-    "stockQuantity": 0,
+    "stockQuantity": 16,
     "sku": "SKU-BEAU-025",
     "imageUrl": "/products/photos/setting-spray-i1.webp",
     "thumbnailUrl": "/products/photos/setting-spray-i1.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Sets makeup for long-lasting wear."
   },
   {
@@ -1627,11 +1627,11 @@
     "discountPercentage": 20,
     "rating": 4.8,
     "reviewCount": 226,
-    "stockQuantity": 0,
+    "stockQuantity": 14,
     "sku": "SKU-GROC-001",
     "imageUrl": "/products/photos/lentils-i1.webp",
     "thumbnailUrl": "/products/photos/lentils-i1.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Unpolished arhar dal rich in protein."
   },
   {
@@ -1717,11 +1717,11 @@
     "discountPercentage": 12,
     "rating": 4.8,
     "reviewCount": 36,
-    "stockQuantity": 0,
+    "stockQuantity": 47,
     "sku": "SKU-GROC-013",
     "imageUrl": "/products/photos/ghee-k2.webp",
     "thumbnailUrl": "/products/photos/ghee-k2.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Rich, aromatic cow ghee."
   },
   {
@@ -1807,11 +1807,11 @@
     "discountPercentage": 16,
     "rating": 4.1,
     "reviewCount": 192,
-    "stockQuantity": 0,
+    "stockQuantity": 2,
     "sku": "SKU-GROC-025",
     "imageUrl": "/products/photos/milk-powder-i1.webp",
     "thumbnailUrl": "/products/photos/milk-powder-i1.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Dairy whitener for tea and coffee."
   },
   {
@@ -1867,11 +1867,11 @@
     "discountPercentage": 0,
     "rating": 3.9,
     "reviewCount": 56,
-    "stockQuantity": 0,
+    "stockQuantity": 3,
     "sku": "SKU-GROC-037",
     "imageUrl": "/products/photos/oats-i0.webp",
     "thumbnailUrl": "/products/photos/oats-i0.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "100% wholegrain rolled oats."
   },
   {
@@ -1897,11 +1897,11 @@
     "discountPercentage": 43,
     "rating": 4.5,
     "reviewCount": 26,
-    "stockQuantity": 0,
+    "stockQuantity": 35,
     "sku": "SKU-ACCE-001",
     "imageUrl": "/products/photos/phone-case-i4.webp",
     "thumbnailUrl": "/products/photos/phone-case-i4.webp",
-    "availability": "OUT_OF_STOCK",
+    "availability": "IN_STOCK",
     "description": "Clear case with air-cushion corners."
   },
   {
