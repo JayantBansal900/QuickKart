@@ -307,6 +307,18 @@ describe("actual application navigation", () => {
     await screen.findByRole("heading", { name: "Test Customer" });
     expect(window.location.pathname).toBe("/account/profile");
   });
+  it("guests can open the categories and information pages without signing in", async () => {
+    for (const [path, heading] of [["/categories", "All categories"], ["/info/about", "About QuickKart"]]) {
+      const view = render(
+        <MemoryRouter initialEntries={[path]}>
+          <ApplicationProviders />
+        </MemoryRouter>,
+      );
+      expect(await screen.findByRole("heading", { level: 1, name: heading })).toBeTruthy();
+      expect(screen.queryByRole("heading", { name: "Sign In" })).toBeNull();
+      view.unmount();
+    }
+  });
   it("unknown routes render a useful fallback", async () => {
     render(
       <MemoryRouter initialEntries={["/missing"]}>

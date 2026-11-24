@@ -19,6 +19,13 @@ interface ProductDetailsModalProps {
 
 export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onClose, onDirectCheckout, onSelectProduct }) => {
   const [related, setRelated] = useState<Product[]>([]);
+  // Fresh rating after the shopper adds, edits or deletes a review (the list behind the dialog is cached).
+  const [liveRating, setLiveRating] = useState<{ id: number; rating?: number | null; reviewCount?: number | null } | null>(null);
+  const refreshRating = () => {
+    if (!product) return;
+    const id = product.id;
+    api.getProductById(id).then((p) => setLiveRating({ id, rating: p.rating, reviewCount: p.reviewCount })).catch(() => undefined);
+  };
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [imageFailed, setImageFailed] = useState(false);
@@ -77,8 +84,9 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
   const price = Number(product.price) || 0;
   const discount = Math.round(Number(product.discountPercentage) || 0);
   const originalPrice = originalPriceOf(product);
-  const rating = product.rating != null && !Number.isNaN(Number(product.rating)) ? Number(product.rating) : null;
-  const reviews = product.reviewCount != null && Number(product.reviewCount) > 0 ? Number(product.reviewCount) : null;
+  const current = liveRating?.id === product.id ? { ...product, ...liveRating } : product;
+  const rating = current.rating != null && !Number.isNaN(Number(current.rating)) ? Number(current.rating) : null;
+  const reviews = current.reviewCount != null && Number(current.reviewCount) > 0 ? Number(current.reviewCount) : null;
 
   const add = async (): Promise<boolean> => {
     if (!isAuthenticated) {
@@ -198,7 +206,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
               <span className="text-fg">Cash on delivery, UPI and cards accepted. Stock is confirmed again when you place the order.</span>
             </div>
 
-            <ProductReviews productId={product.id} />
+            <ProductReviews productId={product.id} onChanged={refreshRating} />
 
             {related.length > 0 && onSelectProduct && (
               <div className="mt-6 border-t border-line pt-6">

@@ -124,8 +124,8 @@ With `MAIL_TRANSPORT=console` (the default), OTP emails are written to the monol
 | Order service (cart, checkout, payments, outbox) | 50 | `mvn verify` in `backend/services/order-service` |
 | Product service (search, cache, admin, categories, reviews, stock history) | 48 | `mvn verify` in `backend/services/product-service` |
 | API gateway | 7 | `mvn verify` in `backend/services/api-gateway` |
-| Frontend (Vitest + Testing Library) | 85 | `npm test` in `frontend` |
-| End-to-end against the running stack | 73 checks | `node scripts/e2e-smoke.mjs .` (needs `MAIL_TRANSPORT=console`) |
+| Frontend (Vitest + Testing Library) | 86 | `npm test` in `frontend` |
+| End-to-end against the running stack | 75 checks | `node scripts/e2e-smoke.mjs .` (needs `MAIL_TRANSPORT=console`) |
 
 Kafka tests use an embedded broker. PostgreSQL-specific tests (locking, migrations) run against a Testcontainers database in CI. GitHub Actions runs all of these on every push ([ci.yml](.github/workflows/ci.yml)).
 

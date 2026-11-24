@@ -172,6 +172,9 @@ export function ApplicationShell() {
             {["/login", "/register", "/verify-email", "/forgot-password", "/reset-password"].map((path) => (
               <Route key={path} path={path} element={<AuthPage />} />
             ))}
+            {/* Public pages: guests can browse categories and read store information. */}
+            <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/info/:slug" element={<InfoPage />} />
             <Route element={<ProtectedRoute />}>
               <Route
                 path="/account"
@@ -193,8 +196,6 @@ export function ApplicationShell() {
                 }
               />
               <Route path="/cart" element={<CommerceRoute />} />
-              <Route path="/categories" element={<CategoriesPage />} />
-              <Route path="/info/:slug" element={<InfoPage />} />
               <Route path="/checkout" element={<CommerceRoute checkout />} />
             </Route>
             <Route

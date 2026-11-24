@@ -74,8 +74,10 @@ export function InfoPage() {
   const { slug = '' } = useParams();
   const page = PAGES[slug];
   useEffect(() => {
+    const previousTitle = document.title;
     if (page) document.title = `${page.title} · QuickKart`;
     document.getElementById('main-content')?.scrollIntoView?.();
+    return () => { document.title = previousTitle; };
   }, [page]);
   if (!page) return <Navigate replace to="/" />;
 

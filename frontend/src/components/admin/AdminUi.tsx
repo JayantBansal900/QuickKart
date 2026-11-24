@@ -61,12 +61,12 @@ export function StatCard({
     bad: "text-sale",
   }[tone];
   return (
-    <div className="rounded-xl border border-line bg-surface p-5 transition-shadow hover:shadow-card">
+    <div className="min-w-0 rounded-xl border border-line bg-surface p-5 transition-shadow hover:shadow-card">
       <div className="flex items-center justify-between text-muted">
         <span className="qk-eyebrow">{label}</span>
         {icon}
       </div>
-      <div className={`mt-3 text-3xl font-semibold tracking-tight tabular-nums ${toneClass}`}>{value}</div>
+      <div className={`mt-3 break-words text-2xl font-semibold tracking-tight tabular-nums xl:text-3xl ${toneClass}`}>{value}</div>
       {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
     </div>
   );

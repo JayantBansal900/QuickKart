@@ -10,8 +10,10 @@ export function CategoriesPage() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    const previousTitle = document.title;
     document.title = 'Categories · QuickKart';
     api.getCategories().then(setCategories).catch(() => setError(true));
+    return () => { document.title = previousTitle; };
   }, []);
 
   return (

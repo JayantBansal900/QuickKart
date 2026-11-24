@@ -63,6 +63,13 @@ const bypass = await call("GET", "/order-service/actuator/health", { base: WEB }
 check("nginx no longer proxies /order-service/ (gateway bypass removed)", !bypass.text.includes('"status"'), `got ${bypass.status}, ${bypass.text.slice(0, 40).replace(/\s+/g, " ")}`);
 const spa = await call("GET", "/admin/login", { base: WEB });
 check("nginx serves SPA for /admin/login", spa.status === 200 && spa.text.includes("<div id=\"root\">"), `status=${spa.status}`);
+// Every app route must load directly (refresh / shared link), even where a static folder has the same name.
+const directLoads = [];
+for (const route of ["/categories", "/info/about", "/products/1", "/account/orders", "/admin/analytics"]) {
+  const r = await fetch(`${WEB}${route}`, { redirect: "manual" });
+  directLoads.push(`${route}=${r.status}`);
+}
+check("app routes load directly (no redirect or 403)", directLoads.every((x) => x.endsWith("=200")), directLoads.join(" "));
 const headers = (await fetch(`${WEB}/`)).headers;
 check("nginx sends security headers (CSP, nosniff, frame deny)",
   /script-src 'self'/.test(headers.get("content-security-policy") ?? "") && headers.get("x-content-type-options") === "nosniff" && headers.get("x-frame-options") === "DENY");
