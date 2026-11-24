@@ -4,6 +4,7 @@ import { LogOut, Menu, Moon, Search, ShoppingBag, Sun, User, X } from 'lucide-re
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useTheme } from '../context/ThemeContext';
+import { api } from '../services/api';
 
 export type AppView = 'store' | 'orders' | 'admin' | 'profile';
 
@@ -14,24 +15,37 @@ interface HeaderProps {
   onToggleSidebar: () => void;
 }
 
+/** Shown until /api/categories answers (and if it fails). */
+const FALLBACK_CATEGORIES = [
+  { key: 'ELECTRONICS', name: 'Electronics' },
+  { key: 'FASHION', name: 'Fashion' },
+  { key: 'HOME & LIVING', name: 'Home & Living' },
+  { key: 'SPORTS', name: 'Sports' },
+  { key: 'BOOKS', name: 'Books' },
+  { key: 'BEAUTY', name: 'Beauty' },
+  { key: 'GROCERIES', name: 'Groceries' },
+  { key: 'ACCESSORIES', name: 'Accessories' },
+];
+
 /** Wordmark used in the header and footer. */
 export function Logo({ className = '' }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
-      <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-fg text-bg">
-        <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" aria-hidden="true">
+      <span className="grid h-7 w-7 place-items-center rounded-md bg-fg text-bg">
+        <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
           <path
             d="M12 3.5a8.5 8.5 0 1 0 5.2 15.2l2.4 2.4 1.9-1.9-2.4-2.4A8.5 8.5 0 0 0 12 3.5Zm0 3a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Z"
             fill="currentColor"
           />
         </svg>
       </span>
-      <span className="text-[17px] font-bold tracking-tight text-fg">
-        quick<span className="text-accent">kart</span>
-      </span>
+      <span className="text-[18px] font-extrabold tracking-[-0.04em] text-fg">quickkart</span>
     </span>
   );
 }
+
+const iconButton =
+  'relative grid h-10 w-10 place-items-center rounded-md text-fg transition-colors hover:bg-subtle';
 
 export const Header: React.FC<HeaderProps> = ({
   currentView, onSelectView, isSidebarOpen, onToggleSidebar,
@@ -42,8 +56,19 @@ export const Header: React.FC<HeaderProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [categories, setCategories] = useState(FALLBACK_CATEGORIES);
+  useEffect(() => {
+    let active = true;
+    api.getCategories()
+      .then((list) => { if (active && list.length > 0) setCategories(list.map((c) => ({ key: c.key, name: c.name }))); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
+
   // Header search simply drives the catalog's ?q= parameter on the home page.
-  const urlQuery = new URLSearchParams(location.search).get('q') ?? '';
+  const params = new URLSearchParams(location.search);
+  const urlQuery = params.get('q') ?? '';
+  const activeCategory = location.pathname === '/' ? (params.get('category') ?? '').toUpperCase() : '';
   const [query, setQuery] = useState(urlQuery);
   useEffect(() => setQuery(urlQuery), [urlQuery]);
   const submitSearch = (event: React.FormEvent) => {
@@ -52,134 +77,152 @@ export const Header: React.FC<HeaderProps> = ({
     navigate(q ? `/?q=${encodeURIComponent(q)}` : '/');
     document.getElementById('catalog-results')?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
   };
+  const openCategory = (key: string) => {
+    navigate(`/?category=${encodeURIComponent(key)}`);
+    setTimeout(() => document.getElementById('catalog-results')?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }), 50);
+  };
 
-  const navItem = (active: boolean) =>
-    `rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-      active ? 'bg-subtle text-fg' : 'text-muted hover:text-fg'
+  const subNav = (active: boolean) =>
+    `relative shrink-0 py-3 text-[13px] font-medium transition-colors ${
+      active ? 'text-fg after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-fg' : 'text-muted hover:text-fg'
     }`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface/80 backdrop-blur-xl supports-[backdrop-filter]:bg-surface/70">
-      <div className="qk-container flex h-16 items-center gap-3 md:gap-6">
-        <button
-          type="button"
-          onClick={onToggleSidebar}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-fg transition-colors hover:bg-subtle md:hidden"
-          aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={isSidebarOpen}
-        >
-          {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+    <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/85">
+      <div className="bg-fg text-bg">
+        <p className="qk-container py-2 text-center text-xs font-medium tracking-wide">
+          Free delivery on every order<span className="hidden sm:inline"> · Pay by UPI, card or cash on delivery</span>
+        </p>
+      </div>
 
-        <button type="button" onClick={() => onSelectView('store')} aria-label="QuickKart Home" className="shrink-0">
-          <Logo />
-        </button>
+      <div className="border-b border-line">
+        <div className="qk-container flex h-16 items-center gap-3 md:gap-8">
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            className={`${iconButton} shrink-0 md:hidden`}
+            aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isSidebarOpen}
+          >
+            {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
-          <button type="button" onClick={() => onSelectView('store')} className={navItem(currentView === 'store')}>
+          <button type="button" onClick={() => onSelectView('store')} aria-label="QuickKart Home" className="shrink-0">
+            <Logo />
+          </button>
+
+          <form role="search" onSubmit={submitSearch} className="relative mx-auto hidden w-full max-w-xl sm:block">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search for products, brands and more"
+              aria-label="Search products"
+              className="h-10 w-full rounded-md border border-transparent bg-subtle pl-10 pr-4 text-sm text-fg outline-none transition-colors placeholder:text-muted focus:border-fg focus:bg-surface"
+            />
+          </form>
+
+          <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:ml-0">
+            <Link to="/search" aria-label="Search" className={`${iconButton} sm:hidden`}>
+              <Search className="h-5 w-5" />
+            </Link>
+
+            <button
+              type="button"
+              onClick={toggle}
+              className={iconButton}
+              aria-label={resolved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={resolved === 'dark' ? 'Light mode' : 'Dark mode'}
+            >
+              {resolved === 'dark' ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
+            </button>
+
+            {isAuthenticated ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onSelectView('profile')}
+                  className={`flex h-10 items-center gap-2 rounded-md px-2 transition-colors hover:bg-subtle ${
+                    currentView === 'profile' ? 'bg-subtle' : ''
+                  }`}
+                  aria-label="My Account"
+                  title="My Account"
+                >
+                  <User className="h-[18px] w-[18px]" />
+                  <span className="hidden max-w-28 truncate text-sm font-medium text-fg lg:block">{user?.name}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className={`${iconButton} text-muted hover:text-fg`}
+                  aria-label="Sign out"
+                  title="Sign out"
+                >
+                  <LogOut className="h-[18px] w-[18px]" />
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openAuthModal('login')}
+                aria-label="Account sign in"
+                className="flex h-10 items-center gap-2 rounded-md px-2.5 text-sm font-medium text-fg transition-colors hover:bg-subtle"
+              >
+                <User className="h-[18px] w-[18px]" />
+                <span className="hidden sm:inline">Sign In</span>
+              </button>
+            )}
+
+            {!isAdmin && (
+              <button
+                type="button"
+                onClick={() => (isAuthenticated ? navigate('/cart') : openAuthModal('login'))}
+                className={iconButton}
+                aria-label={`Cart${itemsCount > 0 ? ` — ${itemsCount} items` : ''}`}
+              >
+                <ShoppingBag className="h-[18px] w-[18px]" />
+                {itemsCount > 0 && (
+                  <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-fg px-1 text-[10px] font-bold text-bg">
+                    {itemsCount > 99 ? '99+' : itemsCount}
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <nav aria-label="Primary" className="hidden border-b border-line md:block">
+        <div className="qk-container qk-scrollbar-none flex items-center gap-7 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => onSelectView('store')}
+            className={subNav(currentView === 'store' && location.pathname === '/' && !activeCategory)}
+          >
             Shop
           </button>
-          <Link to="/categories" className={navItem(location.pathname === '/categories')}>
+          {categories.map((c) => (
+            <button key={c.key} type="button" onClick={() => openCategory(c.key)} className={subNav(activeCategory === c.key)}>
+              {c.name}
+            </button>
+          ))}
+          <Link to="/categories" className={subNav(location.pathname === '/categories')}>
             Categories
           </Link>
+          <span className="ml-auto" />
           {isAuthenticated && (
-            <button type="button" onClick={() => onSelectView('orders')} className={navItem(currentView === 'orders')}>
+            <button type="button" onClick={() => onSelectView('orders')} className={subNav(currentView === 'orders')}>
               Orders
             </button>
           )}
           {isAdmin && (
-            <button type="button" onClick={() => onSelectView('admin')} className={navItem(currentView === 'admin')}>
+            <button type="button" onClick={() => onSelectView('admin')} className={subNav(currentView === 'admin')}>
               Admin
             </button>
           )}
-        </nav>
-
-        <form role="search" onSubmit={submitSearch} className="relative ml-auto hidden max-w-md flex-1 sm:block">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search products, brands…"
-            aria-label="Search products"
-            className="h-10 w-full rounded-full border border-transparent bg-subtle pl-10 pr-4 text-sm text-fg outline-none transition-colors placeholder:text-muted focus:border-line focus:bg-surface"
-          />
-        </form>
-
-        <div className="ml-auto flex shrink-0 items-center gap-1 sm:ml-0">
-          <Link
-            to="/search"
-            aria-label="Search"
-            className="grid h-10 w-10 place-items-center rounded-full text-fg transition-colors hover:bg-subtle sm:hidden"
-          >
-            <Search className="h-5 w-5" />
-          </Link>
-
-          <button
-            type="button"
-            onClick={toggle}
-            className="grid h-10 w-10 place-items-center rounded-full text-fg transition-colors hover:bg-subtle"
-            aria-label={resolved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={resolved === 'dark' ? 'Light mode' : 'Dark mode'}
-          >
-            {resolved === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </button>
-
-          {isAuthenticated && !isAdmin && (
-            <button
-              type="button"
-              onClick={() => navigate('/cart')}
-              className="relative grid h-10 w-10 place-items-center rounded-full text-fg transition-colors hover:bg-subtle"
-              aria-label={`Cart${itemsCount > 0 ? ` — ${itemsCount} items` : ''}`}
-            >
-              <ShoppingBag className="h-5 w-5" />
-              {itemsCount > 0 && (
-                <span className="absolute right-0.5 top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-fg">
-                  {itemsCount > 99 ? '99+' : itemsCount}
-                </span>
-              )}
-            </button>
-          )}
-
-          {isAuthenticated ? (
-            <>
-              <button
-                type="button"
-                onClick={() => onSelectView('profile')}
-                className={`ml-1 flex h-10 items-center gap-2 rounded-full pl-1 pr-1 transition-colors hover:bg-subtle lg:pr-3 ${
-                  currentView === 'profile' ? 'bg-subtle' : ''
-                }`}
-                aria-label="My Account"
-                title="My Account"
-              >
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-accent-soft text-sm font-semibold text-accent">
-                  {(user?.name?.trim()?.[0] ?? 'U').toUpperCase()}
-                </span>
-                <span className="hidden max-w-28 truncate text-sm font-medium text-fg lg:block">{user?.name}</span>
-              </button>
-              <button
-                type="button"
-                onClick={logout}
-                className="grid h-10 w-10 place-items-center rounded-full text-muted transition-colors hover:bg-subtle hover:text-fg"
-                aria-label="Sign out"
-                title="Sign out"
-              >
-                <LogOut className="h-[18px] w-[18px]" />
-              </button>
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={() => openAuthModal('login')}
-              aria-label="Account sign in"
-              className="qk-btn qk-btn-primary ml-1 h-10 w-10 px-0 sm:w-auto sm:px-4"
-            >
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign In</span>
-            </button>
-          )}
         </div>
-      </div>
+      </nav>
     </header>
   );
 };

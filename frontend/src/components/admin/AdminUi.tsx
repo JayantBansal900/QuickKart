@@ -61,7 +61,7 @@ export function StatCard({
     bad: "text-sale",
   }[tone];
   return (
-    <div className="rounded-2xl border border-line bg-surface p-5 transition-shadow hover:shadow-card">
+    <div className="rounded-xl border border-line bg-surface p-5 transition-shadow hover:shadow-card">
       <div className="flex items-center justify-between text-muted">
         <span className="qk-eyebrow">{label}</span>
         {icon}
@@ -122,7 +122,7 @@ export function StatusBadge({ value }: { value?: string | null }) {
 export function ErrorBanner({ message }: { message: string | null }) {
   if (!message) return null;
   return (
-    <div role="alert" className="flex items-start gap-2 rounded-2xl bg-sale-soft p-3.5 text-sm text-sale">
+    <div role="alert" className="flex items-start gap-2 rounded-xl bg-sale-soft p-3.5 text-sm text-sale">
       <AlertCircle className="mt-0.5 h-4 w-4 flex-none" />
       <span>{message}</span>
     </div>
@@ -141,7 +141,7 @@ export function LoadingRow({ colSpan, text = "Loading…" }: { colSpan: number; 
 
 export function TableShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-line bg-surface">
+    <div className="overflow-x-auto rounded-xl border border-line bg-surface">
       <table className="w-full min-w-[640px] border-collapse text-left text-sm">{children}</table>
     </div>
   );

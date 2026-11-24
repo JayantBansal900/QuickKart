@@ -47,7 +47,7 @@ export function AdminLoginPage() {
   const field = "mt-1 w-full rounded-lg border border-line bg-surface p-2.5 text-sm text-fg focus:border-accent focus:outline-none";
   return (
     <div className="flex min-h-screen items-center justify-center bg-fg px-4">
-      <section className="w-full max-w-sm rounded-2xl bg-surface p-7 shadow-xl">
+      <section className="w-full max-w-sm rounded-xl bg-surface p-7 shadow-xl">
         <div className="mb-6 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-fg text-bg">
             <ShieldCheck className="h-5 w-5" />

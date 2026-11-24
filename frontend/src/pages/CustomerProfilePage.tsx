@@ -105,12 +105,12 @@ export const CustomerProfilePage: React.FC<CustomerProfilePageProps> = ({ onNavi
       </div>
 
       {error && (
-        <div role="alert" className="mt-6 flex items-center gap-2 rounded-2xl bg-sale-soft p-4 text-sm text-sale">
+        <div role="alert" className="mt-6 flex items-center gap-2 rounded-xl bg-sale-soft p-4 text-sm text-sale">
           <AlertCircle className="h-4 w-4 shrink-0" /> {error}
         </div>
       )}
       {successMsg && (
-        <div role="status" className="mt-6 flex items-center gap-2 rounded-2xl bg-success-soft p-4 text-sm text-success">
+        <div role="status" className="mt-6 flex items-center gap-2 rounded-xl bg-success-soft p-4 text-sm text-success">
           <CheckCircle2 className="h-4 w-4 shrink-0" /> {successMsg}
         </div>
       )}

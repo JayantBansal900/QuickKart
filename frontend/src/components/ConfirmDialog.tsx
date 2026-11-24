@@ -69,7 +69,7 @@ function ConfirmDialog({
         aria-modal="true"
         aria-labelledby="qk-confirm-title"
         aria-describedby={message ? 'qk-confirm-message' : undefined}
-        className="relative w-full max-w-sm rounded-3xl border border-line bg-surface p-6 shadow-card"
+        className="relative w-full max-w-sm rounded-xl border border-line bg-surface p-6 shadow-card"
       >
         <div className={`grid h-11 w-11 place-items-center rounded-full ${danger ? 'bg-sale-soft text-sale' : 'bg-accent-soft text-accent'}`}>
           <AlertTriangle className="h-5 w-5" />

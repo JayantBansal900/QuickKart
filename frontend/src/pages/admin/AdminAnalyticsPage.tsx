@@ -72,7 +72,7 @@ export function AdminAnalyticsPage() {
         <StatCard label="New customers" value={show(d?.newCustomers)} hint="Verified sign-ups" icon={<UserPlus className="h-4 w-4" />} />
       </div>
 
-      <section className="rounded-2xl border border-line bg-surface p-5">
+      <section className="rounded-xl border border-line bg-surface p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="font-semibold">Revenue per day</h2>
           <button type="button" onClick={() => setShowTable((v) => !v)} className="text-xs font-semibold text-muted underline">
@@ -120,7 +120,7 @@ export function AdminAnalyticsPage() {
 
 function Panel({ title, empty, loading, children }: { title: string; empty: boolean; loading: boolean; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-line bg-surface p-5">
+    <section className="rounded-xl border border-line bg-surface p-5">
       <h2 className="mb-4 font-semibold">{title}</h2>
       {empty ? <p className="text-sm text-muted">{loading ? "Loading…" : "No orders in this period yet."}</p> : children}
     </section>

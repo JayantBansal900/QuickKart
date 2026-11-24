@@ -26,12 +26,18 @@ describe("theme", () => {
     expect(localStorage.getItem("qk-theme")).toBe("dark");
   });
 
+  it("defaults to light even when nothing is saved", () => {
+    localStorage.removeItem("qk-theme");
+    render(<ThemeProvider><Toggle /></ThemeProvider>);
+    expect(screen.getByTestId("theme").textContent).toBe("light");
+  });
+
   it("restores a saved preference and can return to following the system", () => {
     localStorage.setItem("qk-theme", "dark");
     render(<ThemeProvider><Toggle /></ThemeProvider>);
     expect(screen.getByTestId("theme").textContent).toBe("dark");
     act(() => { fireEvent.click(screen.getByText("system")); });
-    expect(localStorage.getItem("qk-theme")).toBeNull();
+    expect(localStorage.getItem("qk-theme")).toBe("system");
     expect(screen.getByTestId("theme").textContent).toBe("light"); // jsdom has no dark system preference
   });
 });

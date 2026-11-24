@@ -129,7 +129,7 @@ export function AuthPage() {
   const tab = (to: string, label: string, active: boolean) => (
     <Link
       to={to + suffix}
-      className={`flex-1 rounded-full py-2 text-center text-sm font-medium transition-colors ${
+      className={`flex-1 rounded-md py-2 text-center text-sm font-medium transition-colors ${
         active ? "bg-surface text-fg shadow-card" : "text-muted hover:text-fg"
       }`}
     >
@@ -139,7 +139,7 @@ export function AuthPage() {
   return (
     <div className="qk-container grid min-h-[calc(100vh-4rem)] items-center gap-10 py-10 lg:grid-cols-2">
       {/* Brand panel (desktop only) */}
-      <div className="relative hidden h-full min-h-[560px] overflow-hidden rounded-[32px] bg-[#171412] p-12 text-white lg:flex lg:flex-col lg:justify-between">
+      <div className="relative hidden h-full min-h-[560px] overflow-hidden rounded-2xl bg-[#171412] p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <img
           src="/categories/auth.webp"
           alt=""
@@ -149,7 +149,7 @@ export function AuthPage() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
         <p className="relative text-lg font-semibold tracking-tight">quickkart</p>
         <div className="relative">
-          <h2 className="qk-display text-5xl">Shop smarter.<br /><em>Pay on delivery.</em></h2>
+          <h2 className="qk-display text-5xl">Shop smarter.<br /><span className="text-white/70">Pay on delivery.</span></h2>
           <ul className="mt-8 space-y-3 text-sm opacity-80">
             <li>✓ 144 hand-picked products across 8 categories</li>
             <li>✓ Cash on delivery on every order</li>
@@ -162,7 +162,7 @@ export function AuthPage() {
       {/* Form */}
       <section className="mx-auto w-full max-w-md">
         {(mode === "login" || mode === "register") && (
-          <div className="mb-8 flex rounded-full bg-subtle p-1">
+          <div className="mb-8 flex rounded-lg bg-subtle p-1">
             {tab("/login", "Sign in", mode === "login")}
             {tab("/register", "Create account", mode === "register")}
           </div>

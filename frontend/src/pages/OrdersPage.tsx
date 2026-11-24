@@ -111,7 +111,7 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
   if (!isAuthenticated) {
     return (
       <div className="qk-container flex flex-col items-center py-24 text-center">
-        <span className="grid h-14 w-14 place-items-center rounded-2xl bg-subtle text-muted"><Package className="h-6 w-6" /></span>
+        <span className="grid h-14 w-14 place-items-center rounded-xl bg-subtle text-muted"><Package className="h-6 w-6" /></span>
         <h1 className="mt-5 text-xl font-semibold text-fg">Sign in to view your orders</h1>
         <button type="button" onClick={() => openAuthModal('login')} className="qk-btn qk-btn-primary mt-6">Sign in</button>
       </div>
@@ -135,7 +135,7 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
       {paying && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setPaying(null)} aria-hidden="true" />
-          <section role="dialog" aria-modal="true" aria-labelledby="pay-title" className="relative w-full rounded-t-[28px] bg-surface p-6 shadow-2xl sm:max-w-md sm:rounded-[28px]">
+          <section role="dialog" aria-modal="true" aria-labelledby="pay-title" className="relative w-full rounded-t-[28px] bg-surface p-6 shadow-2xl sm:max-w-md sm:rounded-2xl">
             <h2 id="pay-title" className="qk-display mb-4 text-3xl text-fg">Complete payment</h2>
             <PaymentPanel
               order={paying}
@@ -146,7 +146,7 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
         </div>
       )}
       {confirmedId && (
-        <div role="status" className="mb-8 flex items-center gap-3 rounded-2xl border border-success/30 bg-success-soft p-4 text-sm text-fg animate-rise">
+        <div role="status" className="mb-8 flex items-center gap-3 rounded-xl border border-success/30 bg-success-soft p-4 text-sm text-fg animate-rise">
           <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
           <span>{confirmation}</span>
         </div>
@@ -163,17 +163,17 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
       </div>
 
       {error && (
-        <div role="alert" className="mt-6 flex items-center gap-2 rounded-2xl bg-sale-soft p-4 text-sm text-sale">
+        <div role="alert" className="mt-6 flex items-center gap-2 rounded-xl bg-sale-soft p-4 text-sm text-sale">
           <AlertCircle className="h-4 w-4 shrink-0" /> {error}
         </div>
       )}
 
       <div className="mt-8 space-y-5">
         {isLoading && orders.length === 0 ? (
-          [1, 2].map((n) => <div key={n} className="h-48 animate-pulse rounded-3xl bg-subtle" />)
+          [1, 2].map((n) => <div key={n} className="h-48 animate-pulse rounded-xl bg-subtle" />)
         ) : orders.length === 0 ? (
-          <div className="flex flex-col items-center rounded-3xl border border-dashed border-line px-6 py-20 text-center">
-            <span className="grid h-14 w-14 place-items-center rounded-2xl bg-subtle text-muted"><Package className="h-6 w-6" /></span>
+          <div className="flex flex-col items-center rounded-xl border border-dashed border-line px-6 py-20 text-center">
+            <span className="grid h-14 w-14 place-items-center rounded-xl bg-subtle text-muted"><Package className="h-6 w-6" /></span>
             <h2 className="mt-5 text-lg font-semibold text-fg">No orders yet</h2>
             <p className="mt-1.5 max-w-sm text-sm text-muted">When you place an order, it will show up here.</p>
             <button type="button" onClick={onNavigateToStore} className="qk-btn qk-btn-primary mt-6">
@@ -222,7 +222,7 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
                 </ul>
 
                 {(order.deliveryAddress || order.cancellable || order.payable) && (
-                  <div className="flex flex-col gap-4 rounded-2xl bg-subtle p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-col gap-4 rounded-xl bg-subtle p-4 sm:flex-row sm:items-center sm:justify-between">
                     {order.deliveryAddress && (
                       <div className="text-sm">
                         <p className="font-medium text-fg">Delivering to {order.recipientName}</p>

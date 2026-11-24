@@ -38,7 +38,7 @@ export function PaymentPanel({ order, onPaid, onLater }: Props) {
   const Icon = order.paymentMethod === 'CARD' ? CreditCard : Smartphone;
   return (
     <div className="space-y-5">
-      <div className="rounded-3xl border border-line bg-subtle/60 p-5">
+      <div className="rounded-xl border border-line bg-subtle/60 p-5">
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-2 text-sm font-semibold text-fg">
             <Icon className="h-4 w-4" /> QuickKart Pay · {order.paymentMethod === 'CARD' ? 'Card' : 'UPI'}

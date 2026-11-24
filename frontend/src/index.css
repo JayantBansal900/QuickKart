@@ -8,45 +8,45 @@
    components written once work in both themes.
    --------------------------------------------------------------------------- */
 :root {
-  /* Warm, editorial palette: off-white paper, near-black ink, one deep green accent. */
-  --qk-bg: #f6f4f0;            /* page background */
+  /* Clean minimal palette: white paper, near-black ink, neutral greys, red only for sale prices. */
+  --qk-bg: #ffffff;            /* page background */
   --qk-surface: #ffffff;       /* cards, header, dialogs */
-  --qk-subtle: #efebe5;        /* image wells, hover fills */
-  --qk-fg: #171412;            /* primary text */
-  --qk-muted: #6f6a63;         /* secondary text */
-  --qk-border: #e3ddd4;
-  --qk-accent: #1f4d38;        /* deep forest green */
+  --qk-subtle: #f5f5f5;        /* image wells, hover fills */
+  --qk-fg: #0a0a0a;            /* primary text */
+  --qk-muted: #6b6b6b;         /* secondary text */
+  --qk-border: #e8e8e8;
+  --qk-accent: #0a0a0a;        /* primary actions are black */
   --qk-accent-fg: #ffffff;
-  --qk-accent-soft: #e5eee8;
-  --qk-sale: #c2410c;
-  --qk-sale-soft: #fdeee4;
-  --qk-success: #15803d;
-  --qk-success-soft: #e7f5ec;
-  --qk-shadow: 0 1px 2px rgb(23 20 18 / 0.04), 0 12px 32px -16px rgb(23 20 18 / 0.18);
+  --qk-accent-soft: #f0f0f0;
+  --qk-sale: #d92d20;
+  --qk-sale-soft: #fef1f0;
+  --qk-success: #138a43;
+  --qk-success-soft: #ebf7ef;
+  --qk-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 10px 30px -12px rgb(0 0 0 / 0.16);
   color-scheme: light;
 }
 
 .dark {
-  --qk-bg: #0e0d0c;
-  --qk-surface: #171513;
-  --qk-subtle: #211e1b;
-  --qk-fg: #f5f2ed;
-  --qk-muted: #a39d94;
-  --qk-border: #2e2a26;
-  --qk-accent: #8cc4a4;
-  --qk-accent-fg: #0e0d0c;
-  --qk-accent-soft: #1a2b22;
-  --qk-sale: #fb923c;
-  --qk-sale-soft: #2b1a10;
-  --qk-success: #4ade80;
-  --qk-success-soft: #0f2a1a;
-  --qk-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -18px rgb(0 0 0 / 0.75);
+  --qk-bg: #0a0a0a;
+  --qk-surface: #111111;
+  --qk-subtle: #1b1b1b;
+  --qk-fg: #fafafa;
+  --qk-muted: #a1a1a1;
+  --qk-border: #262626;
+  --qk-accent: #fafafa;
+  --qk-accent-fg: #0a0a0a;
+  --qk-accent-soft: #222222;
+  --qk-sale: #f97066;
+  --qk-sale-soft: #2a1412;
+  --qk-success: #47cd89;
+  --qk-success-soft: #0f2419;
+  --qk-shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 16px 40px -18px rgb(0 0 0 / 0.8);
   color-scheme: dark;
 }
 
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Instrument Serif", ui-serif, Georgia, "Times New Roman", serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* Semantic colours used by the new storefront */
   --color-bg: var(--qk-bg);
@@ -119,39 +119,39 @@
 
 /* Reusable component classes (kept small on purpose) */
 @layer components {
-  .qk-container { width: 100%; max-width: 1360px; margin-inline: auto; padding-inline: 1rem; }
+  .qk-container { width: 100%; max-width: 1440px; margin-inline: auto; padding-inline: 1rem; }
   @media (min-width: 768px) { .qk-container { padding-inline: 2rem; } }
 
   .qk-btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-    height: 2.75rem; padding-inline: 1.25rem; border-radius: 9999px;
+    height: 2.75rem; padding-inline: 1.25rem; border-radius: 0.5rem;
     font-size: 0.875rem; font-weight: 600; white-space: nowrap; cursor: pointer;
     transition: background-color 150ms, color 150ms, border-color 150ms, transform 150ms, opacity 150ms;
   }
   .qk-btn:active:not(:disabled) { transform: scale(0.98); }
   .qk-btn:disabled { opacity: 0.45; cursor: not-allowed; }
   .qk-btn-primary { background: var(--qk-fg); color: var(--qk-bg); }
-  .qk-btn-primary:hover:not(:disabled) { opacity: 0.88; }
+  .qk-btn-primary:hover:not(:disabled) { opacity: 0.85; }
   .qk-btn-accent { background: var(--qk-accent); color: var(--qk-accent-fg); }
   .qk-btn-accent:hover:not(:disabled) { opacity: 0.9; }
   .qk-btn-ghost { background: transparent; color: var(--qk-fg); border: 1px solid var(--qk-border); }
   .qk-btn-ghost:hover:not(:disabled) { background: var(--qk-subtle); }
 
   .qk-input {
-    width: 100%; height: 2.75rem; padding-inline: 0.875rem; border-radius: 0.75rem;
+    width: 100%; height: 2.75rem; padding-inline: 0.875rem; border-radius: 0.5rem;
     background: var(--qk-surface); color: var(--qk-fg); border: 1px solid var(--qk-border);
     font-size: 0.875rem; transition: border-color 150ms, box-shadow 150ms;
   }
   textarea.qk-input { height: auto; padding-block: 0.625rem; }
   .qk-input::placeholder { color: var(--qk-muted); }
-  .qk-input:focus { outline: none; border-color: var(--qk-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--qk-accent) 20%, transparent); }
+  .qk-input:focus { outline: none; border-color: var(--qk-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--qk-accent) 12%, transparent); }
   .qk-input:disabled { opacity: 0.6; }
 
-  /* Editorial display type for hero and section headings */
-  .qk-display { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.01em; line-height: 1.02; }
+  /* Bold, tightly tracked sans for hero and section headings */
+  .qk-display { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.035em; line-height: 1.05; }
   .qk-eyebrow { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--qk-muted); }
 
-  .qk-card { background: var(--qk-surface); border: 1px solid var(--qk-border); border-radius: 1.25rem; }
+  .qk-card { background: var(--qk-surface); border: 1px solid var(--qk-border); border-radius: 0.75rem; }
   .qk-label { display: block; font-size: 0.8125rem; font-weight: 500; color: var(--qk-fg); }
   .qk-label > .qk-input { margin-top: 0.375rem; }
   .qk-scrollbar-none { scrollbar-width: none; }

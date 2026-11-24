@@ -61,7 +61,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
         </div>
 
         {error && (
-          <div role="alert" className="m-4 rounded-2xl bg-sale-soft p-4 text-sm text-sale">
+          <div role="alert" className="m-4 rounded-xl bg-sale-soft p-4 text-sm text-sale">
             <p>{error}</p>
             <button
               type="button"
@@ -77,7 +77,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
         <div className="flex-1 overflow-y-auto px-5">
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center py-16 text-center">
-              <span className="grid h-16 w-16 place-items-center rounded-2xl bg-subtle text-muted">
+              <span className="grid h-16 w-16 place-items-center rounded-xl bg-subtle text-muted">
                 <ShoppingBag className="h-7 w-7" />
               </span>
               <h3 className="mt-5 text-lg font-semibold text-fg">Your cart is empty</h3>

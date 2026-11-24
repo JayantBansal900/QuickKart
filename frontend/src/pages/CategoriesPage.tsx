@@ -24,7 +24,7 @@ export function CategoriesPage() {
           c ? (
             <li key={c.id}>
               <Link to={`/?category=${encodeURIComponent(c.key)}#catalog-results`} className="group block">
-                <div className="aspect-[4/3] overflow-hidden rounded-3xl bg-subtle">
+                <div className="aspect-[4/3] overflow-hidden rounded-xl bg-subtle">
                   {c.imageUrl && (
                     <img src={c.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 dark:brightness-[0.9]" />
                   )}
@@ -42,7 +42,7 @@ export function CategoriesPage() {
             </li>
           ) : (
             <li key={i} className="animate-pulse">
-              <div className="aspect-[4/3] rounded-3xl bg-subtle" />
+              <div className="aspect-[4/3] rounded-xl bg-subtle" />
               <div className="mt-3 h-4 w-1/2 rounded-full bg-subtle" />
             </li>
           ),

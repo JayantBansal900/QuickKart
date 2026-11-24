@@ -82,7 +82,7 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
     return (
       <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
         <div className="absolute inset-0 animate-fade-in bg-black/50 backdrop-blur-sm" />
-        <section role="dialog" aria-modal="true" aria-labelledby="payment-title" className="relative w-full animate-rise rounded-t-[28px] bg-surface p-6 shadow-2xl sm:max-w-md sm:rounded-[28px]">
+        <section role="dialog" aria-modal="true" aria-labelledby="payment-title" className="relative w-full animate-rise rounded-t-[28px] bg-surface p-6 shadow-2xl sm:max-w-md sm:rounded-2xl">
           <h2 id="payment-title" className="qk-display mb-4 text-3xl text-fg">Complete payment</h2>
           <PaymentPanel
             order={awaitingPayment}
@@ -156,7 +156,7 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
         role="dialog"
         aria-modal="true"
         aria-labelledby="checkout-title"
-        className="relative flex max-h-[92vh] w-full animate-rise flex-col overflow-hidden rounded-t-[28px] bg-surface shadow-2xl outline-none sm:max-w-3xl sm:animate-scale-in sm:rounded-[28px]"
+        className="relative flex max-h-[92vh] w-full animate-rise flex-col overflow-hidden rounded-t-[28px] bg-surface shadow-2xl outline-none sm:max-w-3xl sm:animate-scale-in sm:rounded-2xl"
       >
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-line px-6">
           <h2 id="checkout-title" className="qk-display text-3xl text-fg">Checkout</h2>
@@ -205,7 +205,7 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
                 {METHODS.map(({ id, label, hint, icon: Icon }) => (
                   <label
                     key={id}
-                    className={`flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-4 transition-colors ${method === id ? 'border-fg' : 'border-line hover:border-muted'} ${locked ? 'cursor-not-allowed opacity-70' : ''}`}
+                    className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4 transition-colors ${method === id ? 'border-fg' : 'border-line hover:border-muted'} ${locked ? 'cursor-not-allowed opacity-70' : ''}`}
                   >
                     <input type="radio" name="payment-method" value={id} checked={method === id} disabled={locked} onChange={() => setMethod(id)} className="sr-only" />
                     <Icon className="mt-0.5 h-5 w-5 shrink-0 text-fg" />

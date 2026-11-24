@@ -112,7 +112,7 @@ export function ProductReviews({ productId, onChanged }: { productId: number; on
       )}
 
       {formOpen && (
-        <form onSubmit={submit} className="mt-4 space-y-3 rounded-2xl border border-line p-4">
+        <form onSubmit={submit} className="mt-4 space-y-3 rounded-xl border border-line p-4">
           <div role="radiogroup" aria-label="Your rating" className="flex gap-1">
             {[1, 2, 3, 4, 5].map((n) => (
               <button

@@ -184,7 +184,7 @@ function CategoryForm({ category, onClose, onSaved }: { category: Category | nul
         role="dialog"
         aria-modal="true"
         aria-labelledby="category-form-title"
-        className="relative w-full max-w-md space-y-4 rounded-3xl border border-line bg-surface p-6 shadow-card"
+        className="relative w-full max-w-md space-y-4 rounded-xl border border-line bg-surface p-6 shadow-card"
       >
         <div className="flex items-center justify-between">
           <h2 id="category-form-title" className="text-lg font-semibold">{category ? "Edit category" : "New category"}</h2>

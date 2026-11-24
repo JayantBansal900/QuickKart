@@ -16,9 +16,9 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 function readPreference(): ThemePreference {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved === "light" || saved === "dark" ? saved : "system";
+    return saved === "dark" || saved === "system" ? saved : "light";
   } catch {
-    return "system"; // storage blocked (private mode etc.)
+    return "light"; // storage blocked (private mode etc.)
   }
 }
 
@@ -28,7 +28,7 @@ function systemPrefersDark(): boolean {
 }
 
 /**
- * Light/dark theme. The choice is stored per browser; "system" follows the OS setting live.
+ * Light/dark theme. Light is the default; "dark" and "system" (follow the OS live) are stored per browser.
  * index.html applies the same rule before React loads, so there is no flash on first paint.
  */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -52,7 +52,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setPreference = useCallback((value: ThemePreference) => {
     setPreferenceState(value);
     try {
-      if (value === "system") localStorage.removeItem(STORAGE_KEY);
+      if (value === "light") localStorage.removeItem(STORAGE_KEY);
       else localStorage.setItem(STORAGE_KEY, value);
     } catch {
       /* preference just won't persist */

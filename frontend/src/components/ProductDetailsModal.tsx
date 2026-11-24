@@ -117,7 +117,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
         role="dialog"
         aria-modal="true"
         aria-labelledby="product-title"
-        className="relative flex max-h-[92vh] w-full animate-rise flex-col overflow-hidden rounded-t-[28px] bg-surface shadow-2xl outline-none sm:max-w-4xl sm:animate-scale-in sm:rounded-[28px] md:flex-row"
+        className="relative flex max-h-[92vh] w-full animate-rise flex-col overflow-hidden rounded-t-[28px] bg-surface shadow-2xl outline-none sm:max-w-4xl sm:animate-scale-in sm:rounded-2xl md:flex-row"
       >
         <button
           type="button"
@@ -193,7 +193,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
               </div>
             )}
 
-            <div className="mt-6 flex items-center gap-3 rounded-2xl bg-subtle p-4 text-sm">
+            <div className="mt-6 flex items-center gap-3 rounded-xl bg-subtle p-4 text-sm">
               <Truck className="h-5 w-5 shrink-0 text-muted" />
               <span className="text-fg">Cash on delivery, UPI and cards accepted. Stock is confirmed again when you place the order.</span>
             </div>

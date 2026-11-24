@@ -119,7 +119,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, pr
         role="dialog"
         aria-modal="true"
         aria-labelledby="product-modal-title"
-        className="flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl border border-line bg-surface shadow-card animate-scale-in sm:rounded-3xl"
+        className="flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl border border-line bg-surface shadow-card animate-scale-in sm:rounded-xl"
       >
         <header className="flex items-center justify-between border-b border-line px-6 py-4">
           <div>
@@ -142,7 +142,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, pr
               onDragLeave={() => setDragging(false)}
               onDrop={(e) => { e.preventDefault(); setDragging(false); choose(e.dataTransfer.files?.[0]); }}
               onClick={() => fileInput.current?.click()}
-              className={`group relative grid aspect-square cursor-pointer place-items-center overflow-hidden rounded-2xl border-2 border-dashed transition-colors ${
+              className={`group relative grid aspect-square cursor-pointer place-items-center overflow-hidden rounded-xl border-2 border-dashed transition-colors ${
                 dragging ? 'border-accent bg-accent-soft' : 'border-line bg-subtle hover:border-muted'
               }`}
             >
@@ -208,7 +208,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, pr
               <textarea className="qk-input" rows={4} required value={form.description} onChange={set('description')} placeholder="What makes this product worth buying?" />
             </label>
 
-            <details className="rounded-2xl border border-line px-4 py-3 text-sm">
+            <details className="rounded-xl border border-line px-4 py-3 text-sm">
               <summary className="cursor-pointer select-none font-medium text-fg">More details</summary>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 <label className="qk-label">SKU
