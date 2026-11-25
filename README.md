@@ -1,4 +1,5 @@
 # QuickKart
+[![CI](https://github.com/JayantBansal900/QuickKart/actions/workflows/ci.yml/badge.svg)](https://github.com/JayantBansal900/QuickKart/actions/workflows/ci.yml)
 
 A full-stack e-commerce app: a React storefront and admin panel on top of Spring Boot services behind an API gateway, with PostgreSQL, Redis and Kafka. It runs locally with Docker Compose.
 
