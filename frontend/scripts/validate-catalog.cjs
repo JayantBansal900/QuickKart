@@ -2,13 +2,13 @@ const fs = require('fs');
 const path = require('path');
 
 const canonicalCategories = new Set([
-  'Electronics',
-  'Fashion',
-  'Home & Living',
-  'Sports',
-  'Books',
-  'Beauty',
-  'Groceries',
+  'T-Shirts',
+  'Shirts',
+  'Jeans',
+  'Trousers',
+  'Jackets',
+  'Hoodies & Sweatshirts',
+  'Footwear',
   'Accessories'
 ]);
 
@@ -25,7 +25,7 @@ const rawData = fs.readFileSync(catalogPath, 'utf8');
 const products = JSON.parse(rawData);
 
 console.log(`==================================================`);
-console.log(`QUICKKART CATALOG & IMAGE ASSETS VALIDATOR`);
+console.log(`VAYU CATALOG & IMAGE ASSETS VALIDATOR`);
 console.log(`==================================================`);
 console.log(`Checking catalog dataset at: ${catalogPath}`);
 console.log(`Total Products in Catalog: ${products.length}`);
@@ -95,6 +95,24 @@ products.forEach((p, idx) => {
     const physicalPath = path.join(publicProductsDir, p.imageUrl);
     if (!fs.existsSync(physicalPath)) {
       console.error(`❌ ${itemRef}: Physical image file missing on disk at '${physicalPath}'.`);
+      errors++;
+    }
+  }
+
+  // 4b. Sizes: unique (size, colour) rows, non-negative stock, and the product stock is their total
+  if (p.variants !== undefined) {
+    const seen = new Set();
+    let total = 0;
+    for (const v of p.variants) {
+      const key = `${String(v.size).trim().toLowerCase()}|${String(v.color || '').trim().toLowerCase()}`;
+      if (!v.size || !String(v.size).trim()) { console.error(`❌ ${itemRef}: A size row has no size.`); errors++; }
+      if (seen.has(key)) { console.error(`❌ ${itemRef}: Duplicate size/colour '${key}'.`); errors++; }
+      seen.add(key);
+      if (!Number.isInteger(v.stockQuantity) || v.stockQuantity < 0) { console.error(`❌ ${itemRef}: Invalid stock for size '${v.size}'.`); errors++; }
+      total += Number(v.stockQuantity) || 0;
+    }
+    if (p.variants.length && total !== p.stockQuantity) {
+      console.error(`❌ ${itemRef}: stockQuantity (${p.stockQuantity}) is not the total of its sizes (${total}).`);
       errors++;
     }
   }
