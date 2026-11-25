@@ -25,6 +25,14 @@ public class OrderCreatedEvent {
     private String status;
     private String paymentMethod;
     private String paymentStatus;
+    /** Dispatch details, set on ORDER_STATUS_CHANGED events once the order has shipped. */
+    private String courier;
+    private String trackingNumber;
+
+    public String getCourier() { return courier; }
+    public void setCourier(String courier) { this.courier = courier; }
+    public String getTrackingNumber() { return trackingNumber; }
+    public void setTrackingNumber(String trackingNumber) { this.trackingNumber = trackingNumber; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
+import { AccountNav } from '../components/AccountNav';
 import React, { useEffect, useState } from 'react';
-import { AlertCircle, ArrowRight, CheckCircle2, Clock, Package, RefreshCw, Star, XCircle } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Clock, FileText, Package, RefreshCw, RotateCcw, Star, Truck, XCircle } from 'lucide-react';
+import { ReturnDialog } from '../components/ReturnDialog';
 import { useConfirm } from '../components/ConfirmDialog';
 import { PaymentPanel } from '../components/PaymentPanel';
 import { api } from '../services/api';
@@ -10,7 +12,7 @@ import { formatINR } from '../utils/formatters';
 
 const STEPS: OrderResponse['status'][] = ['PLACED', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
 const STEP_LABEL: Record<string, string> = {
-  PENDING: 'Awaiting payment', PLACED: 'Placed', CONFIRMED: 'Confirmed', PROCESSING: 'Packed', SHIPPED: 'Shipped',
+  PENDING: 'Awaiting payment', RETURNED: 'Returned', PLACED: 'Placed', CONFIRMED: 'Confirmed', PROCESSING: 'Packed', SHIPPED: 'Shipped',
   OUT_FOR_DELIVERY: 'Out for delivery', DELIVERED: 'Delivered', CANCELLED: 'Cancelled',
 };
 const PAYMENT_LABEL: Record<string, string> = {
@@ -31,6 +33,13 @@ function StatusTracker({ status }: { status: OrderResponse['status'] }) {
     return (
       <div className="flex items-center gap-2 rounded-xl bg-amber-100 px-4 py-3 text-sm font-medium text-amber-900 dark:bg-amber-500/15 dark:text-amber-200">
         <Clock className="h-4 w-4" /> Waiting for payment. Unpaid orders are cancelled after 30 minutes.
+      </div>
+    );
+  }
+  if (status === 'RETURNED') {
+    return (
+      <div className="flex items-center gap-2 rounded-xl bg-subtle px-4 py-3 text-sm font-medium text-fg">
+        <CheckCircle2 className="h-4 w-4 text-success" /> Returned and refunded
       </div>
     );
   }
@@ -67,6 +76,7 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
   const [error, setError] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<number | null>(null);
   const [paying, setPaying] = useState<OrderResponse | null>(null);
+  const [returning, setReturning] = useState<OrderResponse | null>(null);
   const [confirmDialog, confirm] = useConfirm();
 
   const fetchOrders = async () => {
@@ -131,7 +141,15 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
 
   return (
     <div className="qk-container max-w-4xl py-10">
+      <AccountNav />
       {confirmDialog}
+      {returning && (
+        <ReturnDialog
+          order={returning}
+          onClose={() => setReturning(null)}
+          onDone={() => { setReturning(null); void fetchOrders(); }}
+        />
+      )}
       {paying && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setPaying(null)} aria-hidden="true" />
@@ -202,6 +220,20 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
 
               <div className="space-y-6 px-6 py-5">
                 <StatusTracker status={order.status} />
+                {order.trackingNumber && (
+                  <p className="flex flex-wrap items-center gap-x-2 text-sm text-fg">
+                    <Truck className="h-4 w-4 text-muted" />
+                    Shipped with <span className="font-semibold">{order.courier}</span> · tracking
+                    <span className="rounded bg-subtle px-1.5 py-0.5 font-mono text-xs">{order.trackingNumber}</span>
+                  </p>
+                )}
+                {order.returnStatus && (
+                  <p className={`rounded-lg px-3 py-2 text-sm ${order.returnStatus === 'REJECTED' ? 'bg-sale-soft text-sale' : 'bg-subtle text-fg'}`}>
+                    {order.returnStatus === 'REQUESTED' && 'Return requested. We will review it within 2 business days.'}
+                    {order.returnStatus === 'APPROVED' && 'Return approved. Your refund has been issued.'}
+                    {order.returnStatus === 'REJECTED' && 'Your return request was not approved. Contact support if you have questions.'}
+                  </p>
+                )}
 
                 <ul className="divide-y divide-line">
                   {order.items?.map((item) => (
@@ -220,8 +252,14 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
                     </li>
                   ))}
                 </ul>
+                {Number(order.discountAmount) > 0 && (
+                  <p className="flex justify-between text-sm text-success">
+                    <span>Coupon {order.couponCode}</span>
+                    <span>−{formatINR(order.discountAmount)}</span>
+                  </p>
+                )}
 
-                {(order.deliveryAddress || order.cancellable || order.payable) && (
+                {(order.deliveryAddress || order.cancellable || order.payable || order.returnable) && (
                   <div className="flex flex-col gap-4 rounded-xl bg-subtle p-4 sm:flex-row sm:items-center sm:justify-between">
                     {order.deliveryAddress && (
                       <div className="text-sm">
@@ -229,7 +267,17 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
                         <p className="mt-0.5 text-muted">{order.deliveryAddress} · {order.deliveryPhone}</p>
                       </div>
                     )}
-                    <div className="flex shrink-0 gap-2">
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                    {order.status !== 'PENDING' && order.status !== 'CANCELLED' && (
+                      <Link to={`/account/orders/${order.id}/invoice`} className="qk-btn qk-btn-ghost h-10 px-4">
+                        <FileText className="h-4 w-4" /> Invoice
+                      </Link>
+                    )}
+                    {order.returnable && (
+                      <button type="button" className="qk-btn qk-btn-ghost h-10 px-4" onClick={() => setReturning(order)}>
+                        <RotateCcw className="h-4 w-4" /> Return
+                      </button>
+                    )}
                     {order.payable && (
                       <button type="button" className="qk-btn qk-btn-primary h-10 px-4" onClick={() => setPaying(order)}>
                         Pay now

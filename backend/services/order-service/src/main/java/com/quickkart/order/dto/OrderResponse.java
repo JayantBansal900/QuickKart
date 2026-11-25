@@ -34,6 +34,27 @@ public class OrderResponse {
     public boolean getCancellable() {return cancellable;}
     private boolean payable;
     public boolean getPayable() {return payable;}
+    // Coupon, dispatch and return details.
+    private java.math.BigDecimal subtotalAmount;
+    public java.math.BigDecimal getSubtotalAmount() {return subtotalAmount;}
+    private java.math.BigDecimal discountAmount;
+    public java.math.BigDecimal getDiscountAmount() {return discountAmount;}
+    private String couponCode;
+    public String getCouponCode() {return couponCode;}
+    private String courier;
+    public String getCourier() {return courier;}
+    private String trackingNumber;
+    public String getTrackingNumber() {return trackingNumber;}
+    private LocalDateTime shippedAt;
+    public LocalDateTime getShippedAt() {return shippedAt;}
+    private LocalDateTime deliveredAt;
+    public LocalDateTime getDeliveredAt() {return deliveredAt;}
+    private String returnStatus;
+    public String getReturnStatus() {return returnStatus;}
+    public void setReturnStatus(String value) {returnStatus=value;}
+    private boolean returnable;
+    public boolean getReturnable() {return returnable;}
+    public void setReturnable(boolean value) {returnable=value;}
     public OrderResponse() {
     }
 
@@ -91,6 +112,9 @@ public class OrderResponse {
                 items);
         response.recipientName=order.getRecipientName();response.deliveryAddress=order.getDeliveryAddress();response.deliveryPhone=order.getDeliveryPhone();
         response.cancelledAt=order.getCancelledAt();response.cancelledBy=order.getCancelledBy();
+        response.subtotalAmount=order.getSubtotalAmount();response.discountAmount=order.getDiscountAmount();response.couponCode=order.getCouponCode();
+        response.courier=order.getCourier();response.trackingNumber=order.getTrackingNumber();
+        response.shippedAt=order.getShippedAt();response.deliveredAt=order.getDeliveredAt();
         response.cancellable=order.getCheckoutKey()!=null && java.util.Set.of("PENDING","PLACED","CONFIRMED","PROCESSING").contains(order.getStatus());
         // An online order waits in PENDING until the (simulated) gateway confirms payment; a failed attempt can be retried.
         response.payable="PENDING".equals(order.getStatus()) && !"COD".equals(paymentMethod)

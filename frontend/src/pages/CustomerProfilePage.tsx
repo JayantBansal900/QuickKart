@@ -1,3 +1,4 @@
+import { AccountNav } from '../components/AccountNav';
 import React, { useEffect, useState } from 'react';
 import { AlertCircle, ArrowRight, BadgeCheck, CheckCircle2, LogOut, Package, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -89,6 +90,7 @@ export const CustomerProfilePage: React.FC<CustomerProfilePageProps> = ({ onNavi
 
   return (
     <div className="qk-container max-w-3xl py-10">
+      <AccountNav />
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <span className="grid h-16 w-16 place-items-center rounded-full bg-accent-soft text-2xl font-semibold text-accent">

@@ -15,7 +15,7 @@ How to explain this project in an interview. Every answer here matches the code;
 > - **Payments that can fail:** online orders wait in `PENDING` until a (simulated) gateway confirms; failures can be retried and unpaid orders release their stock after 30 minutes.
 > - **Account security:** sign-up and password reset use emailed one-time codes, and a password reset revokes every old JWT.
 >
-> Catalog search is server-side with a Redis cache. I load-tested it: about 914 requests per second with the cache warm versus 611 without on the 144-product catalog, and 867 versus 317 when it had 535 products: the cache matters more as the table grows. There are about 289 automated tests running in GitHub Actions.
+> Catalog search is server-side with a Redis cache. I load-tested it: about 914 requests per second with the cache warm versus 611 without on the 144-product catalog, and 867 versus 317 when it had 535 products: the cache matters more as the table grows. There are about 300 automated tests running in GitHub Actions.
 >
 > The payment gateway is simulated (test mode, no real provider), and it isn't deployed to the cloud."
 
@@ -25,7 +25,7 @@ How to explain this project in an interview. Every answer here matches the code;
 |---|---|
 | Services | gateway :8080, monolith :8081, product :8082, order :8083, plus PostgreSQL, Redis, Kafka, nginx |
 | Catalog | 144 products (18 per category) with photos, 8 categories |
-| Tests | 98 monolith + 50 order + 48 product + 7 gateway + 86 frontend = **289**, plus a 75-check end-to-end script against the running stack |
+| Tests | 99 monolith + 56 order + 49 product + 7 gateway + 91 frontend = **302**, plus an 87-check end-to-end script against the running stack |
 | Search, cache hit | 914 req/s, p95 39 ms (144 products, 20 concurrent clients, local Docker) |
 | Search, cache miss | 611 req/s, p95 57 ms (317 req/s with 535 products) |
 | Cache TTL | 60 s |
@@ -226,6 +226,20 @@ Flyway migrations in a one-shot `db-migrate` container that runs before the serv
 
 **Q: The JWT is in localStorage. Isn't that an XSS risk?**
 Yes, that's the trade-off. The mitigation is a strict Content-Security-Policy from nginx: scripts only from our own origin and no inline scripts (I moved the theme pre-paint script into a file for this), so an injected `<script>` can't run. React also escapes output by default. The next step would be an httpOnly, SameSite cookie plus CSRF protection.
+
+### 4.9 Coupons, returns, dispatch, wishlist
+
+**Q: Where did these features come from?**
+I studied what mature open-source stores offer (Saleor and Medusa for promotions, Solidus and Magento for returns, Saleor for fulfilment) and designed QuickKart's own versions. No code was copied; several of those projects have licences that wouldn't allow it anyway.
+
+**Q: How do you stop two people from using the last use of a coupon?**
+The checkout re-validates the coupon inside the same transaction as the order, after locking the coupon row (`SELECT … FOR UPDATE`), then increments `used_count`. The preview endpoint the checkout screen calls reserves nothing, so it can't be abused to block a code. Cancelling an order gives the use back. The coupon code is also part of the idempotency fingerprint, so a retry with a different coupon is rejected.
+
+**Q: What happens when a return is approved?**
+In one transaction: each item's stock goes back under its row lock (logged as `ORDER_RETURNED` in the stock history), the payment becomes `REFUNDED`, the order becomes `RETURNED`, and an `ORDER_STATUS_CHANGED` event goes through the outbox so the customer gets an email. Returns are allowed once per order, only within 7 days of `delivered_at`. Returned orders are excluded from revenue.
+
+**Q: Why must dispatch include a tracking number?**
+Because "shipped" without a tracking number is the most common support ticket in real stores. The API refuses `SHIPPED` without courier and tracking, stores both on the order, and the shipping email includes them.
 
 ## 5. Weaknesses — say these before they ask
 

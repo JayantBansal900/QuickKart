@@ -27,17 +27,22 @@ public class OrderService {
     private final PaymentRepository payments;
     private final ApplicationEventPublisher events;
     private final StockMovementRepository stockMovements;
+    private final CouponService coupons;
+    private final OrderReturnRepository returns;
+    /** Customers can ask for a return this many days after delivery. */
+    static final int RETURN_WINDOW_DAYS=7;
+    static final Set<String> RETURN_REASONS=Set.of("DAMAGED","WRONG_ITEM","NOT_AS_DESCRIBED","NO_LONGER_NEEDED","OTHER");
     @PersistenceContext private EntityManager entityManager;
     @org.springframework.beans.factory.annotation.Value("${app.payments.simulated-online.enabled:true}")
     private boolean simulatedOnlinePayments=true;
     /** Payment methods checkout accepts right now (COD always; UPI/CARD only while the simulated gateway is on). */
     public List<String> paymentMethods() { return simulatedOnlinePayments ? List.of("COD","UPI","CARD") : List.of("COD"); }
     static final Set<String> PAYMENT_METHODS=Set.of("COD","UPI","CARD");
-    static final Set<String> STATUSES=Set.of("PENDING","PLACED","CONFIRMED","PROCESSING","SHIPPED","OUT_FOR_DELIVERY","DELIVERED","CANCELLED");
+    static final Set<String> STATUSES=Set.of("PENDING","PLACED","CONFIRMED","PROCESSING","SHIPPED","OUT_FOR_DELIVERY","DELIVERED","CANCELLED","RETURNED");
     public OrderService(OrderRepository orders, CartRepository carts, CartItemRepository cartItems,
                         ProductRepository products, UserRepository users, PaymentRepository payments, ApplicationEventPublisher events,
-                        StockMovementRepository stockMovements) {
-        this.stockMovements=stockMovements;
+                        StockMovementRepository stockMovements, CouponService coupons, OrderReturnRepository returns) {
+        this.stockMovements=stockMovements;this.coupons=coupons;this.returns=returns;
         this.orders=orders;this.carts=carts;this.cartItems=cartItems;this.products=products;
         this.users=users;this.payments=payments;this.events=events;
     }
@@ -62,7 +67,9 @@ public class OrderService {
         String name=required(request.getRecipientName(),1,120,"recipient name");
         String address=required(request.getDeliveryAddress(),8,1000,"delivery address");
         String phone=required(request.getDeliveryPhone(),5,40,"delivery phone");
-        String payload=CartQuote.hash(String.join("|", method,quote,CartQuote.hash(name),CartQuote.hash(address),CartQuote.hash(phone)));
+        String couponCode=request.getCouponCode()==null || request.getCouponCode().isBlank() ? null : CouponService.clean(request.getCouponCode());
+        String payload=CartQuote.hash(String.join("|", method,quote,CartQuote.hash(name),CartQuote.hash(address),CartQuote.hash(phone))
+            +(couponCode==null ? "" : "|coupon:"+couponCode));
         // Shared account lock serializes cart creation, mutation and checkout, even across the two services.
         User user=users.findByEmailForUpdate(email).orElseThrow(()->new ResourceNotFoundException("Account not found"));
         entityManager.refresh(user,LockModeType.PESSIMISTIC_WRITE);
@@ -94,6 +101,13 @@ public class OrderService {
             total=total.add(product.getPrice().multiply(BigDecimal.valueOf(line.getQuantity())));
             product.setStockQuantity(product.getStockQuantity()-line.getQuantity());
             order.addItem(new OrderItem(order,product,line.getQuantity(),product.getPrice()));
+        }
+        order.setSubtotalAmount(total);
+        if(couponCode!=null) {
+            // Validated again under the coupon's row lock; an invalid code fails the whole checkout (nothing is saved).
+            var applied=coupons.redeem(couponCode,user.getId(),total);
+            order.setCouponCode(applied.code());order.setDiscountAmount(applied.discount());
+            total=applied.total();
         }
         order.setTotalAmount(total);
         orders.saveAndFlush(order);
@@ -188,6 +202,69 @@ public class OrderService {
     }
     @Transactional
     public OrderResponse updateOrderStatus(Long id,String status) { return transition(lockedOrder(id),status,"ADMIN"); }
+    /** Admin status change. Shipping needs the courier and tracking number (dispatch). */
+    @Transactional
+    public OrderResponse updateOrderStatus(Long id,UpdateOrderStatusRequest request) {
+        Order order=lockedOrder(id);
+        String next=request.getStatus()==null ? null : request.getStatus().trim().toUpperCase(Locale.ROOT);
+        if("SHIPPED".equals(next)) {
+            String courier=request.getCourier()==null ? "" : request.getCourier().trim();
+            String tracking=request.getTrackingNumber()==null ? "" : request.getTrackingNumber().trim();
+            if(courier.isEmpty() || tracking.isEmpty()) throw bad("Enter the courier and tracking number to dispatch the order");
+            if(courier.length()>60 || tracking.length()>80 || !tracking.matches("[A-Za-z0-9-]+")) throw bad("Invalid courier or tracking number");
+            order.setCourier(courier);order.setTrackingNumber(tracking.toUpperCase(Locale.ROOT));
+        }
+        return transition(order,next,"ADMIN");
+    }
+
+    // ---- returns ----
+    /** Customer asks to return a delivered order within the return window. */
+    @Transactional
+    public OrderResponse requestReturn(String email,Long id,String reason,String comment) {
+        Order order=lockedOrder(id);
+        if(!order.getUser().getId().equals(user(email).getId())) throw new OrderNotFoundException(id);
+        if(!"DELIVERED".equals(order.getStatus())) throw conflict("Only delivered orders can be returned");
+        if(returns.findByOrderId(id).isPresent()) throw conflict("A return was already requested for this order");
+        if(order.getDeliveredAt()!=null && order.getDeliveredAt().plusDays(RETURN_WINDOW_DAYS).isBefore(LocalDateTime.now()))
+            throw conflict("The "+RETURN_WINDOW_DAYS+"-day return window for this order has ended");
+        String r=reason==null ? "" : reason.trim().toUpperCase(Locale.ROOT);
+        if(!RETURN_REASONS.contains(r)) throw bad("Choose a reason for the return");
+        String note=comment==null || comment.isBlank() ? null : comment.trim();
+        if(note!=null && note.length()>1000) throw bad("Comment is too long");
+        returns.save(new OrderReturn(order,r,note));
+        return response(order);
+    }
+    @Transactional(readOnly=true)
+    public PageResponse<ReturnResponse> returnsForAdmin(String status,int page,int size) {
+        var pageable=PageRequest.of(Math.max(0,page),Math.min(Math.max(1,size),100));
+        var result=status==null || status.isBlank() || "ALL".equalsIgnoreCase(status)
+            ? returns.findAllByOrderByRequestedAtDesc(pageable)
+            : returns.findByStatusOrderByRequestedAtDesc(status.trim().toUpperCase(Locale.ROOT),pageable);
+        return PageResponse.from(result,r->ReturnResponse.from(r,response(r.getOrder())));
+    }
+    /** Admin decision. Approving puts the stock back, refunds the payment and marks the order RETURNED. */
+    @Transactional
+    public ReturnResponse resolveReturn(Long returnId,boolean approve,String note) {
+        OrderReturn ret=returns.findById(returnId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Return not found"));
+        if(!"REQUESTED".equals(ret.getStatus())) throw conflict("This return was already "+ret.getStatus().toLowerCase(Locale.ROOT));
+        Order order=lockedOrder(ret.getOrder().getId());
+        String cleanNote=note==null || note.isBlank() ? null : note.trim();
+        if(cleanNote!=null && cleanNote.length()>500) throw bad("Note is too long");
+        if(approve) {
+            for(OrderItem item:order.getItems().stream().sorted(Comparator.comparing(i->i.getProduct().getId())).toList()) {
+                Product product=products.findByIdForUpdate(item.getProduct().getId()).orElseThrow(()->new ProductNotFoundException(item.getProduct().getId()));
+                entityManager.refresh(product,LockModeType.PESSIMISTIC_WRITE);
+                product.setStockQuantity(Math.addExact(product.getStockQuantity(),item.getQuantity()));
+                stockMovements.save(new StockMovement(product.getId(),item.getQuantity(),product.getStockQuantity(),"ORDER_RETURNED","Order #"+order.getId(),"ADMIN"));
+            }
+            Payment payment=payments.findByOrderId(order.getId()).orElse(null);
+            if(payment!=null) payment.setStatus("REFUNDED");
+            order.setStatus("RETURNED");
+            publish(order,payment,"ORDER_STATUS_CHANGED","ORDER_STATUS-"+order.getId()+"-RETURNED");
+        }
+        ret.resolve(approve ? "APPROVED" : "REJECTED",cleanNote);
+        return ReturnResponse.from(ret,response(order));
+    }
     private Order lockedOrder(Long id) {
         Order order=orders.findByIdForUpdate(id).orElseThrow(()->new OrderNotFoundException(id));
         entityManager.refresh(order,LockModeType.PESSIMISTIC_WRITE);return order;
@@ -220,6 +297,7 @@ public class OrderService {
                 stockMovements.save(new StockMovement(product.getId(),item.getQuantity(),product.getStockQuantity(),"ORDER_CANCELLED","Order #"+order.getId(),actor));
             }
             order.setCancelledAt(LocalDateTime.now());order.setCancelledBy(actor);
+            coupons.release(order.getCouponCode());
             if(payment!=null) payment.setStatus(switch(payment.getStatus()) {
                 case "COLLECTION_PENDING","PENDING","FAILED" -> "CANCELLED";
                 case "PAID" -> "REFUNDED"; // simulated gateway: the refund is immediate
@@ -231,6 +309,8 @@ public class OrderService {
             // Cash on delivery: the courier collects the money at hand-over, so delivery settles the payment.
             payment.setStatus("COLLECTED");
         }
+        if("SHIPPED".equals(next)) order.setShippedAt(LocalDateTime.now());
+        if("DELIVERED".equals(next)) order.setDeliveredAt(LocalDateTime.now());
         order.setStatus(next);
         publish(order,payment,"ORDER_STATUS_CHANGED","ORDER_STATUS-"+order.getId()+"-"+next);
         return response(order);
@@ -240,12 +320,18 @@ public class OrderService {
     }
     private void publish(Order order,Payment payment,String type,String eventId) {
         events.publishEvent(new OrderLifecycleInternalEvent(eventId,type,order.getId(),order.getUser().getId(),order.getTotalAmount(),
-            order.getStatus(),payment==null ? null : payment.getPaymentMethod(),payment==null ? null : payment.getStatus()));
+            order.getStatus(),payment==null ? null : payment.getPaymentMethod(),payment==null ? null : payment.getStatus(),
+            order.getCourier(),order.getTrackingNumber()));
     }
     private User user(String email) {return users.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("Account not found"));}
     private OrderResponse response(Order order) {
         Payment payment=payments.findByOrderId(order.getId()).orElse(null);
         String status=payment==null ? "UNKNOWN" : "SUCCESS".equals(payment.getStatus()) ? "LEGACY_UNVERIFIED" : payment.getStatus();
-        return OrderResponse.fromEntity(order,payment==null ? "UNKNOWN" : payment.getPaymentMethod(),status);
+        OrderResponse r=OrderResponse.fromEntity(order,payment==null ? "UNKNOWN" : payment.getPaymentMethod(),status);
+        OrderReturn ret=order.getId()==null ? null : returns.findByOrderId(order.getId()).orElse(null);
+        r.setReturnStatus(ret==null ? null : ret.getStatus());
+        r.setReturnable("DELIVERED".equals(order.getStatus()) && ret==null
+            && (order.getDeliveredAt()==null || !order.getDeliveredAt().plusDays(RETURN_WINDOW_DAYS).isBefore(LocalDateTime.now())));
+        return r;
     }
 }

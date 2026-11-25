@@ -149,10 +149,10 @@ export function AuthPage() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
         <p className="relative text-lg font-semibold tracking-tight">quickkart</p>
         <div className="relative">
-          <h2 className="qk-display text-5xl">Shop smarter.<br /><span className="text-white/70">Pay on delivery.</span></h2>
+          <h2 className="qk-display text-5xl">Shop smarter.<br /><span className="text-white/70">Delivered fast.</span></h2>
           <ul className="mt-8 space-y-3 text-sm opacity-80">
             <li>✓ 144 hand-picked products across 8 categories</li>
-            <li>✓ Cash on delivery on every order</li>
+            <li>✓ Pay by UPI, card or cash on delivery</li>
             <li>✓ Email-verified accounts</li>
           </ul>
         </div>

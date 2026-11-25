@@ -122,7 +122,10 @@ public class OrderNotificationConsumer {
                 String status = event.getStatus() == null ? "" : event.getStatus();
                 return switch (status) {
                     case "SHIPPED" -> update(user, orderId, "Order #" + orderId + " has shipped", "Your order is on its way",
-                            "order #" + orderId + " has left our warehouse.");
+                            "order #" + orderId + " has left our warehouse."
+                                    + (event.getTrackingNumber() != null ? " Courier: " + event.getCourier() + ", tracking number " + event.getTrackingNumber() + "." : ""));
+                    case "RETURNED" -> update(user, orderId, "Return approved for order #" + orderId, "Your return is approved",
+                            "we've accepted the return of order #" + orderId + ". Your refund of " + money(event.getTotalAmount()) + " is on its way.");
                     case "OUT_FOR_DELIVERY" -> update(user, orderId, "Order #" + orderId + " is out for delivery", "Arriving today",
                             "order #" + orderId + " is out for delivery."
                                     + ("COD".equals(event.getPaymentMethod()) ? " Please keep " + money(event.getTotalAmount()) + " ready for cash on delivery." : ""));

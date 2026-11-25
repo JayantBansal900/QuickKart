@@ -86,6 +86,15 @@ Responses are cached in Redis for up to 60 s.
 | POST | `/api/products/{id}/reviews` | user | `{ rating: 1–5, title? (≤120), comment? (≤2000) }`. Only customers with a **delivered** order containing the product (`403` otherwise). Writing again edits the same review. The product's `rating` and `reviewCount` are updated in the same transaction. |
 | DELETE | `/api/products/{id}/reviews/{reviewId}` | user | your own review only |
 
+## Wishlist — product service
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/api/wishlist` | user | saved products, newest first |
+| GET | `/api/wishlist/ids` | user | just the product ids |
+| PUT | `/api/wishlist/{productId}` | user | save (idempotent; `404` unknown product; max 200) |
+| DELETE | `/api/wishlist/{productId}` | user | remove |
+
 ## Cart — order service
 
 | Method | Path | Auth | Body |
@@ -95,6 +104,8 @@ Responses are cached in Redis for up to 60 s.
 | PUT | `/api/cart/items/{productId}` | user | `quantity` |
 | DELETE | `/api/cart/items/{productId}` | user | – |
 | DELETE | `/api/cart` | user | – clear the cart |
+| GET | `/api/cart/offers` | user | active coupons that are currently valid |
+| POST | `/api/cart/coupon` | user | `{ code }` → `{ code, description, subtotal, discount, total }` for the current cart; `400` with the reason (unknown, expired, minimum not reached, already used, fully used). Nothing is reserved. |
 
 ## Orders — order service
 
@@ -112,6 +123,7 @@ Checkout body:
 ```json
 {
   "paymentMethod": "COD | UPI | CARD",
+  "couponCode": "WELCOME10 (optional)",
   "idempotencyKey": "uuid generated once per attempt",
   "cartFingerprint": "from GET /api/cart",
   "recipientName": "Asha Verma",
@@ -132,7 +144,13 @@ Order and payment states:
 | `COD` | order `PLACED`, payment `COLLECTION_PENDING` | payment `COLLECTED` when the order is delivered, `CANCELLED` if the order is cancelled |
 | `UPI` / `CARD` | order `PENDING`, payment `PENDING`, `payable: true` | `/pay` success → order `PLACED`, payment `PAID`; failure → payment `FAILED` (retry allowed); not paid within 30 minutes → order `CANCELLED` by `SYSTEM`, stock released; cancelled after payment → `REFUNDED` |
 
-Each order response also has `cancellable` and `payable` flags for the UI.
+Each order response also has `cancellable`, `payable` and `returnable` flags for the UI, plus `subtotalAmount`, `discountAmount`, `couponCode`, `courier`, `trackingNumber`, `shippedAt`, `deliveredAt` and `returnStatus`.
+
+The coupon is validated again inside the checkout transaction under the coupon's row lock, and its use is counted there; cancelling the order gives the use back.
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| POST | `/api/orders/{id}/return` | user | `{ reason: DAMAGED \| WRONG_ITEM \| NOT_AS_DESCRIBED \| NO_LONGER_NEEDED \| OTHER, comment? }`; delivered orders only, within 7 days of delivery, once per order |
 
 ---
 
@@ -148,7 +166,13 @@ Each order response also has `cancellable` and `payable` flags for the UI.
 | PATCH | `/api/admin/users/{id}/status` | monolith | `{ status: ACTIVE \| SUSPENDED \| DISABLED \| PENDING_VERIFICATION }`. Not allowed on yourself or another admin (`409`). |
 | GET | `/api/admin/orders?q=&status=&page=&size=` | order service | paged, newest first; `q` matches order id (`#41` or `41`), customer email or recipient |
 | GET | `/api/admin/orders/{id}` | order service | one order |
-| PATCH | `/api/admin/orders/{id}/status` | order service | `{ status }`, one step at a time: `PLACED → CONFIRMED → PROCESSING → SHIPPED → OUT_FOR_DELIVERY → DELIVERED`. `CANCELLED` is allowed before `SHIPPED`. An unpaid online order (`PENDING`) can only be cancelled. Every change publishes an `ORDER_STATUS_CHANGED` event. |
+| PATCH | `/api/admin/orders/{id}/status` | order service | `{ status }`, one step at a time: `PLACED → CONFIRMED → PROCESSING → SHIPPED → OUT_FOR_DELIVERY → DELIVERED` (`RETURNED` only through an approved return). `SHIPPED` requires `courier` and `trackingNumber` in the body. `CANCELLED` is allowed before `SHIPPED`. An unpaid online order (`PENDING`) can only be cancelled. Every change publishes an `ORDER_STATUS_CHANGED` event. |
+| GET | `/api/admin/coupons` | order service | all coupons |
+| POST / PUT | `/api/admin/coupons[/{id}]` | order service | `{ code, description?, discountType: PERCENT\|FLAT, discountValue, maxDiscount?, minOrderAmount?, usageLimit?, oncePerCustomer?, startsAt?, expiresAt?, active? }`; percent ≤ 90; duplicate code → `409` |
+| DELETE | `/api/admin/coupons/{id}` | order service | `409` once it has been used (switch it off instead) |
+| GET | `/api/admin/returns?status=REQUESTED\|APPROVED\|REJECTED\|ALL` | order service | paged, with the order |
+| PATCH | `/api/admin/returns/{id}` | order service | `{ decision: APPROVE\|REJECT, note? }`. Approve: stock back (logged as `ORDER_RETURNED`), payment `REFUNDED`, order `RETURNED`, customer emailed |
+| GET | `/api/admin/carts` | order service | non-empty carts with items and last change, newest first |
 | GET | `/api/admin/products?q=&category=&stock=&sort=&page=&size=` | product service | paged, including discontinued; `stock` = `ALL` \| `LOW` (under 5) \| `OUT`; `sort` = `newest` (default) \| `stock` (lowest first) |
 | GET | `/api/admin/products/{id}/stock-movements?page=&size=` | product service | every stock change, newest first: `{ change, stockAfter, reason, reference, actor, createdAt }`; reasons `ORDER_PLACED`, `ORDER_CANCELLED`, `RESTOCK`, `CORRECTION`, `ADMIN_EDIT`, `INITIAL_STOCK` |
 | POST | `/api/admin/products` | product service | create a product (fields as above); `category` must be an existing category name (any case) |

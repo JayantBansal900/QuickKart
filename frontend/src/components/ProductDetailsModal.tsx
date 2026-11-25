@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/formatters';
 import { originalPriceOf } from './ProductCard';
 import { ProductReviews } from './ProductReviews';
+import { WishlistButton } from './WishlistButton';
 import { api } from '../services/api';
 
 interface ProductDetailsModalProps {
@@ -270,6 +271,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
                 <Zap className="h-4 w-4" /> Buy now
               </button>
             )}
+            <WishlistButton productId={product.id} productName={product.name} className="h-12 w-12 border border-line shadow-none" />
           </div>
         </div>
       </div>

@@ -1,5 +1,7 @@
 package com.quickkart.order.entity;
 
+import jakarta.persistence.Column;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -28,6 +30,12 @@ public class Cart {
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items = new ArrayList<>();
+
+    /** Last time the shopper changed the cart (admin "open carts" view). */
+    @Column(name = "updated_at")
+    private java.time.LocalDateTime updatedAt;
+    public java.time.LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void touch() { this.updatedAt = java.time.LocalDateTime.now(); }
 
     public Cart() {
     }

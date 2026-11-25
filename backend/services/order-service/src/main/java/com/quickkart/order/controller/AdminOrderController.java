@@ -47,7 +47,7 @@ public class AdminOrderController {
     public ResponseEntity<OrderResponse> updateOrderStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateOrderStatusRequest request) {
-        OrderResponse updated = orderService.updateOrderStatus(id, request.getStatus());
+        OrderResponse updated = orderService.updateOrderStatus(id, request);
         return ResponseEntity.ok(updated);
     }
 
@@ -55,7 +55,7 @@ public class AdminOrderController {
     public ResponseEntity<OrderResponse> putOrderStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateOrderStatusRequest request) {
-        OrderResponse updated = orderService.updateOrderStatus(id, request.getStatus());
+        OrderResponse updated = orderService.updateOrderStatus(id, request);
         return ResponseEntity.ok(updated);
     }
 }

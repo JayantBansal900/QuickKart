@@ -88,6 +88,10 @@ const BADGE_TONES: Record<string, string> = {
   OUT_FOR_DELIVERY: INFO,
   DELIVERED: GOOD,
   CANCELLED: BAD,
+  RETURNED: NEUTRAL,
+  REQUESTED: WARN,
+  APPROVED: GOOD,
+  REJECTED: BAD,
   // payment / account / health
   COLLECTED: GOOD,
   COLLECTION_PENDING: WARN,

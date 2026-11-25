@@ -139,6 +139,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // (UX only — the backend independently enforces ADMIN on every /api/admin call.)
     if (requireAdmin && response.role !== "ADMIN")
       throw new Error("This account does not have administrator access.");
+    // Separate front doors: staff use the admin console, customers use the store sign-in.
+    if (!requireAdmin && response.role === "ADMIN")
+      throw new Error("Administrator accounts sign in through the admin console at /admin/login.");
     localStorage.setItem(TOKEN_KEY, response.token);
     const { token: _token, ...identity } = response;
     setUser(identity);

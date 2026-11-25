@@ -88,6 +88,7 @@ public class CartService {
             cartItemRepository.save(newItem);
         }
 
+        cart.touch();
         return buildCartResponse(cart);
     }
 
@@ -112,6 +113,7 @@ public class CartService {
         cartItem.setQuantity(request.getQuantity());
         cartItemRepository.save(cartItem);
 
+        cart.touch();
         return buildCartResponse(cart);
     }
 
@@ -125,6 +127,7 @@ public class CartService {
 
         cartItemRepository.delete(cartItem);
 
+        cart.touch();
         return buildCartResponse(cart);
     }
 
@@ -135,6 +138,7 @@ public class CartService {
 
         cartItemRepository.deleteByCartId(cart.getId());
 
+        cart.touch();
         return buildCartResponse(cart);
     }
 

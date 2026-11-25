@@ -26,6 +26,12 @@ import {
   StockMovement,
   AnalyticsInsights,
   PaymentMethod,
+  Coupon,
+  CouponRequest,
+  CouponQuote,
+  OrderReturn,
+  AdminCart,
+  ReturnReason,
 } from '../types';
 
 /** Builds "?a=1&b=2" from the defined, non-empty values. */
@@ -419,6 +425,96 @@ export const api = {
     const res = await apiFetch(`${API_BASE_URL}/orders/payment-methods`, { headers: getAuthHeaders() });
     const data = await handleResponse<{ methods?: PaymentMethod[] }>(res);
     return Array.isArray(data?.methods) ? data.methods : ['COD'];
+  },
+
+  // ─── Coupons ─────────────────────────────────────────────────────────────────
+
+  async getOffers(): Promise<Coupon[]> {
+    const res = await apiFetch(`${API_BASE_URL}/cart/offers`, { headers: getAuthHeaders() });
+    const data = await handleResponse<unknown>(res);
+    return Array.isArray(data) ? data : [];
+  },
+
+  /** What a coupon would take off the current cart (nothing is reserved). */
+  async previewCoupon(code: string): Promise<CouponQuote> {
+    const res = await apiFetch(`${API_BASE_URL}/cart/coupon`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ code }),
+    });
+    return handleResponse<CouponQuote>(res);
+  },
+
+  async getAdminCoupons(): Promise<Coupon[]> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/coupons`, { headers: getAuthHeaders() });
+    const data = await handleResponse<unknown>(res);
+    return Array.isArray(data) ? data : [];
+  },
+
+  async saveCoupon(request: CouponRequest, id?: number): Promise<Coupon> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/coupons${id ? `/${id}` : ''}`, {
+      method: id ? 'PUT' : 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(request),
+    });
+    return handleResponse<Coupon>(res);
+  },
+
+  async deleteCoupon(id: number): Promise<void> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/coupons/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+    return handleResponse<void>(res);
+  },
+
+  // ─── Returns ─────────────────────────────────────────────────────────────────
+
+  async requestReturn(orderId: number, reason: ReturnReason, comment?: string): Promise<OrderResponse> {
+    const res = await apiFetch(`${API_BASE_URL}/orders/${orderId}/return`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ reason, comment }),
+    });
+    return handleResponse<OrderResponse>(res);
+  },
+
+  async getAdminReturns(status = 'REQUESTED', page = 0): Promise<PageResponse<OrderReturn>> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/returns${queryString({ status, page, size: 25 })}`, { headers: getAuthHeaders() });
+    return handleResponse<PageResponse<OrderReturn>>(res);
+  },
+
+  async resolveReturn(id: number, decision: 'APPROVE' | 'REJECT', note?: string): Promise<OrderReturn> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/returns/${id}`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ decision, note }),
+    });
+    return handleResponse<OrderReturn>(res);
+  },
+
+  // ─── Admin: open carts ───────────────────────────────────────────────────────
+
+  async getAdminCarts(): Promise<AdminCart[]> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/carts`, { headers: getAuthHeaders() });
+    const data = await handleResponse<unknown>(res);
+    return Array.isArray(data) ? data : [];
+  },
+
+  // ─── Wishlist ────────────────────────────────────────────────────────────────
+
+  async getWishlist(): Promise<Product[]> {
+    const res = await apiFetch(`${API_BASE_URL}/wishlist`, { headers: getAuthHeaders() });
+    const data = await handleResponse<unknown>(res);
+    return Array.isArray(data) ? data : [];
+  },
+
+  async getWishlistIds(): Promise<number[]> {
+    const res = await apiFetch(`${API_BASE_URL}/wishlist/ids`, { headers: getAuthHeaders() });
+    const data = await handleResponse<unknown>(res);
+    return Array.isArray(data) ? data : [];
+  },
+
+  async setWishlisted(productId: number, saved: boolean): Promise<void> {
+    const res = await apiFetch(`${API_BASE_URL}/wishlist/${productId}`, { method: saved ? 'PUT' : 'DELETE', headers: getAuthHeaders() });
+    return handleResponse<void>(res);
   },
 
   /** Simulated payment gateway (test mode): no card data is sent, the outcome is chosen by the caller. */

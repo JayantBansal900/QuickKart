@@ -82,6 +82,18 @@ class OrderNotificationConsumerTest {
     }
 
     @Test
+    void shippedEmailIncludesTrackingAndReturnsAreAnnounced() {
+        OrderCreatedEvent shipped = event("ORDER_STATUS-42-SHIPPED", "ORDER_STATUS_CHANGED", "SHIPPED", "COD", "COLLECTION_PENDING");
+        shipped.setCourier("Delhivery");
+        shipped.setTrackingNumber("DL123");
+        consumer.consumeOrderCreatedEvent(shipped);
+        verify(email).sendOrderUpdate(any(), any(), eq(42L), contains("has shipped"), any(), contains("DL123"));
+
+        consumer.consumeOrderCreatedEvent(event("ORDER_STATUS-42-RETURNED", "ORDER_STATUS_CHANGED", "RETURNED", "UPI", "REFUNDED"));
+        verify(email).sendOrderUpdate(any(), any(), eq(42L), contains("Return approved"), any(), contains("refund"));
+    }
+
+    @Test
     void internalStatusesSendNoEmail() {
         consumer.consumeOrderCreatedEvent(event("ORDER_STATUS-42-CONFIRMED", "ORDER_STATUS_CHANGED", "CONFIRMED", "COD", "COLLECTION_PENDING"));
         consumer.consumeOrderCreatedEvent(event("ORDER_STATUS-42-PROCESSING", "ORDER_STATUS_CHANGED", "PROCESSING", "COD", "COLLECTION_PENDING"));

@@ -6,6 +6,13 @@ public class UpdateOrderStatusRequest {
 
     @NotBlank(message = "Status must not be blank")
     private String status;
+    /** Required when status is SHIPPED (dispatch). */
+    private String courier;
+    private String trackingNumber;
+    public String getCourier() { return courier; }
+    public void setCourier(String courier) { this.courier = courier; }
+    public String getTrackingNumber() { return trackingNumber; }
+    public void setTrackingNumber(String trackingNumber) { this.trackingNumber = trackingNumber; }
 
     public UpdateOrderStatusRequest() {
     }

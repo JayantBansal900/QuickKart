@@ -17,6 +17,8 @@ public record OrderLifecycleInternalEvent(
         BigDecimal totalAmount,
         String status,
         String paymentMethod,
-        String paymentStatus
+        String paymentStatus,
+        String courier,
+        String trackingNumber
 ) {
 }

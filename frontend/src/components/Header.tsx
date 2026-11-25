@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-import { LogOut, Menu, Moon, Search, ShoppingBag, Sun, User, X } from 'lucide-react';
+import { Heart, LogOut, Menu, Moon, Search, ShoppingBag, Sun, User, X } from 'lucide-react';
+import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useTheme } from '../context/ThemeContext';
@@ -28,18 +29,26 @@ const FALLBACK_CATEGORIES = [
 ];
 
 /** Wordmark used in the header and footer. */
+/** QuickKart brand mark: a shopping bag with a lightning bolt (quick delivery), plus the wordmark. */
+export function LogoMark({ className = 'h-8 w-8' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+      <rect width="32" height="32" rx="8" className="fill-fg" />
+      <path d="M11.5 11V9.5a4.5 4.5 0 0 1 9 0V11" fill="none" className="stroke-bg" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M7.5 11.5h17l-1.3 13.1a2 2 0 0 1-2 1.9H10.8a2 2 0 0 1-2-1.9z" className="fill-bg" />
+      <path d="M17.4 13.6l-4.6 6h3.1l-1.3 4.6 4.8-6.3h-3.2z" fill="#f5b700" />
+    </svg>
+  );
+}
+
 export function Logo({ className = '' }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
-      <span className="grid h-7 w-7 place-items-center rounded-md bg-fg text-bg">
-        <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-          <path
-            d="M12 3.5a8.5 8.5 0 1 0 5.2 15.2l2.4 2.4 1.9-1.9-2.4-2.4A8.5 8.5 0 0 0 12 3.5Zm0 3a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Z"
-            fill="currentColor"
-          />
-        </svg>
+      <LogoMark />
+      <span className="text-[19px] leading-none tracking-[-0.03em] text-fg">
+        <span className="font-extrabold">Quick</span>
+        <span className="font-medium">Kart</span>
       </span>
-      <span className="text-[18px] font-extrabold tracking-[-0.04em] text-fg">quickkart</span>
     </span>
   );
 }
@@ -50,6 +59,7 @@ const iconButton =
 export const Header: React.FC<HeaderProps> = ({
   currentView, onSelectView, isSidebarOpen, onToggleSidebar,
 }) => {
+  const { count: wishlistCount } = useWishlist();
   const { user, isAuthenticated, isAdmin, logout, openAuthModal } = useAuth();
   const { itemsCount } = useCart();
   const { resolved, toggle } = useTheme();
@@ -88,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
     }`;
 
   return (
-    <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/85">
+    <header className="sticky top-0 z-40 print:hidden bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/85">
       <div className="bg-fg text-bg">
         <p className="qk-container py-2 text-center text-xs font-medium tracking-wide">
           Free delivery on every order<span className="hidden sm:inline"> · Pay by UPI, card or cash on delivery</span>
@@ -171,6 +181,22 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <User className="h-[18px] w-[18px]" />
                 <span className="hidden sm:inline">Sign In</span>
+              </button>
+            )}
+
+            {!isAdmin && (
+              <button
+                type="button"
+                onClick={() => (isAuthenticated ? navigate('/account/wishlist') : openAuthModal('login'))}
+                className={iconButton}
+                aria-label={`Wishlist${wishlistCount > 0 ? ` — ${wishlistCount} saved` : ''}`}
+              >
+                <Heart className="h-[18px] w-[18px]" />
+                {wishlistCount > 0 && (
+                  <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-sale px-1 text-[10px] font-bold text-white">
+                    {wishlistCount > 99 ? '99+' : wishlistCount}
+                  </span>
+                )}
               </button>
             )}
 

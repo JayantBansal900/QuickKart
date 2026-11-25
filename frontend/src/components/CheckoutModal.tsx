@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Banknote, CreditCard, ShieldCheck, Smartphone, X } from 'lucide-react';
 import { PaymentPanel } from './PaymentPanel';
+import { CouponBox } from './CouponBox';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { ApiError } from '../services/http';
-import { CheckoutRequest, OrderResponse, PaymentMethod } from '../types';
+import { CheckoutRequest, CouponQuote, OrderResponse, PaymentMethod } from '../types';
 import { readAttempt, saveAttempt, clearAttempt } from '../services/checkoutAttempt';
 import { formatINR } from '../utils/formatters';
 
@@ -46,6 +47,7 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
   }, [available, method, attempt]);
   const [savedAddress, setSavedAddress] = useState<string | null>(null);
   const [saveAddress, setSaveAddress] = useState(true);
+  const [coupon, setCoupon] = useState<CouponQuote | null>(null);
   const [awaitingPayment, setAwaitingPayment] = useState<OrderResponse | null>(null);
   const profileName = useRef<string>(user?.name ?? '');
 
@@ -119,6 +121,7 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
       recipientName: name.trim(),
       deliveryAddress: address.trim(),
       deliveryPhone: phone.trim(),
+      ...(coupon ? { couponCode: coupon.code } : {}),
     } satisfies CheckoutRequest);
     pending.current = true;
     setBusy(true);
@@ -241,11 +244,21 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
                 </li>
               ))}
             </ul>
-            <div className="mt-4 flex justify-between border-t border-line pt-4 text-base font-semibold text-fg">
-              <span>Total</span>
-              <span>{formatINR(cart?.totalAmount ?? 0)}</span>
+            <div className="mt-4 border-t border-line pt-4">
+              <CouponBox cartFingerprint={cart?.fingerprint} applied={coupon} onChange={setCoupon} disabled={locked} />
             </div>
-            <p className="mt-2 text-xs text-muted">No additional tax or shipping charge is configured. Prices and stock are checked again by the server.</p>
+            <dl className="mt-4 space-y-1.5 text-sm">
+              <div className="flex justify-between text-muted"><dt>Subtotal</dt><dd className="text-fg">{formatINR(cart?.totalAmount ?? 0)}</dd></div>
+              {coupon && (
+                <div className="flex justify-between text-success"><dt>Discount ({coupon.code})</dt><dd>−{formatINR(coupon.discount)}</dd></div>
+              )}
+              <div className="flex justify-between text-muted"><dt>Delivery</dt><dd className="text-fg">Free</dd></div>
+              <div className="flex justify-between border-t border-line pt-3 text-base font-semibold text-fg">
+                <dt>Total</dt>
+                <dd>{formatINR(coupon ? coupon.total : cart?.totalAmount ?? 0)}</dd>
+              </div>
+            </dl>
+            <p className="mt-2 text-xs text-muted">Prices include GST. Prices, stock and the coupon are checked again by the server.</p>
 
             <div className="mt-auto space-y-3 pt-6">
               {!attempt && (

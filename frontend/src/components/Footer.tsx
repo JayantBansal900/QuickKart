@@ -13,6 +13,7 @@ const SHOP_LINKS = [
 const ACCOUNT_LINKS = [
   { to: '/account/profile', label: 'My account' },
   { to: '/account/orders', label: 'Orders' },
+  { to: '/account/wishlist', label: 'Wishlist' },
   { to: '/cart', label: 'Cart' },
 ];
 
@@ -33,7 +34,7 @@ function Column({ title, links }: { title: string; links: { to: string; label: s
 
 /** Customer-facing footer: shopping links only — no infrastructure or admin details. */
 export const Footer: React.FC = () => (
-  <footer className="mt-auto border-t border-line bg-subtle/60">
+  <footer className="mt-auto border-t border-line bg-subtle/60 print:hidden">
     <div className="qk-container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
       <div className="max-w-xs">
         <Logo />

@@ -26,7 +26,7 @@ import java.util.Map;
 @Service
 public class AnalyticsService {
 
-    private static final String BOOKED = "o.status NOT IN ('CANCELLED', 'PENDING')";
+    private static final String BOOKED = "o.status NOT IN ('CANCELLED', 'PENDING', 'RETURNED')";
 
     private final JdbcTemplate jdbc;
 

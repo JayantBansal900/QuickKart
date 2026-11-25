@@ -276,6 +276,16 @@ export interface OrderResponse {
   cancellable?: boolean;
   /** Online order waiting for (or retrying) payment. */
   payable?: boolean;
+  subtotalAmount?: number;
+  discountAmount?: number;
+  couponCode?: string | null;
+  courier?: string | null;
+  trackingNumber?: string | null;
+  shippedAt?: string | null;
+  deliveredAt?: string | null;
+  /** REQUESTED / APPROVED / REJECTED once the customer asked to return it. */
+  returnStatus?: 'REQUESTED' | 'APPROVED' | 'REJECTED' | null;
+  returnable?: boolean;
   items: OrderItemResponse[];
 }
 
@@ -287,12 +297,77 @@ export type OrderStatus =
   | 'SHIPPED'
   | 'OUT_FOR_DELIVERY'
   | 'DELIVERED'
-  | 'CANCELLED';
+  | 'CANCELLED'
+  | 'RETURNED';
+
+export interface Coupon {
+  id: number;
+  code: string;
+  description?: string | null;
+  discountType: 'PERCENT' | 'FLAT';
+  discountValue: number;
+  maxDiscount?: number | null;
+  minOrderAmount: number;
+  usageLimit?: number | null;
+  usedCount: number;
+  oncePerCustomer: boolean;
+  startsAt?: string | null;
+  expiresAt?: string | null;
+  active: boolean;
+}
+
+export interface CouponRequest {
+  code: string;
+  description?: string;
+  discountType: 'PERCENT' | 'FLAT';
+  discountValue: number;
+  maxDiscount?: number | null;
+  minOrderAmount?: number;
+  usageLimit?: number | null;
+  oncePerCustomer?: boolean;
+  startsAt?: string | null;
+  expiresAt?: string | null;
+  active?: boolean;
+}
+
+export interface CouponQuote {
+  code: string;
+  description?: string | null;
+  subtotal: number;
+  discount: number;
+  total: number;
+}
+
+export type ReturnReason = 'DAMAGED' | 'WRONG_ITEM' | 'NOT_AS_DESCRIBED' | 'NO_LONGER_NEEDED' | 'OTHER';
+
+export interface OrderReturn {
+  id: number;
+  orderId: number;
+  reason: ReturnReason;
+  comment?: string | null;
+  status: 'REQUESTED' | 'APPROVED' | 'REJECTED';
+  adminNote?: string | null;
+  requestedAt: string;
+  resolvedAt?: string | null;
+  order: OrderResponse;
+}
+
+export interface AdminCart {
+  cartId: number;
+  userId: number;
+  customerName: string;
+  customerEmail: string;
+  itemCount: number;
+  total: number;
+  updatedAt?: string | null;
+  items: { productId: number; productName: string; quantity: number; price: number }[];
+}
 
 export type PaymentMethod = 'COD' | 'UPI' | 'CARD';
 
 export interface CheckoutRequest {
   paymentMethod: PaymentMethod;
+  couponCode?: string;
   idempotencyKey: string;
   cartFingerprint: string;
   recipientName: string;
@@ -302,4 +377,7 @@ export interface CheckoutRequest {
 
 export interface UpdateOrderStatusRequest {
   status: OrderStatus;
+  /** Required when shipping. */
+  courier?: string;
+  trackingNumber?: string;
 }

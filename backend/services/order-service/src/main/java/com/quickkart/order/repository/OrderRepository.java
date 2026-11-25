@@ -22,4 +22,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>,
     List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
 
     Optional<Order> findByIdAndUserId(Long id, Long userId);
+
+    /** Has this customer already used the coupon on an order that wasn't cancelled? */
+    boolean existsByUserIdAndCouponCodeIgnoreCaseAndStatusNot(Long userId, String couponCode, String status);
 }

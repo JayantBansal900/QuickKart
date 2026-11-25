@@ -5,6 +5,7 @@ import { Product } from '../types';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/formatters';
+import { WishlistButton } from './WishlistButton';
 
 interface ProductCardProps {
   product: Product;
@@ -82,6 +83,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
             <span className="rounded bg-fg px-2 py-0.5 text-[11px] font-bold text-bg">Sold out</span>
           )}
         </div>
+
+        <WishlistButton productId={product.id} productName={product.name} className="absolute right-3 top-3" />
 
         {!isOutOfStock && (
           <button

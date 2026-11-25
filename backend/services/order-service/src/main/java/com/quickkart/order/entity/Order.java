@@ -76,6 +76,43 @@ public class Order {
     public String getCancelledBy() { return cancelledBy; }
     public void setCancelledBy(String value) { this.cancelledBy=value; }
 
+    // Coupon discount: totalAmount = subtotalAmount - discountAmount.
+    @Column(name="subtotal_amount", precision=12, scale=2)
+    private java.math.BigDecimal subtotalAmount;
+    public java.math.BigDecimal getSubtotalAmount() { return subtotalAmount != null ? subtotalAmount : totalAmount; }
+    public void setSubtotalAmount(java.math.BigDecimal value) { this.subtotalAmount=value; }
+
+    @Column(name="discount_amount", nullable=false, precision=12, scale=2)
+    private java.math.BigDecimal discountAmount = java.math.BigDecimal.ZERO;
+    public java.math.BigDecimal getDiscountAmount() { return discountAmount; }
+    public void setDiscountAmount(java.math.BigDecimal value) { this.discountAmount=value; }
+
+    @Column(name="coupon_code", length=40)
+    private String couponCode;
+    public String getCouponCode() { return couponCode; }
+    public void setCouponCode(String value) { this.couponCode=value; }
+
+    // Dispatch: set when the admin ships the order.
+    @Column(length=60)
+    private String courier;
+    public String getCourier() { return courier; }
+    public void setCourier(String value) { this.courier=value; }
+
+    @Column(name="tracking_number", length=80)
+    private String trackingNumber;
+    public String getTrackingNumber() { return trackingNumber; }
+    public void setTrackingNumber(String value) { this.trackingNumber=value; }
+
+    @Column(name="shipped_at")
+    private LocalDateTime shippedAt;
+    public LocalDateTime getShippedAt() { return shippedAt; }
+    public void setShippedAt(LocalDateTime value) { this.shippedAt=value; }
+
+    @Column(name="delivered_at")
+    private LocalDateTime deliveredAt;
+    public LocalDateTime getDeliveredAt() { return deliveredAt; }
+    public void setDeliveredAt(LocalDateTime value) { this.deliveredAt=value; }
+
     public Order() {
     }
 

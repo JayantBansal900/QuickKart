@@ -441,14 +441,15 @@ it("mobile menu works from account authentication pages", async () => {
   );
 });
 
-it("direct administrator login lands at the admin route", async () => {
+it("administrator accounts are refused on the customer sign-in and get no session", async () => {
   fetchMock.mockResolvedValue(
     response({ ...identity, role: "ADMIN", token: "admin-token" }),
   );
   mount("/login");
   await credentials();
   fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
-  await screen.findByText("Admin content");
+  expect((await screen.findByRole("alert")).textContent).toMatch(/admin console/);
+  expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
 });
 it.each([
   { emailVerified: false, accountStatus: "ACTIVE" },

@@ -59,6 +59,8 @@ public class OrderOutboxWriter {
         event.setStatus(internal.status());
         event.setPaymentMethod(internal.paymentMethod());
         event.setPaymentStatus(internal.paymentStatus());
+        event.setCourier(internal.courier());
+        event.setTrackingNumber(internal.trackingNumber());
         try {
             outbox.save(new OutboxEvent(internal.eventId(), topic, String.valueOf(internal.orderId()), objectMapper.writeValueAsString(event)));
         } catch (JsonProcessingException ex) {

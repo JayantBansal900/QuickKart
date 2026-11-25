@@ -54,7 +54,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/kafka/**").hasRole("ADMIN")
 
                         // Dedicated Admin endpoints require ADMIN role
-                        .requestMatchers("/api/admin/orders/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/orders/**", "/api/admin/coupons/**", "/api/admin/coupons",
+                                "/api/admin/returns/**", "/api/admin/returns", "/api/admin/carts/**", "/api/admin/carts").hasRole("ADMIN")
 
                         // Customer Order checkout and history endpoints require authentication
                         .requestMatchers("/api/orders/**").authenticated()

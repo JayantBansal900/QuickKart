@@ -210,16 +210,26 @@ check("customer cannot change stock", forbidden2.status === 403, `status=${forbi
 const add = await call("POST", "/cart/items", { token: C, body: { productId: target.id, quantity: 1 } });
 check("add to cart", add.status === 200, `status=${add.status} ${add.text.slice(0, 80)}`);
 const cart = await call("GET", "/cart", { token: C });
+// Coupons: an admin creates one, the customer previews it, and the order carries the discount.
+const couponCode = `E2E${String(stamp).slice(-6)}`;
+const newCoupon = await call("POST", "/admin/coupons", { token: A, body: { code: couponCode, description: "E2E test", discountType: "FLAT", discountValue: 10, oncePerCustomer: true } });
+check("admin creates a coupon", newCoupon.status === 201, `status=${newCoupon.status}`);
+const preview = await call("POST", "/cart/coupon", { token: C, body: { code: couponCode.toLowerCase() } });
+check("customer previews the coupon on the cart", preview.status === 200 && Number(preview.json?.discount) === 10, JSON.stringify(preview.json));
+const badCoupon = await call("POST", "/cart/coupon", { token: C, body: { code: "NO-SUCH-CODE" } });
+check("unknown coupon → 400", badCoupon.status === 400, `status=${badCoupon.status}`);
 const checkout = await call("POST", "/orders/checkout", {
   token: C,
   body: { paymentMethod: "COD", idempotencyKey: `e2e-${stamp}`, cartFingerprint: cart.json?.fingerprint,
-    recipientName: "E2E Customer", deliveryAddress: "221B Test Street, Test City", deliveryPhone: "9876543210" },
+    recipientName: "E2E Customer", deliveryAddress: "221B Test Street, Test City", deliveryPhone: "9876543210", couponCode },
 });
+check("COD checkout with a coupon creates a PLACED, discounted order", checkout.status === 201 && checkout.json?.status === "PLACED" && Number(checkout.json?.discountAmount) === 10 && checkout.json?.couponCode === couponCode,
+  `status=${checkout.status} total=${checkout.json?.totalAmount} discount=${checkout.json?.discountAmount}`);
 check("COD checkout creates a PLACED order", checkout.status === 201 && checkout.json?.status === "PLACED" && checkout.json?.paymentStatus === "COLLECTION_PENDING", `status=${checkout.status} ${checkout.text.slice(0, 100)}`);
 const orderId = checkout.json?.id;
 const retry = await call("POST", "/orders/checkout", {
   token: C, body: { paymentMethod: "COD", idempotencyKey: `e2e-${stamp}`, cartFingerprint: cart.json?.fingerprint,
-    recipientName: "E2E Customer", deliveryAddress: "221B Test Street, Test City", deliveryPhone: "9876543210" },
+    recipientName: "E2E Customer", deliveryAddress: "221B Test Street, Test City", deliveryPhone: "9876543210", couponCode },
 });
 check("checkout retry is idempotent (same order)", retry.json?.id === orderId);
 const afterStock = (await call("GET", `/products/${target.id}`)).json?.stockQuantity;
@@ -246,7 +256,12 @@ check("Kafka ORDER_CREATED event consumed (outbox → Kafka → consumer)", kafk
 // Admin fulfils order → COD collected
 const skip = await call("PATCH", `/admin/orders/${orderId}/status`, { token: A, body: { status: "DELIVERED" } });
 check("status cannot skip steps → 409", skip.status === 409, `status=${skip.status}`);
-for (const s of ["CONFIRMED", "PROCESSING", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED"]) await call("PATCH", `/admin/orders/${orderId}/status`, { token: A, body: { status: s } });
+for (const s of ["CONFIRMED", "PROCESSING"]) await call("PATCH", `/admin/orders/${orderId}/status`, { token: A, body: { status: s } });
+const shipNoTracking = await call("PATCH", `/admin/orders/${orderId}/status`, { token: A, body: { status: "SHIPPED" } });
+check("dispatch without courier/tracking → 400", shipNoTracking.status === 400, `status=${shipNoTracking.status}`);
+const shipped = await call("PATCH", `/admin/orders/${orderId}/status`, { token: A, body: { status: "SHIPPED", courier: "Delhivery", trackingNumber: "E2E-TRACK-1" } });
+check("dispatch stores courier and tracking number", shipped.json?.courier === "Delhivery" && shipped.json?.trackingNumber === "E2E-TRACK-1", `${shipped.json?.courier} ${shipped.json?.trackingNumber}`);
+for (const s of ["OUT_FOR_DELIVERY", "DELIVERED"]) await call("PATCH", `/admin/orders/${orderId}/status`, { token: A, body: { status: s } });
 const delivered = (await call("GET", `/orders/${orderId}`, { token: C })).json;
 check("delivered order → payment COLLECTED", delivered?.status === "DELIVERED" && delivered?.paymentStatus === "COLLECTED", `${delivered?.status}/${delivered?.paymentStatus}`);
 const analyticsAfter = (await call("GET", "/admin/analytics", { token: A })).json;
@@ -270,6 +285,13 @@ const reviews = await call("GET", `/products/${target.id}/reviews`);
 check("review is public without the author's email", reviews.json?.content?.some((r) => r.id === review.json?.id) && !reviews.text.includes(email));
 const unreview = await call("DELETE", `/products/${target.id}/reviews/${review.json?.id}`, { token: C });
 check("customer deletes own review", unreview.status === 204, `status=${unreview.status}`);
+
+// Wishlist
+const wishAdd = await call("PUT", `/wishlist/${otherProduct.id}`, { token: C });
+const wishIds = await call("GET", "/wishlist/ids", { token: C });
+check("wishlist saves a product", wishAdd.status === 204 && wishIds.json?.includes(otherProduct.id), JSON.stringify(wishIds.json));
+const wishDel = await call("DELETE", `/wishlist/${otherProduct.id}`, { token: C });
+check("wishlist removes it again", wishDel.status === 204 && !(await call("GET", "/wishlist/ids", { token: C })).json?.includes(otherProduct.id));
 
 // Saved delivery address on the profile.
 const prof = await call("PUT", "/user/profile", { token: C, body: { name: "E2E Customer", savedAddress: "221B Test Street, Test City" } });
@@ -298,6 +320,24 @@ for (let i = 0; i < 30 && !paymentEvent; i++) {
 check("PAYMENT_SUCCEEDED event consumed", paymentEvent);
 const refunded = await call("POST", `/orders/${online.json?.id}/cancel`, { token: C });
 check("cancelling a paid order refunds it", refunded.json?.status === "CANCELLED" && refunded.json?.paymentStatus === "REFUNDED", `${refunded.json?.status}/${refunded.json?.paymentStatus}`);
+
+// Returns: the delivered COD order is returned; approving restocks it and refunds the customer.
+const stockBeforeReturn = (await call("GET", `/products/${target.id}`)).json?.stockQuantity;
+const ret = await call("POST", `/orders/${orderId}/return`, { token: C, body: { reason: "DAMAGED", comment: "E2E return" } });
+check("customer requests a return of a delivered order", ret.status === 200 && ret.json?.returnStatus === "REQUESTED", `status=${ret.status}`);
+const pending = await call("GET", "/admin/returns?status=REQUESTED", { token: A });
+const myReturn = pending.json?.content?.find((r) => r.orderId === orderId);
+const approved = await call("PATCH", `/admin/returns/${myReturn?.id}`, { token: A, body: { decision: "APPROVE", note: "E2E" } });
+check("admin approves the return: order RETURNED, payment REFUNDED", approved.json?.order?.status === "RETURNED" && approved.json?.order?.paymentStatus === "REFUNDED", `${approved.json?.order?.status}/${approved.json?.order?.paymentStatus}`);
+const stockAfterReturn = (await call("GET", `/products/${target.id}`)).json?.stockQuantity;
+check("returned items go back into stock", stockAfterReturn === stockBeforeReturn + 1, `${stockBeforeReturn} → ${stockAfterReturn}`);
+await call("PATCH", `/admin/products/${target.id}/stock`, { token: A, body: { adjustment: -1 } }); // the restore below adds it back again
+
+// Admin view of open carts
+await call("POST", "/cart/items", { token: C, body: { productId: otherProduct.id, quantity: 1 } });
+const openCarts = await call("GET", "/admin/carts", { token: A });
+check("admin sees the customer's open cart", openCarts.json?.some((c) => c.customerEmail === email && c.itemCount >= 1), `${openCarts.json?.length} open carts`);
+await call("DELETE", "/cart", { token: C });
 
 const delOrdered = await call("DELETE", `/admin/products/${target.id}`, { token: A });
 check("deleting an ordered product → 409", delOrdered.status === 409, `status=${delOrdered.status}`);

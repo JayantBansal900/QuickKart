@@ -7,6 +7,10 @@ public class CheckoutRequest {
     @NotBlank @Size(max=120) private String recipientName;
     @NotBlank @Size(min=8,max=1000) private String deliveryAddress;
     @NotBlank @Size(min=5,max=40) private String deliveryPhone;
+    /** Optional discount code; validated again when the order is placed. */
+    @Size(max=40) private String couponCode;
+    public String getCouponCode() { return couponCode; }
+    public void setCouponCode(String value) { couponCode=value; }
     public String getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(String value) { paymentMethod=value; }
     public String getIdempotencyKey() { return idempotencyKey; }

@@ -30,12 +30,12 @@ spring:
         - id: product-service-route
           uri: ${PRODUCT_SERVICE_URL:http://localhost:8082}
           predicates:
-            - Path=/api/products/**,/api/admin/products/**,/api/categories/**,/api/admin/categories/**
+            - Path=/api/products/**,/api/admin/products/**,/api/categories/**,/api/admin/categories/**,/api/wishlist/**,/api/wishlist
 
         - id: order-service-route
           uri: ${ORDER_SERVICE_URL:http://localhost:8083}
           predicates:
-            - Path=/api/cart/**,/api/orders/**,/api/admin/orders/**
+            - Path=/api/cart/**,/api/orders/**,/api/admin/orders/**,/api/admin/coupons/**,/api/admin/coupons,/api/admin/returns/**,/api/admin/returns,/api/admin/carts/**,/api/admin/carts
 
         - id: monolith-auth-route
           uri: ${MONOLITH_SERVICE_URL:http://localhost:8081}

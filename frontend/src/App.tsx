@@ -12,6 +12,7 @@ import { MotionConfig } from "motion/react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { CartProvider, useCart } from "./context/CartContext";
+import { WishlistProvider } from "./context/WishlistContext";
 import { Header, AppView } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { CartDrawer } from "./components/CartDrawer";
@@ -19,6 +20,8 @@ import { CheckoutModal } from "./components/CheckoutModal";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthPage } from "./pages/AuthPage";
 import { HomePage } from "./pages/HomePage";
+const WishlistPage = lazy(() => import("./pages/WishlistPage").then((m) => ({ default: m.WishlistPage })));
+const InvoicePage = lazy(() => import("./pages/InvoicePage").then((m) => ({ default: m.InvoicePage })));
 const InfoPage = lazy(() => import("./pages/InfoPage").then((m) => ({ default: m.InfoPage })));
 const CategoriesPage = lazy(() => import("./pages/CategoriesPage").then((m) => ({ default: m.CategoriesPage })));
 const OrdersPage = lazy(() =>
@@ -57,6 +60,9 @@ const AdminSystemPage = lazy(() =>
 const AdminAnalyticsPage = lazy(() =>
   import("./pages/admin/AdminAnalyticsPage").then((m) => ({ default: m.AdminAnalyticsPage })),
 );
+const AdminCouponsPage = lazy(() => import("./pages/admin/AdminCouponsPage").then((m) => ({ default: m.AdminCouponsPage })));
+const AdminReturnsPage = lazy(() => import("./pages/admin/AdminReturnsPage").then((m) => ({ default: m.AdminReturnsPage })));
+const AdminCartsPage = lazy(() => import("./pages/admin/AdminCartsPage").then((m) => ({ default: m.AdminCartsPage })));
 const AdminCategoriesPage = lazy(() =>
   import("./pages/admin/AdminCategoriesPage").then((m) => ({ default: m.AdminCategoriesPage })),
 );
@@ -195,6 +201,8 @@ export function ApplicationShell() {
                   <OrdersPage onNavigateToStore={() => select("store")} />
                 }
               />
+              <Route path="/account/wishlist" element={<WishlistPage />} />
+              <Route path="/account/orders/:orderId/invoice" element={<InvoicePage />} />
               <Route path="/cart" element={<CommerceRoute />} />
               <Route path="/checkout" element={<CommerceRoute checkout />} />
             </Route>
@@ -244,6 +252,9 @@ function AdminRoutes() {
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="analytics" element={<AdminAnalyticsPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
+            <Route path="coupons" element={<AdminCouponsPage />} />
+            <Route path="returns" element={<AdminReturnsPage />} />
+            <Route path="carts" element={<AdminCartsPage />} />
             <Route path="system" element={<AdminSystemPage />} />
             <Route path="*" element={<Navigate replace to="/admin" />} />
           </Route>
@@ -256,10 +267,12 @@ function SessionContent() {
   const { user, status } = useAuth();
   return (
     <CartProvider key={`${status}:${user?.id ?? "guest"}`}>
-      <Routes>
-        <Route path="/admin/*" element={<AdminRoutes />} />
-        <Route path="*" element={<ApplicationShell />} />
-      </Routes>
+      <WishlistProvider>
+        <Routes>
+          <Route path="/admin/*" element={<AdminRoutes />} />
+          <Route path="*" element={<ApplicationShell />} />
+        </Routes>
+      </WishlistProvider>
     </CartProvider>
   );
 }

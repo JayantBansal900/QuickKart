@@ -182,6 +182,21 @@ class CatalogFeaturesIntegrationTest {
     }
 
     @Test
+    void wishlistSavesProductsPerCustomer() throws Exception {
+        mvc.perform(get("/api/wishlist")).andExpect(status().isUnauthorized());
+        mvc.perform(put("/api/wishlist/" + kettle.getId()).header("Authorization", customer)).andExpect(status().isNoContent());
+        mvc.perform(put("/api/wishlist/" + kettle.getId()).header("Authorization", customer)).andExpect(status().isNoContent()); // idempotent
+        mvc.perform(put("/api/wishlist/999999").header("Authorization", customer)).andExpect(status().isNotFound());
+        mvc.perform(get("/api/wishlist").header("Authorization", customer))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(kettle.getId()));
+        mvc.perform(get("/api/wishlist/ids").header("Authorization", admin)).andExpect(jsonPath("$.length()").value(0)); // per customer
+        mvc.perform(delete("/api/wishlist/" + kettle.getId()).header("Authorization", customer)).andExpect(status().isNoContent());
+        mvc.perform(get("/api/wishlist/ids").header("Authorization", customer)).andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
     void popularSortOrdersByReviewCount() throws Exception {
         mvc.perform(get("/api/products").param("sort", "popular").param("size", "1")).andExpect(status().isOk());
     }

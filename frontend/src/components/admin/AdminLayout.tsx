@@ -5,6 +5,9 @@ import {
   BarChart3,
   Boxes,
   Tags,
+  TicketPercent,
+  RotateCcw,
+  ShoppingCart,
   LayoutDashboard,
   LogOut,
   Moon,
@@ -16,6 +19,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
+import { LogoMark } from "../Header";
 
 const NAV = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, end: true },
@@ -24,6 +28,9 @@ const NAV = [
   { to: "/admin/categories", label: "Categories", icon: Tags },
   { to: "/admin/inventory", label: "Inventory", icon: Boxes },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
+  { to: "/admin/returns", label: "Returns", icon: RotateCcw },
+  { to: "/admin/carts", label: "Carts", icon: ShoppingCart },
+  { to: "/admin/coupons", label: "Coupons", icon: TicketPercent },
   { to: "/admin/users", label: "Customers", icon: Users },
   { to: "/admin/system", label: "System status", icon: Activity },
 ];
@@ -41,9 +48,9 @@ export function AdminLayout() {
       <aside className="flex-none border-b border-line bg-surface md:sticky md:top-0 md:flex md:h-screen md:w-64 md:flex-col md:border-b-0 md:border-r">
         <div className="flex items-center justify-between gap-2 px-5 py-4 md:py-6">
           <Link to="/admin" className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-fg font-display text-xl leading-none text-bg">q</span>
+            <LogoMark className="h-9 w-9" />
             <span className="leading-tight">
-              <span className="block text-[15px] font-semibold tracking-tight">quickkart</span>
+              <span className="block text-[15px] tracking-tight"><span className="font-extrabold">Quick</span><span className="font-medium">Kart</span></span>
               <span className="qk-eyebrow !text-[10px]">Admin console</span>
             </span>
           </Link>

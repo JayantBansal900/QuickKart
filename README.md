@@ -5,6 +5,10 @@ A full-stack e-commerce app: a React storefront and admin panel on top of Spring
 
 **Stack:** Java 17 · Spring Boot 3.5 · Spring Cloud Gateway · Spring Security (JWT) · JPA/Hibernate · PostgreSQL 15 · Flyway · Redis 7 · Apache Kafka 3.7 (KRaft) · React 19 · TypeScript · Vite · Tailwind CSS 4 · Docker Compose · GitHub Actions
 
+> **Ideas, not code:** features such as coupons, returns, dispatch tracking and abandoned carts were modelled on what open-source stores like Saleor, Medusa, Solidus and Magento offer, and designed from scratch for QuickKart (none of their code is used).
+>
+> **Separate sign-ins:** customers use the store sign-in; administrators use `/admin/login`. Each is refused on the other's page.
+>
 > **Scope note.** Payments are **cash on delivery** or **UPI / card through a simulated gateway** (test mode: no real money, no card data; the shopper picks success or failure). Because the shopper decides the outcome, the simulated gateway is **switched off in the `prod` profile**, where only cash on delivery is offered. The project is not deployed to the cloud; it runs on Docker Compose.
 
 ---
@@ -19,6 +23,9 @@ A full-stack e-commerce app: a React storefront and admin panel on top of Spring
 - Order history with a step tracker (`Placed → Confirmed → Packed → Shipped → Out for delivery → Delivered`), cancellation with stock restore and an automatic refund for paid orders.
 - Emails sent asynchronously through Kafka: order confirmation, payment received / failed, shipped, out for delivery, delivered, cancelled.
 - Review products you received (verified purchase, one review each, editable); ratings update live.
+- Coupons at checkout (offers list or typed code; percent or flat, minimum order, usage limits, once per customer).
+- Wishlist (heart on every product, saved list in the account area).
+- Dispatch tracking (courier and tracking number on the order and in the shipping email), a printable GST invoice, and returns within 7 days of delivery.
 - Store information pages (about, contact, shipping, refunds, privacy, terms). Light / dark theme.
 
 **Admins** (`/admin`)
@@ -26,7 +33,10 @@ A full-stack e-commerce app: a React storefront and admin panel on top of Spring
 - Analytics: revenue and orders per day (7 / 30 / 90 days, chart or table), best sellers, revenue by category, orders by status, payment mix, new customers.
 - Orders (paged, searchable): move an order through `PLACED → CONFIRMED → PROCESSING → SHIPPED → OUT_FOR_DELIVERY → DELIVERED`, or cancel it.
 - Products (paged, searchable): create, edit, delete, upload a photo. Categories: add, rename (moves its products), hide, reorder, delete when empty.
-- Inventory: restock or correct stock, and see each product's full stock history (orders, cancellations, restocks, edits).
+- Inventory: restock or correct stock, and see each product's full stock history (orders, cancellations, restocks, edits, returns).
+- Dispatch: marking an order shipped asks for the courier and tracking number.
+- Returns: approve (restock and refund) or reject customer return requests.
+- Coupons: create, edit, switch off and delete discount codes. Carts: see open and abandoned carts with their contents.
 - Customers (paged, searchable): suspend or reactivate accounts. Admins can't change their own account or other admins.
 - System: live UP/DOWN status of PostgreSQL, Redis, Kafka, both services and the order-event outbox.
 
@@ -121,12 +131,12 @@ With `MAIL_TRANSPORT=console` (the default), OTP emails are written to the monol
 
 | Suite | Count | Command |
 |---|---:|---|
-| Monolith (auth, admin, analytics, email, Kafka consumer, security) | 98 | `mvn verify` in `backend/services/monolith` |
-| Order service (cart, checkout, payments, outbox) | 50 | `mvn verify` in `backend/services/order-service` |
-| Product service (search, cache, admin, categories, reviews, stock history) | 48 | `mvn verify` in `backend/services/product-service` |
+| Monolith (auth, admin, analytics, email, Kafka consumer, security) | 99 | `mvn verify` in `backend/services/monolith` |
+| Order service (cart, checkout, payments, coupons, returns, outbox) | 56 | `mvn verify` in `backend/services/order-service` |
+| Product service (search, cache, admin, categories, reviews, wishlist, stock history) | 49 | `mvn verify` in `backend/services/product-service` |
 | API gateway | 7 | `mvn verify` in `backend/services/api-gateway` |
-| Frontend (Vitest + Testing Library) | 86 | `npm test` in `frontend` |
-| End-to-end against the running stack | 75 checks | `node scripts/e2e-smoke.mjs .` (needs `MAIL_TRANSPORT=console`) |
+| Frontend (Vitest + Testing Library) | 91 | `npm test` in `frontend` |
+| End-to-end against the running stack | 87 checks | `node scripts/e2e-smoke.mjs .` (needs `MAIL_TRANSPORT=console`) |
 
 Kafka tests use an embedded broker. PostgreSQL-specific tests (locking, migrations) run against a Testcontainers database in CI. GitHub Actions runs all of these on every push ([ci.yml](.github/workflows/ci.yml)).
 

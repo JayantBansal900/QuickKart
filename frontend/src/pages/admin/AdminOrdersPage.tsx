@@ -32,9 +32,12 @@ export const NEXT_STATUS: Record<OrderStatus, OrderStatus[]> = {
   OUT_FOR_DELIVERY: ["DELIVERED"],
   DELIVERED: [],
   CANCELLED: [],
+  RETURNED: [],
 };
 
-const ALL_STATUSES: OrderStatus[] = ["PENDING", "PLACED", "CONFIRMED", "PROCESSING", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"];
+const COURIERS = ["Delhivery", "Blue Dart", "Ekart", "DTDC", "India Post", "Xpressbees"];
+
+const ALL_STATUSES: OrderStatus[] = ["PENDING", "PLACED", "CONFIRMED", "PROCESSING", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED", "RETURNED"];
 
 const label = (s: string) => s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
 
@@ -47,6 +50,7 @@ export function AdminOrdersPage() {
   const [page, setPage] = useState(0);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [dispatching, setDispatching] = useState<OrderResponse | null>(null);
   const [confirmDialog, confirm] = useConfirm();
   const q = useDebounced(query.trim());
 
@@ -70,7 +74,11 @@ export function AdminOrdersPage() {
 
   const orders = result?.content ?? [];
 
-  const changeStatus = async (order: OrderResponse, next: OrderStatus) => {
+  const changeStatus = async (order: OrderResponse, next: OrderStatus, dispatch?: { courier: string; trackingNumber: string }) => {
+    if (next === "SHIPPED" && !dispatch) {
+      setDispatching(order); // courier + tracking number first
+      return;
+    }
     if (
       next === "CANCELLED" &&
       !(await confirm({
@@ -86,7 +94,7 @@ export function AdminOrdersPage() {
     setUpdatingId(order.id);
     setError(null);
     try {
-      const updated = await api.updateOrderStatus(order.id, { status: next });
+      const updated = await api.updateOrderStatus(order.id, { status: next, ...dispatch });
       setResult((r) => r && { ...r, content: r.content.map((o) => (o.id === updated.id ? updated : o)) });
     } catch (err) {
       setError(errorMessage(err, "Failed to update order status."));
@@ -98,6 +106,17 @@ export function AdminOrdersPage() {
   return (
     <>
       {confirmDialog}
+      {dispatching && (
+        <DispatchDialog
+          order={dispatching}
+          onClose={() => setDispatching(null)}
+          onDispatch={async (details) => {
+            const order = dispatching;
+            setDispatching(null);
+            await changeStatus(order, "SHIPPED", details);
+          }}
+        />
+      )}
       <AdminPageHeader
         title="Orders"
         subtitle={result ? `${result.totalElements} ${statusFilter === "ALL" && !q ? "orders in total" : "matching orders"}` : "Loading…"}
@@ -210,6 +229,8 @@ export function AdminOrdersPage() {
                             <p>{o.recipientName ?? "—"}</p>
                             <p className="text-muted">{o.deliveryAddress ?? "—"}</p>
                             <p className="text-muted">{o.deliveryPhone ?? ""}</p>
+                            {o.trackingNumber && <p className="mt-2">Shipped with {o.courier} · <span className="font-mono">{o.trackingNumber}</span></p>}
+                            {Number(o.discountAmount) > 0 && <p className="mt-2 text-success">Coupon {o.couponCode}: −{formatINR(o.discountAmount)}</p>}
                             {o.cancelledAt && (
                               <p className="mt-2 text-sale">Cancelled {formatDateTime(o.cancelledAt)} by {o.cancelledBy}</p>
                             )}
@@ -230,3 +251,48 @@ export function AdminOrdersPage() {
     </>
   );
 }
+
+/** Dispatch: courier and tracking number are required before an order can be marked shipped. */
+function DispatchDialog({ order, onClose, onDispatch }: {
+  order: OrderResponse;
+  onClose: () => void;
+  onDispatch: (details: { courier: string; trackingNumber: string }) => Promise<void>;
+}) {
+  const [courier, setCourier] = useState(COURIERS[0]);
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const valid = /^[A-Za-z0-9-]{4,80}$/.test(trackingNumber.trim());
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onKeyDown={(e) => e.key === "Escape" && onClose()}>
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
+      <form
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dispatch-title"
+        className="relative w-full max-w-sm space-y-4 rounded-2xl border border-line bg-surface p-6 shadow-card"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (valid) void onDispatch({ courier, trackingNumber: trackingNumber.trim() });
+        }}
+      >
+        <h2 id="dispatch-title" className="text-lg font-semibold">Dispatch order #{order.id}</h2>
+        <p className="text-sm text-muted">{order.recipientName} · {order.deliveryAddress}</p>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Courier</span>
+          <select className="qk-input" value={courier} onChange={(e) => setCourier(e.target.value)}>
+            {COURIERS.map((c) => <option key={c}>{c}</option>)}
+          </select>
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Tracking number</span>
+          <input className="qk-input font-mono uppercase" autoFocus maxLength={80} placeholder="e.g. DL1234567890" value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} />
+          <span className="mt-1 block text-xs text-muted">The customer gets it by email with the shipping update.</span>
+        </label>
+        <div className="flex justify-end gap-2">
+          <button type="button" onClick={onClose} className="qk-btn qk-btn-ghost h-10 px-4 text-sm">Cancel</button>
+          <button type="submit" disabled={!valid} className="qk-btn qk-btn-primary h-10 px-4 text-sm disabled:opacity-50">Mark as shipped</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+

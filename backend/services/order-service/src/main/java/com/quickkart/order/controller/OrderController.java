@@ -49,6 +49,13 @@ public class OrderController {
         return ResponseEntity.ok(orderService.pay(authentication.getName(),id,"SUCCESS".equalsIgnoreCase(outcome)));
     }
 
+    /** Ask to return a delivered order: {"reason":"DAMAGED","comment":"..."}. */
+    @PostMapping("/{id}/return")
+    public ResponseEntity<OrderResponse> requestReturn(Authentication authentication,@PathVariable Long id,
+                                                       @RequestBody java.util.Map<String,String> body) {
+        return ResponseEntity.ok(orderService.requestReturn(authentication.getName(),id,body.get("reason"),body.get("comment")));
+    }
+
     @PostMapping("/{id}/cancel")
     public ResponseEntity<OrderResponse> cancel(Authentication authentication,@PathVariable Long id) {
         return ResponseEntity.ok(orderService.cancelOrder(authentication.getName(),id));
