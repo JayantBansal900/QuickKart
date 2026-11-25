@@ -289,6 +289,8 @@ export const api = {
     if (query.minPrice != null) params.set('minPrice', String(query.minPrice));
     if (query.maxPrice != null) params.set('maxPrice', String(query.maxPrice));
     if (query.sort && query.sort !== 'featured') params.set('sort', query.sort);
+    if (query.variantSize) params.set('variantSize', query.variantSize);
+    if (query.color) params.set('color', query.color);
     if (query.page) params.set('page', String(query.page));
     if (query.size) params.set('size', String(query.size));
     const qs = params.toString();
@@ -384,8 +386,8 @@ export const api = {
     return handleResponse<CartResponse>(res);
   },
 
-  async updateCartItemQuantity(productId: number, request: UpdateCartItemRequest): Promise<CartResponse> {
-    const res = await apiFetch(`${API_BASE_URL}/cart/items/${productId}`, {
+  async updateCartItemQuantity(productId: number, request: UpdateCartItemRequest, variantId?: number | null): Promise<CartResponse> {
+    const res = await apiFetch(`${API_BASE_URL}/cart/items/${productId}${variantId ? `?variantId=${variantId}` : ''}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(request),
@@ -393,8 +395,8 @@ export const api = {
     return handleResponse<CartResponse>(res);
   },
 
-  async removeFromCart(productId: number): Promise<CartResponse> {
-    const res = await apiFetch(`${API_BASE_URL}/cart/items/${productId}`, {
+  async removeFromCart(productId: number, variantId?: number | null): Promise<CartResponse> {
+    const res = await apiFetch(`${API_BASE_URL}/cart/items/${productId}${variantId ? `?variantId=${variantId}` : ''}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });

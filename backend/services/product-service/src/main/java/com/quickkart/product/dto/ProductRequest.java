@@ -156,4 +156,17 @@ public class ProductRequest {
     public void setAvailability(String availability) {
         this.availability = availability;
     }
+
+    /** Optional sizes/colours. When present they replace the product's stock: the total becomes their sum. */
+    @jakarta.validation.Valid
+    @jakarta.validation.constraints.Size(max = 60, message = "Too many variants")
+    private java.util.List<VariantRequest> variants;
+
+    public java.util.List<VariantRequest> getVariants() {
+        return variants;
+    }
+
+    public void setVariants(java.util.List<VariantRequest> variants) {
+        this.variants = variants;
+    }
 }

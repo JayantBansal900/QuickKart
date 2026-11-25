@@ -15,6 +15,10 @@ public class CartItemResponse {
     private BigDecimal subtotal;
     /** Product picture for the cart UI (display only; not part of the checkout fingerprint). */
     private String imageUrl;
+    /** Chosen size/colour (null when the product has none). */
+    private Long variantId;
+    private String size;
+    private String color;
 
     public CartItemResponse() {
     }
@@ -37,7 +41,13 @@ public class CartItemResponse {
                 cartItem.getQuantity(),
                 subtotal
         );
-        response.availableQuantity=cartItem.getProduct().getStockQuantity();
+        var variant=cartItem.getVariant();
+        response.availableQuantity=variant==null ? cartItem.getProduct().getStockQuantity() : variant.getStockQuantity();
+        if(variant!=null) {
+            response.variantId=variant.getId();
+            response.size=variant.getSize();
+            response.color=variant.getColor().isBlank() ? null : variant.getColor();
+        }
         response.imageUrl=cartItem.getProduct().getImageUrl();
         return response;
     }
@@ -81,6 +91,10 @@ public class CartItemResponse {
     public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
     }
+
+    public Long getVariantId() { return variantId; }
+    public String getSize() { return size; }
+    public String getColor() { return color; }
 
     public String getImageUrl() {
         return imageUrl;

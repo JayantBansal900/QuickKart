@@ -54,7 +54,7 @@ export function AdminLoginPage() {
           </span>
           <div>
             <h1 className="text-lg font-semibold text-fg">Administrator Sign In</h1>
-            <p className="text-xs text-muted">QuickKart management console</p>
+            <p className="text-xs text-muted">VAYU management console</p>
           </div>
         </div>
         {auth.isAuthenticated && !auth.isAdmin && (

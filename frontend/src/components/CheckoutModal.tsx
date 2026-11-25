@@ -8,7 +8,7 @@ import { api } from '../services/api';
 import { ApiError } from '../services/http';
 import { CheckoutRequest, CouponQuote, OrderResponse, PaymentMethod } from '../types';
 import { readAttempt, saveAttempt, clearAttempt } from '../services/checkoutAttempt';
-import { formatINR } from '../utils/formatters';
+import { formatINR, variantLabel } from '../utils/formatters';
 
 interface Props {
   isOpen: boolean;
@@ -238,8 +238,8 @@ export const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, onOrderSuccess
             <h3 className="text-sm font-semibold text-fg">Order summary</h3>
             <ul className="mt-3 space-y-2.5 text-sm">
               {cart?.items.map((item) => (
-                <li key={item.productId} className="flex justify-between gap-3">
-                  <span className="min-w-0 text-muted"><span className="text-fg">{item.quantity} ×</span> {item.productName}</span>
+                <li key={`${item.productId}-${item.variantId ?? 0}`} className="flex justify-between gap-3">
+                  <span className="min-w-0 text-muted"><span className="text-fg">{item.quantity} ×</span> {item.productName}{variantLabel(item) ? ` (${variantLabel(item)})` : ''}</span>
                   <span className="shrink-0 text-fg">{formatINR(item.subtotal)}</span>
                 </li>
               ))}

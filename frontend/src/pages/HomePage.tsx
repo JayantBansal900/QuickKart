@@ -4,21 +4,15 @@ import {
   AlertCircle,
   ArrowRight,
   Banknote,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
-  Dumbbell,
   Gem,
-  Home,
-  Laptop,
   LayoutGrid,
   RotateCcw,
   Search,
   Shirt,
-  ShoppingBasket,
   SlidersHorizontal,
   Truck,
-  Sparkles,
   X,
 } from 'lucide-react';
 
@@ -73,15 +67,23 @@ function categoryImage(id: string): string {
 /** Shown until /api/categories answers (and as a fallback if it fails). */
 const DEFAULT_CATEGORIES: Category[] = [
   { id: 'ALL', label: 'All products', icon: LayoutGrid },
-  { id: 'ELECTRONICS', label: 'Electronics', icon: Laptop },
-  { id: 'FASHION', label: 'Fashion', icon: Shirt },
-  { id: 'HOME & LIVING', label: 'Home & Living', icon: Home },
-  { id: 'SPORTS', label: 'Sports', icon: Dumbbell },
-  { id: 'BOOKS', label: 'Books', icon: BookOpen },
-  { id: 'BEAUTY', label: 'Beauty', icon: Sparkles },
-  { id: 'GROCERIES', label: 'Groceries', icon: ShoppingBasket },
+  { id: 'T-SHIRTS', label: 'T-Shirts', icon: Shirt },
+  { id: 'SHIRTS', label: 'Shirts', icon: Shirt },
+  { id: 'JEANS', label: 'Jeans', icon: Shirt },
+  { id: 'TROUSERS', label: 'Trousers', icon: Shirt },
+  { id: 'JACKETS', label: 'Jackets', icon: Shirt },
+  { id: 'HOODIES & SWEATSHIRTS', label: 'Hoodies & Sweatshirts', icon: Shirt },
+  { id: 'FOOTWEAR', label: 'Footwear', icon: Shirt },
   { id: 'ACCESSORIES', label: 'Accessories', icon: Gem },
 ];
+
+/** Size chips in the filters: letter sizes, waist sizes (jeans, trousers) and UK shoe sizes. */
+const SIZE_GROUPS = [
+  { label: 'Clothing', sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+  { label: 'Waist (in)', sizes: ['28', '30', '32', '34', '36'] },
+  { label: 'Footwear (UK)', sizes: ['6', '7', '8', '9', '10', '11'] },
+];
+const COLOUR_FILTERS = ['Black', 'White', 'Navy', 'Grey', 'Blue', 'Olive', 'Brown', 'Red'];
 
 const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'featured', label: 'Featured' },
@@ -119,6 +121,8 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
   const page = Math.floor(numberParam(searchParams.get('page')) ?? 0);
   const minPrice = numberParam(searchParams.get('minPrice'));
   const maxPrice = numberParam(searchParams.get('maxPrice'));
+  const sizeFilter = searchParams.get('size') || '';
+  const colorFilter = searchParams.get('color') || '';
 
   /** Applies URL changes; any filter change goes back to page 1 unless a page is set explicitly. */
   const updateParams = (changes: Record<string, string | number | null | undefined>) => {
@@ -176,7 +180,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
     setError(null);
     api
       .searchProducts(
-        { q: debouncedQuery, category: selectedCategory, sort: sortBy, page, size: PAGE_SIZE, minPrice, maxPrice },
+        { q: debouncedQuery, category: selectedCategory, sort: sortBy, page, size: PAGE_SIZE, minPrice, maxPrice, variantSize: sizeFilter || undefined, color: colorFilter || undefined },
         controller.signal,
       )
       .then((data) => setResults(data))
@@ -189,7 +193,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
         if (!controller.signal.aborted) setIsLoading(false);
       });
     return () => controller.abort();
-  }, [searchQuery, debouncedQuery, selectedCategory, sortBy, page, minPrice, maxPrice, reloadKey]);
+  }, [searchQuery, debouncedQuery, selectedCategory, sortBy, page, minPrice, maxPrice, sizeFilter, colorFilter, reloadKey]);
 
   // Links such as /?category=BOOKS#catalog-results (from the Categories page) land on the results,
   // once they have loaded, instead of the top of the page.
@@ -272,6 +276,8 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
   const filterChips: { label: string; clear: () => void }[] = [
     ...(searchQuery.trim() ? [{ label: `“${searchQuery.trim()}”`, clear: () => updateParams({ q: null }) }] : []),
     ...(selectedCategory !== 'ALL' ? [{ label: activeCategory.label, clear: () => updateParams({ category: null }) }] : []),
+    ...(sizeFilter ? [{ label: `Size ${sizeFilter}`, clear: () => updateParams({ size: null }) }] : []),
+    ...(colorFilter ? [{ label: colorFilter, clear: () => updateParams({ color: null }) }] : []),
     ...(minPrice != null || maxPrice != null
       ? [{
           label: `${minPrice != null ? formatPrice(minPrice) : '₹0'} – ${maxPrice != null ? formatPrice(maxPrice) : 'any'}`,
@@ -281,7 +287,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
   ];
   const hasActiveFilters = filterChips.length > 0 || sortBy !== 'featured';
   const clearFilters = () => setSearchParams(new URLSearchParams(), { replace: true });
-  const isBrowsing = !searchQuery.trim() && selectedCategory === 'ALL' && minPrice == null && maxPrice == null && page === 0;
+  const isBrowsing = !searchQuery.trim() && selectedCategory === 'ALL' && minPrice == null && maxPrice == null && !sizeFilter && !colorFilter && page === 0;
 
   const firstShown = totalResults === 0 ? 0 : page * PAGE_SIZE + 1;
   const lastShown = Math.min((page + 1) * PAGE_SIZE, totalResults);
@@ -345,29 +351,29 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
         <section className="qk-container pt-4 md:pt-6">
           <div className="relative isolate flex min-h-[440px] items-end overflow-hidden rounded-xl bg-neutral-900 md:min-h-[540px]">
             <img
-              src="/categories/all.webp"
+              src="/categories/vayu-hero.webp"
               alt=""
               className="absolute inset-0 -z-10 h-full w-full object-cover opacity-90"
             />
             <span className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/30 to-black/0 md:bg-gradient-to-r md:from-black/75 md:via-black/35 md:to-transparent" />
             <div className="w-full animate-rise p-6 sm:p-10 lg:p-14">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/70">New season · Fresh arrivals</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/70">The new season edit</p>
               <h1 className="qk-display mt-4 max-w-2xl text-5xl text-white sm:text-6xl lg:text-7xl">
-                Everything you love, delivered fast.
+                Made to move with you.
               </h1>
               <p className="mt-5 max-w-lg text-base leading-relaxed text-white/80">
-                {totalProducts > 0 ? `${totalProducts} products` : 'Hand-picked products'} from brands you already trust — electronics, fashion, home and more. Pay by UPI, card or cash on delivery.
+                VAYU is menswear for every day: honest fabrics, clean cuts and a fit you can count on. {totalProducts > 0 ? `${totalProducts} pieces` : 'Tees, shirts, jeans and jackets'} in sizes S to XXL. Pay by UPI, card or cash on delivery.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <button type="button" onClick={scrollToCatalog} className="qk-btn h-12 bg-white px-7 text-neutral-950 hover:bg-white/90">
-                  Shop all <ArrowRight className="h-4 w-4" />
+                  Shop the collection <ArrowRight className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
                   onClick={() => { setSortBy('discount-desc'); scrollToCatalog(); }}
                   className="qk-btn h-12 border border-white/40 px-7 text-white hover:bg-white/10"
                 >
-                  Today’s deals
+                  The sale
                 </button>
               </div>
             </div>
@@ -377,7 +383,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
             {[
               { icon: Truck, title: 'Free delivery', text: 'On every order, no minimum' },
               { icon: Banknote, title: 'Pay your way', text: 'UPI, card or cash on delivery' },
-              { icon: RotateCcw, title: 'Easy cancellation', text: 'Cancel any time before shipping' },
+              { icon: RotateCcw, title: '7-day returns', text: 'Wrong size? Send it back and we refund it' },
             ].map(({ icon: Icon, title, text }) => (
               <div key={title} className="flex items-center gap-3 px-5 py-4">
                 <Icon className="h-5 w-5 shrink-0 text-fg" />
@@ -436,7 +442,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
         <section className="qk-container pt-14" aria-labelledby="deals-heading">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <h2 id="deals-heading" className="qk-display text-2xl text-fg md:text-3xl">Today’s best deals</h2>
+              <h2 id="deals-heading" className="qk-display text-2xl text-fg md:text-3xl">The sale</h2>
               <p className="mt-1 text-sm text-muted">The biggest discounts in the store right now.</p>
             </div>
             <button
@@ -460,7 +466,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
         <section className="qk-container pt-14" aria-labelledby="trending-heading">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <h2 id="trending-heading" className="qk-display text-2xl text-fg md:text-3xl">Popular right now</h2>
+              <h2 id="trending-heading" className="qk-display text-2xl text-fg md:text-3xl">Bestsellers</h2>
               <p className="mt-1 text-sm text-muted">The products shoppers review and buy the most.</p>
             </div>
             <button
@@ -521,6 +527,29 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
                     );
                   })}
                 </ul>
+              </div>
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-[0.1em] text-fg">Size</h3>
+                {SIZE_GROUPS.map((g) => (
+                  <div key={g.label} className="mt-3">
+                    <p className="mb-1.5 text-xs text-muted">{g.label}</p>
+                    <div className="flex flex-wrap gap-1.5" role="group" aria-label={g.label}>
+                      {g.sizes.map((sz) => (
+                        <button key={sz} type="button" aria-pressed={sizeFilter === sz} onClick={() => updateParams({ size: sizeFilter === sz ? null : sz })}
+                          className={`min-w-9 rounded-sm border px-2 py-1 text-xs tabular-nums transition-colors ${sizeFilter === sz ? 'border-fg bg-fg text-bg' : 'border-line text-fg hover:border-fg'}`}>{sz}</button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-[0.1em] text-fg">Colour</h3>
+                <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="Colour">
+                  {COLOUR_FILTERS.map((c) => (
+                    <button key={c} type="button" aria-pressed={colorFilter === c} onClick={() => updateParams({ color: colorFilter === c ? null : c })}
+                      className={`rounded-sm border px-2.5 py-1 text-xs transition-colors ${colorFilter === c ? 'border-fg bg-fg text-bg' : 'border-line text-fg hover:border-fg'}`}>{c}</button>
+                  ))}
+                </div>
               </div>
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-[0.1em] text-fg">Sort by</h3>
@@ -600,6 +629,14 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
                 className="qk-input h-10 w-auto shrink-0 cursor-pointer pr-8 lg:hidden"
               >
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+              </select>
+              <select aria-label="Size" value={sizeFilter} onChange={(e) => updateParams({ size: e.target.value })} className="qk-input h-10 w-auto shrink-0 cursor-pointer pr-8 lg:hidden">
+                <option value="">Any size</option>
+                {SIZE_GROUPS.flatMap((g) => g.sizes).map((sz) => <option key={sz} value={sz}>{sz}</option>)}
+              </select>
+              <select aria-label="Colour" value={colorFilter} onChange={(e) => updateParams({ color: e.target.value })} className="qk-input h-10 w-auto shrink-0 cursor-pointer pr-8 lg:hidden">
+                <option value="">Any colour</option>
+                {COLOUR_FILTERS.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
 
               <div className="flex h-10 shrink-0 items-center gap-1 rounded-lg border border-line bg-surface px-3">

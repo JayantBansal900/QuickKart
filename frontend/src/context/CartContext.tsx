@@ -6,8 +6,8 @@ interface CartContextType {
  cart:CartResponse|null;itemsCount:number;totalAmount:number;isLoading:boolean;error:string|null;needsRefresh:boolean;
  isCartDrawerOpen:boolean;openCartDrawer:()=>void;closeCartDrawer:()=>void;
  fetchCart:()=>Promise<CartResponse|null>;
- addToCart:(id:number,quantity?:number)=>Promise<void>;updateQuantity:(id:number,quantity:number)=>Promise<void>;
- removeItem:(id:number)=>Promise<void>;clearCart:()=>Promise<void>;
+ addToCart:(id:number,quantity?:number,variantId?:number)=>Promise<void>;updateQuantity:(id:number,quantity:number,variantId?:number|null)=>Promise<void>;
+ removeItem:(id:number,variantId?:number|null)=>Promise<void>;clearCart:()=>Promise<void>;
 }
 const CartContext=createContext<CartContextType|undefined>(undefined);
 export const CartProvider:React.FC<{children:React.ReactNode}>=({children})=>{
@@ -47,8 +47,8 @@ export const CartProvider:React.FC<{children:React.ReactNode}>=({children})=>{
  return <CartContext.Provider value={{cart,isLoading,error,needsRefresh,isCartDrawerOpen,
  itemsCount:cart?.items.reduce((sum,item)=>sum+item.quantity,0)??0,totalAmount:cart?.totalAmount??0,
  openCartDrawer:useCallback(()=>setOpen(true),[]),closeCartDrawer:useCallback(()=>setOpen(false),[]),fetchCart,
- addToCart:async(id,q=1)=>{positive(q);await mutate(()=>api.addToCart({productId:id,quantity:q}),true);},
- updateQuantity:async(id,q)=>{if(q===0)return mutate(()=>api.removeFromCart(id));positive(q);await mutate(()=>api.updateCartItemQuantity(id,{quantity:q}));},
- removeItem:id=>mutate(()=>api.removeFromCart(id)),clearCart:()=>mutate(()=>api.clearCart())}}>{children}</CartContext.Provider>;
+ addToCart:async(id,q=1,variantId)=>{positive(q);await mutate(()=>api.addToCart({productId:id,quantity:q,...(variantId?{variantId}:{})}),true);},
+ updateQuantity:async(id,q,variantId)=>{if(q===0)return mutate(()=>api.removeFromCart(id,variantId));positive(q);await mutate(()=>api.updateCartItemQuantity(id,{quantity:q},variantId));},
+ removeItem:(id,variantId)=>mutate(()=>api.removeFromCart(id,variantId)),clearCart:()=>mutate(()=>api.clearCart())}}>{children}</CartContext.Provider>;
 };
 export function useCart(){const context=useContext(CartContext);if(!context)throw new Error('CartProvider is required');return context;}

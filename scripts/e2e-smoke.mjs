@@ -138,14 +138,14 @@ const analyticsBefore = await call("GET", "/admin/analytics", { token: A });
 check("analytics", analyticsBefore.status === 200 && "collectedRevenue" in (analyticsBefore.json ?? {}), JSON.stringify(analyticsBefore.json));
 
 // Cache eviction on admin write: pick an in-stock product, +1 then -1
-const target = (await call("GET", "/products?sort=featured&size=48")).json.content.find((p) => p.stockQuantity > 2);
-await call("GET", "/products?sort=featured&size=48"); // ensure cached
+const target = (await call("GET", "/products?sort=newest&size=48")).json.content.find((p) => p.stockQuantity > 2 && !(p.variants?.length)); // one-size product: its stock is adjusted directly
+await call("GET", "/products?sort=newest&size=48"); // ensure cached
 const beforeKeys = redis("--scan", "--pattern", "quickkart:productSearch*").split("\n").filter(Boolean).length;
 const plus = await call("PATCH", `/admin/products/${target.id}/stock`, { token: A, body: { adjustment: 1 } });
 const afterKeys = redis("--scan", "--pattern", "quickkart:productSearch*").split("\n").filter(Boolean).length;
 check("admin stock +1", plus.status === 200 && plus.json?.stockQuantity === target.stockQuantity + 1);
 check("admin write evicts cached searches", beforeKeys > 0 && afterKeys === 0, `keys before=${beforeKeys} after=${afterKeys}`);
-const fresh = (await call("GET", "/products?sort=featured&size=48")).json.content.find((p) => p.id === target.id);
+const fresh = (await call("GET", "/products?sort=newest&size=48")).json.content.find((p) => p.id === target.id);
 check("listing shows new stock right after eviction", fresh?.stockQuantity === target.stockQuantity + 1);
 const minus = await call("PATCH", `/admin/products/${target.id}/stock`, { token: A, body: { adjustment: -1 } });
 check("admin stock -1 (restore)", minus.json?.stockQuantity === target.stockQuantity);
@@ -208,7 +208,7 @@ check("customer → admin API forbidden", forbidden.status === 403, `status=${fo
 const forbidden2 = await call("PATCH", `/admin/products/${target.id}/stock`, { token: C, body: { adjustment: 100 } });
 check("customer cannot change stock", forbidden2.status === 403, `status=${forbidden2.status}`);
 const add = await call("POST", "/cart/items", { token: C, body: { productId: target.id, quantity: 1 } });
-check("add to cart", add.status === 200, `status=${add.status} ${add.text.slice(0, 80)}`);
+check("add to cart", add.status === 200, `status=${add.status} ${add.text.slice(0, 260)}`);
 const cart = await call("GET", "/cart", { token: C });
 // Coupons: an admin creates one, the customer previews it, and the order carries the discount.
 const couponCode = `E2E${String(stamp).slice(-6)}`;
@@ -276,7 +276,7 @@ for (let i = 0; i < 30 && !deliveredEvent; i++) {
 check("status-change event consumed (delivered email)", deliveredEvent);
 
 // Reviews: only after delivery; posting updates the product rating; the test review is removed again.
-const otherProduct = page0.json.content.find((p) => p.id !== target.id);
+const otherProduct = (await call("GET", "/products?sort=newest&size=48")).json.content.find((p) => p.id !== target.id && !(p.variants?.length));
 const notBought = await call("POST", `/products/${otherProduct.id}/reviews`, { token: C, body: { rating: 5 } });
 check("cannot review a product you did not receive → 403", notBought.status === 403, `status=${notBought.status}`);
 const review = await call("POST", `/products/${target.id}/reviews`, { token: C, body: { rating: 5, comment: "E2E review" } });
@@ -344,6 +344,36 @@ check("deleting an ordered product → 409", delOrdered.status === 409, `status=
 
 // Restore the stock consumed by the test order.
 await call("PATCH", `/admin/products/${target.id}/stock`, { token: A, body: { adjustment: 1 } });
+
+// ---------- 6b. Sizes (variants): cart, checkout, stock per size, cancel ----------
+const sized = (await call("GET", "/products?category=T-SHIRTS&variantSize=M&size=24")).json?.content ?? [];
+check("size filter returns T-shirts that have M in stock", sized.length > 0 && sized.every((p) => p.variants.some((v) => v.size === "M" && v.stockQuantity > 0)), `${sized.length} found`);
+const tee = sized[0];
+const sizeM = tee.variants.find((v) => v.size === "M" && v.stockQuantity > 0);
+const noSize = await call("POST", "/cart/items", { token: C, body: { productId: tee.id, quantity: 1 } });
+check("sized product without a size → 400", noSize.status === 400, `status=${noSize.status} ${noSize.text.slice(0, 80)}`);
+const tooMany = await call("POST", "/cart/items", { token: C, body: { productId: tee.id, quantity: sizeM.stockQuantity + 1, variantId: sizeM.id } });
+check("more than the size's stock → 409/400", tooMany.status === 409 || tooMany.status === 400, `status=${tooMany.status}`);
+const sizedAdd = await call("POST", "/cart/items", { token: C, body: { productId: tee.id, quantity: 1, variantId: sizeM.id } });
+check("add size M to the cart", sizedAdd.status === 200 && sizedAdd.json?.items?.[0]?.size === "M" && sizedAdd.json?.items?.[0]?.variantId === sizeM.id, `status=${sizedAdd.status}`);
+const sizedCart = await call("GET", "/cart", { token: C });
+const sizedOrder = await call("POST", "/orders/checkout", {
+  token: C,
+  body: { paymentMethod: "COD", idempotencyKey: `e2e-size-${stamp}`, cartFingerprint: sizedCart.json?.fingerprint,
+    recipientName: "E2E Customer", deliveryAddress: "221B Test Street, Test City", deliveryPhone: "9876543210" },
+});
+check("order remembers the size", sizedOrder.status === 201 && sizedOrder.json?.items?.[0]?.size === sizeM.size, `status=${sizedOrder.status}`);
+const teeAfter = (await call("GET", `/products/${tee.id}`)).json;
+const mAfter = teeAfter?.variants?.find((v) => v.id === sizeM.id);
+check("stock drops on that size and on the product total", mAfter?.stockQuantity === sizeM.stockQuantity - 1 && teeAfter?.stockQuantity === tee.stockQuantity - 1, `M ${sizeM.stockQuantity}→${mAfter?.stockQuantity}, total ${tee.stockQuantity}→${teeAfter?.stockQuantity}`);
+check("other sizes are untouched", tee.variants.filter((v) => v.id !== sizeM.id).every((v) => teeAfter.variants.find((x) => x.id === v.id)?.stockQuantity === v.stockQuantity));
+const sizedCancel = await call("POST", `/orders/${sizedOrder.json?.id}/cancel`, { token: C });
+const teeBack = (await call("GET", `/products/${tee.id}`)).json;
+check("cancelling puts the size back", sizedCancel.json?.status === "CANCELLED" && teeBack?.variants?.find((v) => v.id === sizeM.id)?.stockQuantity === sizeM.stockQuantity && teeBack?.stockQuantity === tee.stockQuantity, `status=${sizedCancel.json?.status}`);
+const adjustSized = await call("PATCH", `/admin/products/${tee.id}/stock`, { token: A, body: { adjustment: 5 } });
+check("admin cannot adjust a sized product's total directly", adjustSized.status === 400, `status=${adjustSized.status}`);
+const colourFilter = await call("GET", "/products?variantSize=32&color=black&size=24");
+check("size and colour filters combine", colourFilter.status === 200 && colourFilter.json?.content?.every((p) => p.variants.some((v) => v.size === "32" && v.color.toLowerCase().includes("black") && v.stockQuantity > 0)), `${colourFilter.json?.totalElements} found`);
 
 // ---------- 7. Suspension takes effect immediately ----------
 const sus = await call("PATCH", `/admin/users/${v2.json?.id}/status`, { token: A, body: { status: "SUSPENDED" } });

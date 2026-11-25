@@ -11,6 +11,8 @@ public class OrderItemResponse {
     private Integer quantity;
     private BigDecimal price;
     private BigDecimal subtotal;
+    private String size;
+    private String color;
 
     public OrderItemResponse() {
     }
@@ -25,14 +27,20 @@ public class OrderItemResponse {
 
     public static OrderItemResponse fromEntity(OrderItem orderItem) {
         BigDecimal subtotal = orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity()));
-        return new OrderItemResponse(
+        OrderItemResponse response = new OrderItemResponse(
                 orderItem.getProduct().getId(),
                 orderItem.getProductName() != null ? orderItem.getProductName() : "Product #" + orderItem.getProduct().getId() + " (historical title unavailable)",
                 orderItem.getQuantity(),
                 orderItem.getPrice(),
                 subtotal
         );
+        response.size = orderItem.getSize();
+        response.color = orderItem.getColor();
+        return response;
     }
+
+    public String getSize() { return size; }
+    public String getColor() { return color; }
 
     public Long getProductId() {
         return productId;

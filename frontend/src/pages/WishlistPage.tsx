@@ -16,7 +16,7 @@ export function WishlistPage() {
 
   useEffect(() => {
     const previous = document.title;
-    document.title = 'Wishlist · QuickKart';
+    document.title = 'Wishlist · VAYU';
     api.getWishlist().then(setProducts).catch((e) => setError(e instanceof Error ? e.message : 'Could not load your wishlist.'));
     return () => { document.title = previous; };
   }, []);

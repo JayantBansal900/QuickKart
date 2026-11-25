@@ -11,7 +11,7 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
 const product = (id: number, name: string) => ({
-  id, name, description: "d", price: 100 + id, stockQuantity: 5, category: "ELECTRONICS",
+  id, name, description: "d", price: 100 + id, stockQuantity: 5, category: "JACKETS",
 });
 
 const fetchMock = vi.fn<typeof fetch>();
@@ -45,7 +45,7 @@ beforeEach(() => {
   vi.stubGlobal("fetch", fetchMock);
   fetchMock.mockImplementation(async (input) => {
     const url = String(input);
-    if (url.includes("/products/categories")) return json([{ category: "ELECTRONICS", count: 30 }]);
+    if (url.includes("/products/categories")) return json([{ category: "JACKETS", count: 30 }]);
     if (/\/products(\?|$)/.test(url)) {
       const page = Number(new URL(url, "http://x").searchParams.get("page") ?? 0);
       return json({
@@ -67,11 +67,11 @@ describe("server-side catalog search", () => {
   });
 
   it("restores filters from the URL and sends them to the API", async () => {
-    mount("/?q=phone&category=electronics&sort=price-asc&minPrice=100&page=1");
+    mount("/?q=phone&category=jackets&sort=price-asc&minPrice=100&page=1");
     await screen.findByText("Page 2 of 2");
     const url = new URL(gridRequests()[0], "http://x");
     expect(url.searchParams.get("q")).toBe("phone");
-    expect(url.searchParams.get("category")).toBe("ELECTRONICS");
+    expect(url.searchParams.get("category")).toBe("JACKETS");
     expect(url.searchParams.get("sort")).toBe("price-asc");
     expect(url.searchParams.get("minPrice")).toBe("100");
     expect(url.searchParams.get("page")).toBe("1");

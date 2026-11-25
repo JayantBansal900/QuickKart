@@ -218,4 +218,14 @@ public class Product {
     public void setAvailability(String availability) {
         this.availability = availability;
     }
+
+    /** Sizes/colours of this product (empty for products sold as one item, e.g. a wallet). */
+    @jakarta.persistence.OneToMany(mappedBy = "product", fetch = jakarta.persistence.FetchType.LAZY)
+    @org.hibernate.annotations.BatchSize(size = 50)
+    @jakarta.persistence.OrderBy("id ASC")
+    private java.util.List<ProductVariant> variants = new java.util.ArrayList<>();
+
+    public java.util.List<ProductVariant> getVariants() {
+        return variants;
+    }
 }

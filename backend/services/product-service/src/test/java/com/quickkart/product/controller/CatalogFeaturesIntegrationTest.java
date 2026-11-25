@@ -51,7 +51,7 @@ class CatalogFeaturesIntegrationTest {
         String email = "buyer-" + UUID.randomUUID() + "@example.invalid";
         customer = token(email, "USER", "Priya Sharma");
         customerId = jdbc.queryForObject("select id from users where email=?", Long.class, email);
-        Product p = new Product("Review Kettle " + UUID.randomUUID(), "d", new BigDecimal("999.00"), 3, "Home & Living");
+        Product p = new Product("Review Kettle " + UUID.randomUUID(), "d", new BigDecimal("999.00"), 3, "Hoodies & Sweatshirts");
         p.setRating(4.0);
         p.setReviewCount(4);
         kettle = products.saveAndFlush(p);
@@ -73,8 +73,8 @@ class CatalogFeaturesIntegrationTest {
     void categoriesAreListedAndManagedByAdmins() throws Exception {
         mvc.perform(get("/api/categories"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[*].name", hasItem("Electronics")))
-                .andExpect(jsonPath("$[?(@.name=='Home & Living')].key", hasItem("HOME & LIVING")));
+                .andExpect(jsonPath("$[*].name", hasItem("Jackets")))
+                .andExpect(jsonPath("$[?(@.name=='Hoodies & Sweatshirts')].key", hasItem("HOODIES & SWEATSHIRTS")));
 
         String body = "{\"name\":\"Toys & Games\",\"description\":\"Fun\",\"imageUrl\":\"/categories/all.webp\"}";
         mvc.perform(post("/api/admin/categories").header("Authorization", customer).contentType(MediaType.APPLICATION_JSON).content(body))

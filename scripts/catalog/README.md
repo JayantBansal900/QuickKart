@@ -2,7 +2,8 @@
 
 | File | What it is |
 |---|---|
-| `backend/services/product-service/src/main/resources/catalog.json` | The 144 products (18 per category): name, brand, price, discount, rating, stock, SKU and photo path. Seeded into an empty database by product-service in the `dev` profile. |
+| `backend/services/product-service/src/main/resources/catalog.json` | The 60 VAYU products with their sizes and colours. **Generated** by `scripts/catalog/build-vayu-catalog.mjs` (edit that file, then run it). Seeded by product-service in the `dev` profile when `DEV_PRODUCTS_ENABLED=true`; existing SKUs are never overwritten. |
+| `scripts/catalog/search-photos.mjs` | Helper that builds contact sheets of Pixabay candidates so photos can be chosen by eye. |
 | `frontend/public/products/photos/*.webp` | One 640×640 photo per product type (134 files). |
 | `frontend/public/categories/*.webp` | Category tiles and the sign-in panel photo. |
 | `scripts/catalog/photo-manifest.json` | Which Pixabay photo (id, photographer, page) each of those files came from. |

@@ -50,7 +50,7 @@ export function AdminLayout() {
           <Link to="/admin" className="flex items-center gap-2.5">
             <LogoMark className="h-9 w-9" />
             <span className="leading-tight">
-              <span className="block text-[15px] tracking-tight"><span className="font-extrabold">Quick</span><span className="font-medium">Kart</span></span>
+              <span className="block font-display text-[15px] font-semibold tracking-[0.24em]">VAYU</span>
               <span className="qk-eyebrow !text-[10px]">Admin console</span>
             </span>
           </Link>

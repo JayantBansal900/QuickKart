@@ -44,16 +44,18 @@ public class CartController {
     public ResponseEntity<CartResponse> updateItemQuantity(
             Authentication authentication,
             @PathVariable Long productId,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Long variantId,
             @Valid @RequestBody UpdateCartItemRequest request) {
-        CartResponse response = cartService.updateCartItemQuantity(authentication.getName(), productId, request);
+        CartResponse response = cartService.updateCartItemQuantity(authentication.getName(), productId, variantId, request);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/items/{productId}")
     public ResponseEntity<CartResponse> removeItem(
             Authentication authentication,
-            @PathVariable Long productId) {
-        CartResponse response = cartService.removeFromCart(authentication.getName(), productId);
+            @PathVariable Long productId,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Long variantId) {
+        CartResponse response = cartService.removeFromCart(authentication.getName(), productId, variantId);
         return ResponseEntity.ok(response);
     }
 

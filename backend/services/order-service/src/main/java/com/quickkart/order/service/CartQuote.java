@@ -11,10 +11,11 @@ public final class CartQuote {
     }
     public static String fingerprint(List<CartItem> items) {
         StringBuilder value=new StringBuilder("v1");
-        items.stream().sorted(Comparator.comparing(i->i.getProduct().getId())).forEach(i -> {
+        items.stream().sorted(Comparator.comparing((CartItem i)->i.getProduct().getId()).thenComparing(i->i.getVariant()==null ? 0L : i.getVariant().getId())).forEach(i -> {
             var p=i.getProduct();
             value.append('|').append(p.getId()).append(':').append(i.getQuantity()).append(':')
-                .append(p.getPrice().stripTrailingZeros().toPlainString()).append(':').append(hash(p.getName()));
+                .append(p.getPrice().stripTrailingZeros().toPlainString()).append(':').append(hash(p.getName()))
+                .append(':').append(i.getVariant()==null ? "-" : i.getVariant().getId());
         });
         return hash(value.toString());
     }

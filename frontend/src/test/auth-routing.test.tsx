@@ -301,14 +301,14 @@ describe("actual application navigation", () => {
       </BrowserRouter>,
     );
     await screen.findByRole("heading", { name: "Test Customer" });
-    fireEvent.click(screen.getByLabelText("QuickKart Home"));
+    fireEvent.click(screen.getByLabelText("VAYU Home"));
     await waitFor(() => expect(window.location.pathname).toBe("/"));
     fireEvent.click(screen.getByLabelText("My Account"));
     await screen.findByRole("heading", { name: "Test Customer" });
     expect(window.location.pathname).toBe("/account/profile");
   });
   it("guests can open the categories and information pages without signing in", async () => {
-    for (const [path, heading] of [["/categories", "All categories"], ["/info/about", "About QuickKart"]]) {
+    for (const [path, heading] of [["/categories", "All categories"], ["/info/about", "About VAYU"]]) {
       const view = render(
         <MemoryRouter initialEntries={[path]}>
           <ApplicationProviders />

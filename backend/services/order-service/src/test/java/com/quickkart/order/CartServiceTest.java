@@ -42,6 +42,9 @@ class CartServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.quickkart.order.repository.ProductVariantRepository variantRepository;
+
     @InjectMocks
     private CartService cartService;
 
@@ -84,7 +87,8 @@ class CartServiceTest {
         when(userRepository.findByEmailForUpdate("test@example.com")).thenReturn(Optional.of(testUser));
         when(cartRepository.findByUserId(10L)).thenReturn(Optional.of(testCart));
         when(productRepository.findById(100L)).thenReturn(Optional.of(testProduct));
-        when(cartItemRepository.findByCartIdAndProductId(1L, 100L)).thenReturn(Optional.empty());
+        when(variantRepository.countByProductId(100L)).thenReturn(0L);
+        when(cartItemRepository.findByCartIdAndProductIdAndVariantIsNull(1L, 100L)).thenReturn(Optional.empty());
         when(cartItemRepository.findByCartId(1L)).thenReturn(Collections.emptyList());
 
         AddCartItemRequest request = new AddCartItemRequest();

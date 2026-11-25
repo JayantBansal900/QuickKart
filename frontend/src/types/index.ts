@@ -88,6 +88,9 @@ export interface ProductSearchQuery {
   minPrice?: number;
   maxPrice?: number;
   sort?: ProductSort;
+  /** Keep products that have this size / colour in stock. */
+  variantSize?: string;
+  color?: string;
   page?: number;
   size?: number;
 }
@@ -204,6 +207,21 @@ export interface Product {
   availability?: string;
   createdAt?: string;
   updatedAt?: string;
+  /** Sizes and colours, each with its own stock. Empty for one-size products (a wallet, a cap). */
+  variants?: ProductVariant[];
+}
+
+export interface ProductVariant {
+  id: number;
+  size: string;
+  color?: string | null;
+  stockQuantity: number;
+}
+
+export interface VariantInput {
+  size: string;
+  color?: string;
+  stockQuantity: number;
 }
 
 export interface ProductRequest {
@@ -220,6 +238,8 @@ export interface ProductRequest {
   imageUrl?: string;
   thumbnailUrl?: string;
   availability?: string;
+  /** When set, these sizes replace the product stock (the total becomes their sum). */
+  variants?: VariantInput[];
 }
 
 export interface CartItemResponse {
@@ -231,6 +251,9 @@ export interface CartItemResponse {
   quantity: number;
   subtotal: number;
   imageUrl?: string;
+  variantId?: number | null;
+  size?: string | null;
+  color?: string | null;
 }
 
 export interface CartResponse {
@@ -243,6 +266,7 @@ export interface CartResponse {
 export interface AddCartItemRequest {
   productId: number;
   quantity: number;
+  variantId?: number;
 }
 
 export interface UpdateCartItemRequest {
@@ -256,6 +280,8 @@ export interface OrderItemResponse {
   quantity: number;
   price: number;
   subtotal: number;
+  size?: string | null;
+  color?: string | null;
 }
 
 export interface OrderResponse {

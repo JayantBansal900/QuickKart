@@ -64,6 +64,7 @@ public class ProductResponse implements Serializable {
         res.setSku(product.getSku());
         res.setThumbnailUrl(product.getThumbnailUrl());
         res.setAvailability(product.getAvailability());
+        res.setVariants(product.getVariants().stream().map(VariantResponse::fromEntity).collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new)));
         return res;
     }
 
@@ -177,5 +178,16 @@ public class ProductResponse implements Serializable {
 
     public void setAvailability(String availability) {
         this.availability = availability;
+    }
+
+    /** Sizes/colours with their own stock; empty when the product has none. */
+    private java.util.List<VariantResponse> variants = new java.util.ArrayList<>();
+
+    public java.util.List<VariantResponse> getVariants() {
+        return variants;
+    }
+
+    public void setVariants(java.util.List<VariantResponse> variants) {
+        this.variants = variants == null ? new java.util.ArrayList<>() : variants;
     }
 }

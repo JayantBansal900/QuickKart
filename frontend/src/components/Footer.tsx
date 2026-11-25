@@ -4,10 +4,10 @@ import { INFO_LINKS } from '../pages/infoLinks';
 import { Logo } from './Header';
 
 const SHOP_LINKS = [
-  { to: '/', label: 'All products' },
-  { to: '/categories', label: 'Categories' },
-  { to: '/?sort=discount-desc', label: 'Deals' },
-  { to: '/?sort=popular', label: 'Popular' },
+  { to: '/', label: 'New arrivals' },
+  { to: '/categories', label: 'Shop by category' },
+  { to: '/?sort=discount-desc', label: 'Sale' },
+  { to: '/?sort=popular', label: 'Bestsellers' },
 ];
 
 const ACCOUNT_LINKS = [
@@ -39,7 +39,7 @@ export const Footer: React.FC = () => (
       <div className="max-w-xs">
         <Logo />
         <p className="mt-4 text-sm leading-relaxed text-muted">
-          Everyday essentials and things you’ll love, from brands you trust. Pay by UPI, card or cash on delivery.
+          Menswear made to be worn every day: honest fabrics, clean cuts and a fit you can count on. Pay by UPI, card or cash on delivery.
         </p>
       </div>
       <Column title="Shop" links={SHOP_LINKS} />
@@ -50,7 +50,7 @@ export const Footer: React.FC = () => (
     </div>
     <div className="border-t border-line">
       <div className="qk-container flex flex-col gap-2 py-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-        <span>© {new Date().getFullYear()} QuickKart. All rights reserved.</span>
+        <span>© {new Date().getFullYear()} VAYU. All rights reserved.</span>
         <span>Prices include GST · Made in India</span>
       </div>
     </div>

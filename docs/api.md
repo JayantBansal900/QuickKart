@@ -100,9 +100,11 @@ Responses are cached in Redis for up to 60 s.
 | Method | Path | Auth | Body |
 |---|---|---|---|
 | GET | `/api/cart` | user | – returns items, totals and a `fingerprint` |
-| POST | `/api/cart/items` | user | `productId, quantity` |
-| PUT | `/api/cart/items/{productId}` | user | `quantity` |
-| DELETE | `/api/cart/items/{productId}` | user | – |
+| POST | `/api/cart/items` | user | `productId, quantity, variantId` (`variantId` is required when the product has sizes) |
+| PUT | `/api/cart/items/{productId}?variantId=` | user | `quantity` |
+| DELETE | `/api/cart/items/{productId}?variantId=` | user | – |
+
+Products carry a `variants` list (`id, size, color, stockQuantity`). `GET /api/products` also filters by `variantSize` and `color` (products with that size/colour in stock). Admins set sizes through `variants` on `POST`/`PUT /api/admin/products`; the product stock becomes their total, and `PATCH …/stock` is refused for products with sizes.
 | DELETE | `/api/cart` | user | – clear the cart |
 | GET | `/api/cart/offers` | user | active coupons that are currently valid |
 | POST | `/api/cart/coupon` | user | `{ code }` → `{ code, description, subtotal, discount, total }` for the current cart; `400` with the reason (unknown, expired, minimum not reached, already used, fully used). Nothing is reserved. |

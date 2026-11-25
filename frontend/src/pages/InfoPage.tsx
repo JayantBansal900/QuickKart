@@ -5,18 +5,18 @@ import { INFO_LINKS } from './infoLinks';
 type Section = { heading: string; body: React.ReactNode };
 type Page = { title: string; intro: string; sections: Section[] };
 
-const SUPPORT_EMAIL = 'support@quickkart.example';
+const SUPPORT_EMAIL = 'support@vayu.example';
 
 /**
- * Store information pages linked from the footer. QuickKart is a portfolio project, so these
+ * Store information pages linked from the footer. VAYU is a portfolio project, so these
  * describe how this demo store behaves rather than a real company's legal terms.
  */
 const PAGES: Record<string, Page> = {
   about: {
-    title: 'About QuickKart',
-    intro: 'QuickKart is a full-stack e-commerce store built as an engineering portfolio project.',
+    title: 'About VAYU',
+    intro: 'VAYU is a men’s clothing brand with its own online store. The store is a full-stack engineering portfolio project.',
     sections: [
-      { heading: 'What you can do here', body: 'Browse 144 hand-picked products in 8 categories, search and filter on the server, pay by cash on delivery or through a simulated UPI / card gateway, track every order step by step and review what you bought.' },
+      { heading: 'What you can do here', body: 'Browse 60 pieces in 8 categories (tees, shirts, jeans, trousers, jackets, hoodies, footwear and accessories), pick your size and colour, filter on the server, pay by cash on delivery or through a simulated UPI / card gateway, track every order step by step and review what you bought.' },
       { heading: 'How it is built', body: 'A React storefront talks to Spring Boot services behind an API gateway, with PostgreSQL, a Redis cache and Kafka events for emails. Orders are protected against overselling and double submission.' },
       { heading: 'Is this a real shop?', body: 'No. Products and prices are realistic examples, no real money is charged and nothing is shipped.' },
     ],
@@ -40,11 +40,13 @@ const PAGES: Record<string, Page> = {
     ],
   },
   returns: {
-    title: 'Cancellations & refunds',
-    intro: 'You can cancel an order yourself until it ships.',
+    title: 'Returns, size & refunds',
+    intro: 'Cancel an order until it ships, or return it within 7 days of delivery.',
     sections: [
       { heading: 'Cancelling', body: 'Open My Orders and choose Cancel order. This is possible while the order is placed, confirmed or being packed. The items go straight back on sale.' },
       { heading: 'Refunds', body: 'If you paid online, cancelling refunds the full amount immediately (simulated). Cash on delivery orders are never charged before delivery.' },
+      { heading: 'Returns and sizes', body: 'Not the right fit? Within 7 days of delivery, open My Orders and choose Return. Once the return is approved, the size goes back on the shelf and the amount is refunded.' },
+      { heading: 'Size guide', body: 'Tees, shirts, jackets and hoodies run S to XXL. Jeans and trousers are listed by waist size in inches (28 to 36). Footwear uses UK sizes (6 to 11). If you are between sizes, go one up for a relaxed fit.' },
       { heading: 'Unpaid orders', body: 'An online order that is not paid within 30 minutes is cancelled automatically and its items are released.' },
     ],
   },
@@ -62,7 +64,7 @@ const PAGES: Record<string, Page> = {
     title: 'Terms of use',
     intro: 'The simple rules for using this demo store.',
     sections: [
-      { heading: 'Demo only', body: 'QuickKart is a portfolio project. Orders are not fulfilled and no real payments are taken.' },
+      { heading: 'Demo only', body: 'VAYU is a portfolio project. Orders are not fulfilled and no real payments are taken.' },
       { heading: 'Accounts', body: 'Use a real email address you own: it must be verified with a code. Accounts that abuse the store can be suspended by an administrator.' },
       { heading: 'Reviews', body: 'Only customers who received a product can review it. Keep reviews honest and about the product; administrators may remove reviews that are not.' },
     ],
@@ -75,7 +77,7 @@ export function InfoPage() {
   const page = PAGES[slug];
   useEffect(() => {
     const previousTitle = document.title;
-    if (page) document.title = `${page.title} · QuickKart`;
+    if (page) document.title = `${page.title} · VAYU`;
     document.getElementById('main-content')?.scrollIntoView?.();
     return () => { document.title = previousTitle; };
   }, [page]);
@@ -83,7 +85,7 @@ export function InfoPage() {
 
   return (
     <div className="qk-container max-w-3xl py-12">
-      <p className="qk-eyebrow">QuickKart</p>
+      <p className="qk-eyebrow">VAYU</p>
       <h1 className="qk-display mt-1 text-5xl text-fg">{page.title}</h1>
       <p className="mt-3 text-lg text-muted">{page.intro}</p>
       <div className="mt-10 space-y-8">

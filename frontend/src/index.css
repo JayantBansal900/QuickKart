@@ -8,34 +8,36 @@
    components written once work in both themes.
    --------------------------------------------------------------------------- */
 :root {
-  /* Clean minimal palette: white paper, near-black ink, neutral greys, red only for sale prices. */
-  --qk-bg: #ffffff;            /* page background */
+  /* VAYU palette: warm paper, deep charcoal ink, a touch of brass. Red is only for sale prices. */
+  --qk-bg: #faf9f7;            /* page background */
   --qk-surface: #ffffff;       /* cards, header, dialogs */
-  --qk-subtle: #f5f5f5;        /* image wells, hover fills */
-  --qk-fg: #0a0a0a;            /* primary text */
-  --qk-muted: #6b6b6b;         /* secondary text */
-  --qk-border: #e8e8e8;
-  --qk-accent: #0a0a0a;        /* primary actions are black */
-  --qk-accent-fg: #ffffff;
-  --qk-accent-soft: #f0f0f0;
-  --qk-sale: #d92d20;
-  --qk-sale-soft: #fef1f0;
-  --qk-success: #138a43;
-  --qk-success-soft: #ebf7ef;
-  --qk-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 10px 30px -12px rgb(0 0 0 / 0.16);
+  --qk-subtle: #f1eee9;        /* image wells, hover fills */
+  --qk-fg: #151515;            /* primary text */
+  --qk-muted: #6f6a62;         /* secondary text */
+  --qk-border: #e6e1d9;
+  --qk-accent: #151515;        /* primary actions are charcoal */
+  --qk-accent-fg: #faf9f7;
+  --qk-accent-soft: #ece8e1;
+  --qk-brass: #b08d57;         /* thin highlights: eyebrows, rules, stars */
+  --qk-sale: #b42318;
+  --qk-sale-soft: #fbeceb;
+  --qk-success: #16794a;
+  --qk-success-soft: #e8f4ed;
+  --qk-shadow: 0 1px 2px rgb(21 21 21 / 0.04), 0 12px 32px -14px rgb(21 21 21 / 0.18);
   color-scheme: light;
 }
 
 .dark {
-  --qk-bg: #0a0a0a;
-  --qk-surface: #111111;
-  --qk-subtle: #1b1b1b;
-  --qk-fg: #fafafa;
-  --qk-muted: #a1a1a1;
-  --qk-border: #262626;
-  --qk-accent: #fafafa;
-  --qk-accent-fg: #0a0a0a;
-  --qk-accent-soft: #222222;
+  --qk-bg: #0f0f0e;
+  --qk-surface: #171716;
+  --qk-subtle: #1f1f1d;
+  --qk-fg: #f5f3ef;
+  --qk-muted: #a8a39a;
+  --qk-border: #2c2b28;
+  --qk-accent: #f5f3ef;
+  --qk-accent-fg: #0f0f0e;
+  --qk-accent-soft: #262523;
+  --qk-brass: #c9a96e;
   --qk-sale: #f97066;
   --qk-sale-soft: #2a1412;
   --qk-success: #47cd89;
@@ -46,7 +48,8 @@
 
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Playfair Display", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --color-brass: var(--qk-brass);
 
   /* Semantic colours used by the new storefront */
   --color-bg: var(--qk-bg);
@@ -124,8 +127,8 @@
 
   .qk-btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-    height: 2.75rem; padding-inline: 1.25rem; border-radius: 0.5rem;
-    font-size: 0.875rem; font-weight: 600; white-space: nowrap; cursor: pointer;
+    height: 2.75rem; padding-inline: 1.5rem; border-radius: 0.25rem;
+    font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; cursor: pointer;
     transition: background-color 150ms, color 150ms, border-color 150ms, transform 150ms, opacity 150ms;
   }
   .qk-btn:active:not(:disabled) { transform: scale(0.98); }
@@ -147,9 +150,9 @@
   .qk-input:focus { outline: none; border-color: var(--qk-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--qk-accent) 12%, transparent); }
   .qk-input:disabled { opacity: 0.6; }
 
-  /* Bold, tightly tracked sans for hero and section headings */
-  .qk-display { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.035em; line-height: 1.05; }
-  .qk-eyebrow { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--qk-muted); }
+  /* Elegant serif for hero and section headings */
+  .qk-display { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.015em; line-height: 1.08; }
+  .qk-eyebrow { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--qk-brass); }
 
   .qk-card { background: var(--qk-surface); border: 1px solid var(--qk-border); border-radius: 0.75rem; }
   .qk-label { display: block; font-size: 0.8125rem; font-weight: 500; color: var(--qk-fg); }

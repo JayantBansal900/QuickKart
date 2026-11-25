@@ -28,6 +28,7 @@ const REASONS: Record<string, string> = {
   CORRECTION: "Correction",
   ADMIN_EDIT: "Edited in product form",
   INITIAL_STOCK: "Product created",
+  ORDER_RETURNED: "Return approved",
 };
 
 /**
@@ -91,6 +92,29 @@ export function AdminInventoryPage() {
       const updated = await api.adjustStock(product.id, adjustment);
       setResult((r) => r && { ...r, content: r.content.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)) });
       setDrafts((d) => ({ ...d, [product.id]: "" }));
+      setNotice(`${product.name}: stock ${product.stockQuantity} → ${updated.stockQuantity}`);
+      api.getAdminAnalytics().then(setStats).catch(() => undefined);
+    } catch (err) {
+      setError(errorMessage(err, "Stock update failed."));
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  /** Per-size stock: saved through the product update, which sets the product total to the sum of its sizes. */
+  const saveSizes = async (product: Product, stocks: Record<number, number>) => {
+    setSavingId(product.id);
+    setError(null);
+    setNotice(null);
+    try {
+      const variants = (product.variants ?? []).map((v) => ({ size: v.size, color: v.color || undefined, stockQuantity: stocks[v.id] ?? v.stockQuantity }));
+      const updated = await api.updateProduct(product.id, {
+        name: product.name, brand: product.brand, description: product.description, price: product.price,
+        discountPercentage: product.discountPercentage ?? undefined, category: product.category, sku: product.sku,
+        imageUrl: product.imageUrl, thumbnailUrl: product.thumbnailUrl, availability: product.availability,
+        stockQuantity: variants.reduce((sum, v) => sum + v.stockQuantity, 0), variants,
+      });
+      setResult((r) => r && { ...r, content: r.content.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)) });
       setNotice(`${product.name}: stock ${product.stockQuantity} → ${updated.stockQuantity}`);
       api.getAdminAnalytics().then(setStats).catch(() => undefined);
     } catch (err) {
@@ -169,6 +193,9 @@ export function AdminInventoryPage() {
                   </td>
                   <td className={tdClass}><StatusBadge value={p.availability} /></td>
                   <td className={tdClass}>
+                    {(p.variants?.length ?? 0) > 0 ? (
+                      <SizeStockEditor product={p} busy={busy} onSave={(stocks) => void saveSizes(p, stocks)} />
+                    ) : (
                     <form
                       className="flex flex-wrap items-center gap-2"
                       onSubmit={(e) => {
@@ -200,6 +227,7 @@ export function AdminInventoryPage() {
                         </button>
                       ))}
                     </form>
+                    )}
                   </td>
                   <td className={`${tdClass} text-right`}>
                     <button
@@ -292,6 +320,44 @@ function StockHistoryPanel({ product, onClose }: { product: Product; onClose: ()
           </footer>
         )}
       </aside>
+    </div>
+  );
+}
+
+/** One number box per size (and colour). Save sends all of them; the product total follows. */
+function SizeStockEditor({ product, busy, onSave }: { product: Product; busy: boolean; onSave: (stocks: Record<number, number>) => void }) {
+  const variants = product.variants ?? [];
+  const [draft, setDraft] = useState<Record<number, string>>({});
+  const dirty = variants.some((v) => draft[v.id] !== undefined && Number(draft[v.id]) !== v.stockQuantity);
+  return (
+    <div>
+      <ul className="grid max-w-md grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3">
+        {variants.map((v) => {
+          const label = [v.size, v.color].filter(Boolean).join(" · ");
+          return (
+            <li key={v.id} className="flex items-center justify-between gap-2 text-xs">
+              <span className="truncate text-muted" title={label}>{label}</span>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                aria-label={`Stock for ${product.name} ${label}`}
+                value={draft[v.id] ?? String(v.stockQuantity)}
+                onChange={(e) => setDraft((d) => ({ ...d, [v.id]: e.target.value }))}
+                className={`w-14 rounded-md border border-line bg-surface px-1.5 py-1 text-right text-xs tabular-nums ${v.stockQuantity <= 0 ? "text-sale" : ""}`}
+              />
+            </li>
+          );
+        })}
+      </ul>
+      <button
+        type="button"
+        disabled={busy || !dirty}
+        onClick={() => onSave(Object.fromEntries(variants.map((v) => [v.id, Math.max(0, Math.floor(Number(draft[v.id] ?? v.stockQuantity) || 0))])))}
+        className="mt-2 rounded-md bg-fg px-3 py-1.5 text-xs font-semibold text-bg disabled:opacity-40"
+      >
+        Save sizes
+      </button>
     </div>
   );
 }

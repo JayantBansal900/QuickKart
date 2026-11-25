@@ -12,6 +12,12 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
     Optional<CartItem> findByCartIdAndProductId(Long cartId, Long productId);
 
+    /** The line for a product that has no sizes/colours. */
+    Optional<CartItem> findByCartIdAndProductIdAndVariantIsNull(Long cartId, Long productId);
+
+    /** The line for one size/colour of a product. */
+    Optional<CartItem> findByCartIdAndProductIdAndVariantId(Long cartId, Long productId, Long variantId);
+
     List<CartItem> findByCartId(Long cartId);
 
     void deleteByCartIdAndProductId(Long cartId, Long productId);

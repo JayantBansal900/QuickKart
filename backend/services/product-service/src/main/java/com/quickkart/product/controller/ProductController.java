@@ -44,9 +44,11 @@ public class ProductController {
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) String sort,
+            @RequestParam(required = false, name = "variantSize") String variantSize,
+            @RequestParam(required = false, name = "color") String color,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        ProductSearchCriteria criteria = ProductSearchCriteria.of(q, category, minPrice, maxPrice, sort, page, size);
+        ProductSearchCriteria criteria = ProductSearchCriteria.of(q, category, minPrice, maxPrice, sort, variantSize, color, page, size);
         return ResponseEntity.ok(productService.search(criteria));
     }
 

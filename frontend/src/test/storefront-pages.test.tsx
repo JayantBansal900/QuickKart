@@ -31,7 +31,7 @@ function at(path: string) {
 
 it('renders a footer information page and links to the others', () => {
   at('/info/returns');
-  expect(screen.getByRole('heading', { level: 1, name: 'Cancellations & refunds' })).toBeTruthy();
+  expect(screen.getByRole('heading', { level: 1, name: 'Returns, size & refunds' })).toBeTruthy();
   expect(screen.getByRole('link', { name: 'Privacy' }).getAttribute('href')).toBe('/info/privacy');
 });
 

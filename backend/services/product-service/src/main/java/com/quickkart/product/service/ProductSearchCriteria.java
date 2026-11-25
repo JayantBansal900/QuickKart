@@ -57,22 +57,42 @@ public final class ProductSearchCriteria {
     private final BigDecimal minPrice;
     private final BigDecimal maxPrice;
     private final String sort;
+    private final String variantSize;
+    private final String variantColor;
     private final int page;
     private final int size;
 
     private ProductSearchCriteria(String query, String category, BigDecimal minPrice, BigDecimal maxPrice,
-                                  String sort, int page, int size) {
+                                  String sort, String variantSize, String variantColor, int page, int size) {
         this.query = query;
         this.category = category;
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
         this.sort = sort;
+        this.variantSize = variantSize;
+        this.variantColor = variantColor;
         this.page = page;
         this.size = size;
     }
 
     public static ProductSearchCriteria of(String q, String category, BigDecimal minPrice, BigDecimal maxPrice,
                                            String sort, Integer page, Integer size) {
+        return of(q, category, minPrice, maxPrice, sort, null, null, page, size);
+    }
+
+    /** {@code variantSize} / {@code variantColor} keep only products that have that size / colour in stock. */
+    public static ProductSearchCriteria of(String q, String category, BigDecimal minPrice, BigDecimal maxPrice,
+                                           String sort, String variantSize, String variantColor, Integer page, Integer size) {
+        String sizeFilter = blankToNull(variantSize);
+        if (sizeFilter != null) {
+            if (sizeFilter.length() > 20) throw new IllegalArgumentException("Size is too long");
+            sizeFilter = sizeFilter.toLowerCase(Locale.ROOT);
+        }
+        String colorFilter = blankToNull(variantColor);
+        if (colorFilter != null) {
+            if (colorFilter.length() > 40) throw new IllegalArgumentException("Colour is too long");
+            colorFilter = colorFilter.toLowerCase(Locale.ROOT);
+        }
         String query = blankToNull(q);
         if (query != null) {
             if (query.length() > MAX_QUERY_LENGTH)
@@ -101,7 +121,7 @@ public final class ProductSearchCriteria {
         if (pageNumber < 0 || pageNumber > MAX_PAGE) throw new IllegalArgumentException("page must be between 0 and " + MAX_PAGE);
         if (pageSize < 1 || pageSize > MAX_SIZE) throw new IllegalArgumentException("size must be between 1 and " + MAX_SIZE);
 
-        return new ProductSearchCriteria(query, cat, strip(minPrice), strip(maxPrice), sortKey, pageNumber, pageSize);
+        return new ProductSearchCriteria(query, cat, strip(minPrice), strip(maxPrice), sortKey, sizeFilter, colorFilter, pageNumber, pageSize);
     }
 
     private static String blankToNull(String value) {
@@ -122,6 +142,8 @@ public final class ProductSearchCriteria {
                 + "|c=" + (category == null ? "" : category)
                 + "|min=" + (minPrice == null ? "" : minPrice.toPlainString())
                 + "|max=" + (maxPrice == null ? "" : maxPrice.toPlainString())
+                + "|sz=" + (variantSize == null ? "" : variantSize)
+                + "|col=" + (variantColor == null ? "" : variantColor)
                 + "|s=" + sort + "|p=" + page + "|n=" + size;
     }
 
@@ -130,6 +152,8 @@ public final class ProductSearchCriteria {
     public BigDecimal minPrice() { return minPrice; }
     public BigDecimal maxPrice() { return maxPrice; }
     public String sort() { return sort; }
+    public String variantSize() { return variantSize; }
+    public String variantColor() { return variantColor; }
     public int page() { return page; }
     public int size() { return size; }
 }

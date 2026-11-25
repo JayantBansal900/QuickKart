@@ -44,9 +44,13 @@ public class ProductService {
     private final com.quickkart.product.repository.StockMovementRepository stockMovements;
     private final com.quickkart.product.repository.CategoryRepository categoryRepository;
 
+    private final com.quickkart.product.repository.ProductVariantRepository variantRepository;
+
     public ProductService(ProductRepository productRepository,
                           com.quickkart.product.repository.StockMovementRepository stockMovements,
-                          com.quickkart.product.repository.CategoryRepository categoryRepository) {
+                          com.quickkart.product.repository.CategoryRepository categoryRepository,
+                          com.quickkart.product.repository.ProductVariantRepository variantRepository) {
+        this.variantRepository = variantRepository;
         this.productRepository = productRepository;
         this.stockMovements = stockMovements;
         this.categoryRepository = categoryRepository;
@@ -172,6 +176,10 @@ public class ProductService {
                 request.getAvailability() != null ? request.getAvailability() : "IN_STOCK"
         );
         Product saved = productRepository.save(product);
+        if (request.getVariants() != null && !request.getVariants().isEmpty()) {
+            applyVariants(saved, request.getVariants());
+            saved = productRepository.save(saved);
+        }
         recordStock(saved, saved.getStockQuantity(), "INITIAL_STOCK", actor);
         return ProductResponse.fromEntity(saved);
     }
@@ -210,8 +218,13 @@ public class ProductService {
         if (request.getDiscountPercentage() != null) product.setDiscountPercentage(request.getDiscountPercentage());
         if (request.getRating() != null) product.setRating(request.getRating());
         if (request.getReviewCount() != null) product.setReviewCount(request.getReviewCount());
-        int stockChange = request.getStockQuantity() - product.getStockQuantity();
-        product.setStockQuantity(request.getStockQuantity());
+        int previousStock = product.getStockQuantity();
+        if (request.getVariants() != null && !request.getVariants().isEmpty()) {
+            applyVariants(product, request.getVariants());
+        } else if (product.getVariants().isEmpty()) {
+            product.setStockQuantity(request.getStockQuantity());
+        }
+        int stockChange = product.getStockQuantity() - previousStock;
         product.setCategory(canonicalCategory(request.getCategory()));
         if (request.getSku() != null) product.setSku(request.getSku());
         product.setImageUrl(request.getImageUrl());
@@ -253,6 +266,9 @@ public class ProductService {
         Product product = productRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
+        if (!product.getVariants().isEmpty()) {
+            throw new IllegalArgumentException("This product has sizes: edit the stock of each size instead.");
+        }
         int newQuantity = Math.addExact(product.getStockQuantity(), quantityChange);
         if (newQuantity < 0) {
             throw new IllegalArgumentException("Insufficient stock for product id: " + id + ". Available: " + product.getStockQuantity());
@@ -269,5 +285,48 @@ public class ProductService {
         Product updated = productRepository.save(product);
         recordStock(updated, quantityChange, quantityChange > 0 ? "RESTOCK" : "CORRECTION", actor);
         return ProductResponse.fromEntity(updated);
+    }
+
+    /**
+     * Makes the product's variants match the request: rows are matched by (size, colour), new ones
+     * are created, and rows left out are kept with zero stock (carts and past orders may point at
+     * them). The product's own stock becomes the total of its variants, and the availability badge
+     * follows it (DISCONTINUED stays a deliberate admin choice).
+     */
+    private void applyVariants(Product product, java.util.List<com.quickkart.product.dto.VariantRequest> requested) {
+        java.util.Map<String, com.quickkart.product.entity.ProductVariant> existing = new java.util.LinkedHashMap<>();
+        for (com.quickkart.product.entity.ProductVariant v : product.getVariants()) {
+            existing.put(variantKey(v.getSize(), v.getColor()), v);
+        }
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (com.quickkart.product.dto.VariantRequest r : requested) {
+            String size = r.getSize().trim();
+            String color = r.getColor() == null ? "" : r.getColor().trim();
+            String key = variantKey(size, color);
+            if (!seen.add(key)) {
+                throw new IllegalArgumentException("Duplicate variant: " + size + (color.isEmpty() ? "" : " / " + color));
+            }
+            com.quickkart.product.entity.ProductVariant variant = existing.get(key);
+            if (variant == null) {
+                variant = variantRepository.save(new com.quickkart.product.entity.ProductVariant(product, size, color, r.getStockQuantity()));
+                product.getVariants().add(variant);
+            } else {
+                variant.setStockQuantity(r.getStockQuantity());
+            }
+        }
+        for (java.util.Map.Entry<String, com.quickkart.product.entity.ProductVariant> e : existing.entrySet()) {
+            if (!seen.contains(e.getKey())) e.getValue().setStockQuantity(0);
+        }
+        int total = product.getVariants().stream().mapToInt(com.quickkart.product.entity.ProductVariant::getStockQuantity).sum();
+        product.setStockQuantity(total);
+        if (total > 0 && "OUT_OF_STOCK".equalsIgnoreCase(product.getAvailability())) {
+            product.setAvailability("IN_STOCK");
+        } else if (total == 0 && "IN_STOCK".equalsIgnoreCase(product.getAvailability())) {
+            product.setAvailability("OUT_OF_STOCK");
+        }
+    }
+
+    private static String variantKey(String size, String color) {
+        return size.trim().toLowerCase(java.util.Locale.ROOT) + "|" + (color == null ? "" : color.trim().toLowerCase(java.util.Locale.ROOT));
     }
 }

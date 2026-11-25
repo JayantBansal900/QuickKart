@@ -36,6 +36,21 @@ public final class ProductSpecifications {
             if (criteria.category() != null) {
                 predicates.add(cb.equal(cb.upper(root.get("category")), criteria.category()));
             }
+            if (criteria.variantSize() != null || criteria.variantColor() != null) {
+                // Only products that have this size / colour actually in stock.
+                var inStock = query.subquery(Long.class);
+                var variant = inStock.from(com.quickkart.product.entity.ProductVariant.class);
+                List<Predicate> match = new ArrayList<>();
+                match.add(cb.equal(variant.get("product"), root));
+                match.add(cb.greaterThan(variant.get("stockQuantity"), 0));
+                if (criteria.variantSize() != null) match.add(cb.equal(cb.lower(variant.get("size")), criteria.variantSize()));
+                if (criteria.variantColor() != null) {
+                    // "navy" also finds "Navy Stripe" and "Navy/Cream".
+                    match.add(cb.like(cb.lower(variant.get("color")), "%" + escapeLike(criteria.variantColor()) + "%", ESCAPE));
+                }
+                inStock.select(variant.get("id")).where(match.toArray(Predicate[]::new));
+                predicates.add(cb.exists(inStock));
+            }
             if (criteria.minPrice() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("price"), criteria.minPrice()));
             }

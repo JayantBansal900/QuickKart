@@ -209,7 +209,7 @@ function CategoryForm({ category, onClose, onSaved }: { category: Category | nul
           <input
             maxLength={1000}
             className="qk-input"
-            placeholder="/categories/electronics.webp or https://…"
+            placeholder="/categories/jackets.webp or https://…"
             value={form.imageUrl ?? ""}
             onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
           />

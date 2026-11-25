@@ -3,14 +3,14 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Printer } from 'lucide-react';
 import { api } from '../services/api';
 import { OrderResponse } from '../types';
-import { formatINR } from '../utils/formatters';
+import { formatINR, variantLabel } from '../utils/formatters';
 import { LogoMark } from '../components/Header';
 
 /** GST rate used to show the tax included in the prices (demo: one rate for every item). */
 const GST_RATE = 0.18;
 
 /**
- * Printable tax invoice for an order. Prices in QuickKart include GST, so the invoice shows the
+ * Printable tax invoice for an order. Prices at VAYU include GST, so the invoice shows the
  * taxable value and the CGST/SGST split that is already inside each amount.
  */
 export function InvoicePage() {
@@ -20,7 +20,7 @@ export function InvoicePage() {
 
   useEffect(() => {
     const previous = document.title;
-    document.title = `Invoice QK-${orderId} · QuickKart`;
+    document.title = `Invoice VY-${orderId} · VAYU`;
     api.getOrderById(Number(orderId)).then(setOrder).catch((e) => setError(e instanceof Error ? e.message : 'Invoice not found.'));
     return () => { document.title = previous; };
   }, [orderId]);
@@ -49,13 +49,13 @@ export function InvoicePage() {
           <div className="flex items-center gap-3">
             <LogoMark className="h-10 w-10" />
             <div>
-              <p className="text-lg"><span className="font-extrabold">Quick</span><span className="font-medium">Kart</span></p>
-              <p className="text-xs text-muted">Demo store · GSTIN 29ABCDE1234F1Z5 (sample)</p>
+              <p className="font-display text-lg font-semibold tracking-[0.28em]">VAYU</p>
+              <p className="text-xs text-muted">Men’s clothing · GSTIN 29ABCDE1234F1Z5 (sample)</p>
             </div>
           </div>
           <div className="text-right">
             <h1 className="text-2xl font-bold tracking-tight">Tax invoice</h1>
-            <p className="text-muted">Invoice no. QK-{String(order.id).padStart(6, '0')}</p>
+            <p className="text-muted">Invoice no. VY-{String(order.id).padStart(6, '0')}</p>
             <p className="text-muted">Date {date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
           </div>
         </header>
@@ -86,8 +86,8 @@ export function InvoicePage() {
           </thead>
           <tbody>
             {order.items.map((item) => (
-              <tr key={item.productId} className="border-b border-line/70">
-                <td className="py-2.5 pr-4">{item.productName}</td>
+              <tr key={`${item.productId}-${item.size ?? ''}-${item.color ?? ''}`} className="border-b border-line/70">
+                <td className="py-2.5 pr-4">{item.productName}{variantLabel(item) && <span className="text-muted"> ({variantLabel(item)})</span>}</td>
                 <td className="whitespace-nowrap py-2.5 pl-4 text-right tabular-nums">{item.quantity}</td>
                 <td className="whitespace-nowrap py-2.5 pl-4 text-right tabular-nums">{formatINR(item.price)}</td>
                 <td className="whitespace-nowrap py-2.5 pl-4 text-right tabular-nums">{formatINR(item.subtotal)}</td>
@@ -109,7 +109,7 @@ export function InvoicePage() {
         </dl>
 
         <footer className="mt-10 border-t border-line pt-4 text-xs text-muted">
-          QuickKart is a portfolio demo: this invoice is generated for illustration and is not a legal tax document.
+          VAYU is a portfolio demo: this invoice is generated for illustration and is not a legal tax document.
         </footer>
       </article>
     </div>

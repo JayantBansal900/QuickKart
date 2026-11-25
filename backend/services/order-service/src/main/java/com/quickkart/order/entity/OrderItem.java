@@ -28,6 +28,17 @@ public class OrderItem {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    /** Size/colour bought (also kept as text, so the order still reads right if the variant is edited). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variant_id")
+    private ProductVariant variant;
+
+    @Column(length = 20)
+    private String size;
+
+    @Column(length = 40)
+    private String color;
+
     @Column(nullable = false)
     private Integer quantity;
 
@@ -82,6 +93,16 @@ public class OrderItem {
     public void setProduct(Product product) {
         this.product = product;
         this.productName = product == null ? null : product.getName();
+    }
+
+    public ProductVariant getVariant() { return variant; }
+    public String getSize() { return size; }
+    public String getColor() { return color; }
+
+    public void setVariant(ProductVariant variant) {
+        this.variant = variant;
+        this.size = variant == null ? null : variant.getSize();
+        this.color = variant == null || variant.getColor().isBlank() ? null : variant.getColor();
     }
 
     public Integer getQuantity() {

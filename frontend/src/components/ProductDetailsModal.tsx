@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Check, ImageOff, Minus, Plus, ShoppingBag, Star, Truck, X, Zap } from 'lucide-react';
 
 import { Product } from '../types';
+import { VariantPicker, coloursOf, sizesOf } from './VariantPicker';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/formatters';
@@ -31,6 +32,8 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
   const [quantity, setQuantity] = useState(1);
   const [imageFailed, setImageFailed] = useState(false);
   const [added, setAdded] = useState(false);
+  const [color, setColor] = useState('');
+  const [variantId, setVariantId] = useState<number | null>(null);
   const dialog = useRef<HTMLDivElement>(null);
 
   const { addToCart, isLoading } = useCart();
@@ -42,6 +45,10 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
       setImageFailed(false);
       setAdded(false);
       setMutationError(null);
+      const list = product.variants ?? [];
+      const firstColour = coloursOf(list).find((c) => sizesOf(list, c).some((v) => v.stockQuantity > 0)) ?? coloursOf(list)[0] ?? '';
+      setColor(firstColour);
+      setVariantId(null);
     }
   }, [product?.id]);
 
@@ -81,7 +88,12 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
 
   if (!product) return null;
 
+  const variants = product.variants ?? [];
+  const hasVariants = variants.length > 0;
+  const selected = variants.find((v) => v.id === variantId) ?? null;
   const isOutOfStock = product.stockQuantity <= 0;
+  // The quantity limit is the stock of the chosen size (or the product when it has no sizes).
+  const stockLimit = hasVariants ? (selected?.stockQuantity ?? 0) : product.stockQuantity;
   const price = Number(product.price) || 0;
   const discount = Math.round(Number(product.discountPercentage) || 0);
   const originalPrice = originalPriceOf(product);
@@ -94,9 +106,13 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
       openAuthModal('login');
       return false;
     }
+    if (hasVariants && !selected) {
+      setMutationError('Please choose a size first.');
+      return false;
+    }
     setMutationError(null);
     try {
-      await addToCart(product.id, quantity);
+      await addToCart(product.id, quantity, selected?.id);
       return true;
     } catch (error) {
       setMutationError(error instanceof Error ? error.message : 'Unable to add item.');
@@ -182,6 +198,17 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
               )}
             </div>
 
+            {hasVariants && !isOutOfStock && (
+              <VariantPicker
+                variants={variants}
+                color={color}
+                size={variantId}
+                onColor={(c) => { setColor(c); setVariantId(null); setQuantity(1); }}
+                onSize={(id) => { setVariantId(id); setQuantity(1); }}
+                sizeLabel={product.category === 'Footwear' ? 'Size (UK)' : product.category === 'Jeans' || product.category === 'Trousers' ? 'Waist (in)' : 'Size'}
+              />
+            )}
+
             <div className="mt-5">
               {isOutOfStock ? (
                 <span className="inline-flex items-center gap-2 rounded-full bg-sale-soft px-3 py-1.5 text-sm font-medium text-sale">
@@ -190,7 +217,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
               ) : (
                 <span className="inline-flex items-center gap-2 rounded-full bg-success-soft px-3 py-1.5 text-sm font-medium text-success">
                   <span className="h-1.5 w-1.5 rounded-full bg-success" />
-                  {product.stockQuantity <= 5 ? `Only ${product.stockQuantity} left in stock` : 'In stock'}
+                  {(selected ? selected.stockQuantity : product.stockQuantity) <= 5 ? `Only ${selected ? selected.stockQuantity : product.stockQuantity} left in stock` : 'In stock'}
                 </span>
               )}
             </div>
@@ -248,8 +275,8 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
                 <span className="w-8 text-center text-sm font-semibold tabular-nums text-fg" aria-live="polite">{quantity}</span>
                 <button
                   type="button"
-                  onClick={() => setQuantity(Math.min(product.stockQuantity, quantity + 1))}
-                  disabled={quantity >= product.stockQuantity}
+                  onClick={() => setQuantity(Math.min(Math.max(stockLimit, 1), quantity + 1))}
+                  disabled={quantity >= Math.max(stockLimit, 1)}
                   className="grid h-12 w-11 place-items-center rounded-r-full text-fg hover:bg-subtle disabled:opacity-30"
                   aria-label="Increase quantity"
                 >

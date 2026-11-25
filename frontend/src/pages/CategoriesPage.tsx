@@ -11,7 +11,7 @@ export function CategoriesPage() {
 
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = 'Categories · QuickKart';
+    document.title = 'Categories · VAYU';
     api.getCategories().then(setCategories).catch(() => setError(true));
     return () => { document.title = previousTitle; };
   }, []);

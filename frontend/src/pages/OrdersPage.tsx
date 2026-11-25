@@ -8,7 +8,7 @@ import { PaymentPanel } from '../components/PaymentPanel';
 import { api } from '../services/api';
 import { OrderResponse } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { formatINR } from '../utils/formatters';
+import { formatINR, variantLabel } from '../utils/formatters';
 
 const STEPS: OrderResponse['status'][] = ['PLACED', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
 const STEP_LABEL: Record<string, string> = {
@@ -237,9 +237,9 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
 
                 <ul className="divide-y divide-line">
                   {order.items?.map((item) => (
-                    <li key={item.productId} className="flex items-center justify-between gap-4 py-3 text-sm">
+                    <li key={`${item.productId}-${item.size ?? ''}-${item.color ?? ''}`} className="flex items-center justify-between gap-4 py-3 text-sm">
                       <span className="min-w-0 text-fg">
-                        <span className="text-muted">{item.quantity} ×</span> {item.productName}
+                        <span className="text-muted">{item.quantity} ×</span> {item.productName}{variantLabel(item) && <span className="text-muted"> · {variantLabel(item)}</span>}
                       </span>
                       <span className="flex shrink-0 items-center gap-3">
                         {order.status === 'DELIVERED' && (

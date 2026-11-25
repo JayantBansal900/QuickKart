@@ -12,6 +12,9 @@ public class AddCartItemRequest {
     @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity;
 
+    /** Size/colour chosen; required when the product has variants. */
+    private Long variantId;
+
     public AddCartItemRequest() {
     }
 
@@ -26,6 +29,14 @@ public class AddCartItemRequest {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public Long getVariantId() {
+        return variantId;
+    }
+
+    public void setVariantId(Long variantId) {
+        this.variantId = variantId;
     }
 
     public Integer getQuantity() {

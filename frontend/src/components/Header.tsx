@@ -18,37 +18,34 @@ interface HeaderProps {
 
 /** Shown until /api/categories answers (and if it fails). */
 const FALLBACK_CATEGORIES = [
-  { key: 'ELECTRONICS', name: 'Electronics' },
-  { key: 'FASHION', name: 'Fashion' },
-  { key: 'HOME & LIVING', name: 'Home & Living' },
-  { key: 'SPORTS', name: 'Sports' },
-  { key: 'BOOKS', name: 'Books' },
-  { key: 'BEAUTY', name: 'Beauty' },
-  { key: 'GROCERIES', name: 'Groceries' },
+  { key: 'T-SHIRTS', name: 'T-Shirts' },
+  { key: 'SHIRTS', name: 'Shirts' },
+  { key: 'JEANS', name: 'Jeans' },
+  { key: 'TROUSERS', name: 'Trousers' },
+  { key: 'JACKETS', name: 'Jackets' },
+  { key: 'HOODIES & SWEATSHIRTS', name: 'Hoodies & Sweatshirts' },
+  { key: 'FOOTWEAR', name: 'Footwear' },
   { key: 'ACCESSORIES', name: 'Accessories' },
 ];
 
 /** Wordmark used in the header and footer. */
-/** QuickKart brand mark: a shopping bag with a lightning bolt (quick delivery), plus the wordmark. */
+/** VAYU brand mark: a "V" with a thin gust of wind running through it. */
 export function LogoMark({ className = 'h-8 w-8' }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
-      <rect width="32" height="32" rx="8" className="fill-fg" />
-      <path d="M11.5 11V9.5a4.5 4.5 0 0 1 9 0V11" fill="none" className="stroke-bg" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M7.5 11.5h17l-1.3 13.1a2 2 0 0 1-2 1.9H10.8a2 2 0 0 1-2-1.9z" className="fill-bg" />
-      <path d="M17.4 13.6l-4.6 6h3.1l-1.3 4.6 4.8-6.3h-3.2z" fill="#f5b700" />
+      <rect width="32" height="32" rx="7" className="fill-fg" />
+      <path d="M8.5 9l7.5 14.5L23.5 9" fill="none" className="stroke-bg" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5.5 15.2c3.4-1.8 6.2 1.2 9.6-.4s5.8-1.2 8.4-.2" fill="none" stroke="#c9a14a" strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   );
 }
 
+/** Wordmark: widely spaced serif capitals. */
 export function Logo({ className = '' }: { className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-2 ${className}`}>
+    <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <LogoMark />
-      <span className="text-[19px] leading-none tracking-[-0.03em] text-fg">
-        <span className="font-extrabold">Quick</span>
-        <span className="font-medium">Kart</span>
-      </span>
+      <span className="font-display text-[22px] font-semibold leading-none tracking-[0.28em] text-fg">VAYU</span>
     </span>
   );
 }
@@ -117,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
             {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          <button type="button" onClick={() => onSelectView('store')} aria-label="QuickKart Home" className="shrink-0">
+          <button type="button" onClick={() => onSelectView('store')} aria-label="VAYU Home" className="shrink-0">
             <Logo />
           </button>
 

@@ -44,7 +44,7 @@ export async function apiFetch(
       error instanceof DOMException &&
       ["TimeoutError", "AbortError"].includes(error.name)
         ? "Request timed out or was cancelled. Check the result before submitting again."
-        : "Unable to reach QuickKart. Please check your connection and try again.",
+        : "Unable to reach VAYU. Please check your connection and try again.",
       0,
     );
   }

@@ -26,3 +26,8 @@ export const formatPrice = (amount: number | null | undefined): string => {
     maximumFractionDigits: whole ? 0 : 2,
   }).format(whole ? Math.round(value) : value);
 };
+
+/** "M · Navy" for a line that has a size and/or colour, or an empty string. */
+export function variantLabel(item: { size?: string | null; color?: string | null }): string {
+  return [item.size, item.color].filter(Boolean).join(' · ');
+}

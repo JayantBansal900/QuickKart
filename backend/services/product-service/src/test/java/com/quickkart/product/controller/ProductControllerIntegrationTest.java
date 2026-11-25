@@ -60,7 +60,7 @@ class ProductControllerIntegrationTest {
                 "High performance smartphone",
                 new BigDecimal("699.99"),
                 20,
-                "Electronics"
+                "Jackets"
         ));
 
         adminToken = securityToken("admin@quickkart.com", "ADMIN", 1L);
@@ -103,7 +103,7 @@ class ProductControllerIntegrationTest {
                 "Description with blank name",
                 new BigDecimal("100.00"),
                 10,
-                "Electronics"
+                "Jackets"
         );
 
         mockMvc.perform(post("/api/admin/products")
@@ -123,7 +123,7 @@ class ProductControllerIntegrationTest {
                 "Description",
                 new BigDecimal("-25.00"),
                 10,
-                "Electronics"
+                "Jackets"
         );
 
         mockMvc.perform(post("/api/admin/products")

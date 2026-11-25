@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/formatters';
 import { WishlistButton } from './WishlistButton';
+import { coloursOf } from './VariantPicker';
 
 interface ProductCardProps {
   product: Product;
@@ -35,9 +36,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
   const rating = product.rating != null && !Number.isNaN(Number(product.rating)) ? Number(product.rating) : null;
   const reviews = product.reviewCount != null && Number(product.reviewCount) > 0 ? Number(product.reviewCount) : null;
   const image = product.thumbnailUrl || product.imageUrl;
+  const variants = product.variants ?? [];
+  const hasSizes = variants.length > 0;
+  const colourCount = coloursOf(variants).length;
 
   const handleAddToCart = async (event: React.MouseEvent) => {
     event.stopPropagation();
+    // A size has to be chosen first: the details dialog has the size picker.
+    if (hasSizes) {
+      onViewDetails(product);
+      return;
+    }
     if (!isAuthenticated) {
       openAuthModal('login');
       return;
@@ -91,12 +100,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
             type="button"
             onClick={handleAddToCart}
             disabled={isLoading}
-            aria-label={`Add ${product.name} to cart`}
+            aria-label={hasSizes ? `Choose a size for ${product.name}` : `Add ${product.name} to cart`}
             className={`absolute inset-x-3 bottom-3 inline-flex h-10 items-center justify-center gap-1.5 rounded-md px-3.5 text-sm font-semibold shadow-card transition-all duration-200 disabled:opacity-60 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:focus-visible:translate-y-0 md:focus-visible:opacity-100 ${
               justAdded ? 'bg-success text-white md:translate-y-0 md:opacity-100' : 'bg-fg text-bg hover:opacity-90'
             }`}
           >
-            {justAdded ? <><Check className="h-4 w-4" strokeWidth={3} /> Added</> : <><Plus className="h-4 w-4" /> Add</>}
+            {justAdded ? <><Check className="h-4 w-4" strokeWidth={3} /> Added</> : <><Plus className="h-4 w-4" /> {hasSizes ? 'Choose size' : 'Add'}</>}
           </button>
         )}
       </div>
@@ -114,6 +123,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
         </div>
 
         <h3 className="mt-1 line-clamp-2 text-sm font-medium leading-snug text-fg group-hover:underline group-hover:underline-offset-2">{product.name}</h3>
+
+        {hasSizes && colourCount > 0 && <p className="mt-1 text-xs text-muted">{colourCount} {colourCount === 1 ? 'colour' : 'colours'}</p>}
 
         <div className="mt-auto flex flex-wrap items-baseline gap-x-2 pt-1.5">
           <span className="text-[15px] font-semibold tracking-tight text-fg">{formatPrice(product.price)}</span>

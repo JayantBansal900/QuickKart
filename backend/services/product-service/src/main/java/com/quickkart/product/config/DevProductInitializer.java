@@ -25,13 +25,20 @@ public class DevProductInitializer implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(DevProductInitializer.class);
 
     private final ProductRepository productRepository;
+    private final com.quickkart.product.repository.ProductVariantRepository variantRepository;
     private final ObjectMapper objectMapper;
+    private final org.springframework.cache.CacheManager cacheManager;
 
     @Value("${app.dev-products.enabled:false}")
     private boolean devProductsEnabled;
 
-    public DevProductInitializer(ProductRepository productRepository, ObjectMapper objectMapper) {
+    public DevProductInitializer(ProductRepository productRepository,
+                                 com.quickkart.product.repository.ProductVariantRepository variantRepository,
+                                 ObjectMapper objectMapper,
+                                 org.springframework.beans.factory.ObjectProvider<org.springframework.cache.CacheManager> cacheManager) {
+        this.cacheManager = cacheManager.getIfAvailable();
         this.productRepository = productRepository;
+        this.variantRepository = variantRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -50,7 +57,7 @@ public class DevProductInitializer implements CommandLineRunner {
                 return;
             }
 
-            log.info("Loading rich QuickKart product catalog dataset in product-service from catalog.json...");
+            log.info("Loading the VAYU product catalog dataset in product-service from catalog.json...");
             InputStream inputStream = resource.getInputStream();
             List<Map<String, Object>> items = objectMapper.readValue(inputStream, new TypeReference<List<Map<String, Object>>>() {});
 
@@ -84,10 +91,26 @@ public class DevProductInitializer implements CommandLineRunner {
                             stockQuantity, category, sku, imageUrl, thumbnailUrl, availability
                     );
                     productRepository.save(product);
+                    Object rawVariants = item.get("variants");
+                    if (rawVariants instanceof List<?> rows) {
+                        for (Object row : rows) {
+                            Map<?, ?> v = (Map<?, ?>) row;
+                            String color = v.get("color") == null ? "" : v.get("color").toString();
+                            variantRepository.save(new com.quickkart.product.entity.ProductVariant(
+                                    product, v.get("size").toString(), color, Integer.parseInt(v.get("stockQuantity").toString())));
+                        }
+                    }
                     importedCount++;
                 }
             }
 
+            if (importedCount > 0 && cacheManager != null) {
+                // Listings and category counts may have been cached before the new products existed.
+                for (String name : cacheManager.getCacheNames()) {
+                    var cache = cacheManager.getCache(name);
+                    if (cache != null) cache.clear();
+                }
+            }
             log.info("[product-service] Catalog seed finished: {} new products created, {} existing products updated by SKU.", importedCount, updatedCount);
 
         } catch (Exception e) {

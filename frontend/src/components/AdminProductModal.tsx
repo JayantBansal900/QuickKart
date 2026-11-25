@@ -3,7 +3,16 @@ import { ImagePlus, Loader2, Trash2, UploadCloud, X } from 'lucide-react';
 import { Product, ProductRequest } from '../types';
 
 /** Used until the admin category list has loaded. */
-const DEFAULT_CATEGORIES = ['Electronics', 'Fashion', 'Home & Living', 'Sports', 'Books', 'Beauty', 'Groceries', 'Accessories'];
+const DEFAULT_CATEGORIES = ['T-Shirts', 'Shirts', 'Jeans', 'Trousers', 'Jackets', 'Hoodies & Sweatshirts', 'Footwear', 'Accessories'];
+
+/** One-click size sets for the usual kinds of product. */
+const SIZE_PRESETS = [
+  { label: 'S – XXL', sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+  { label: 'Waist 28 – 36', sizes: ['28', '30', '32', '34', '36'] },
+  { label: 'UK 6 – 11', sizes: ['6', '7', '8', '9', '10', '11'] },
+];
+
+type VariantRow = { size: string; color: string; stock: string };
 const MAX_BYTES = 3 * 1024 * 1024;
 const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -23,14 +32,14 @@ type FormState = {
 };
 
 const empty: FormState = {
-  name: '', brand: '', sku: '', description: '', category: 'Electronics',
+  name: '', brand: 'VAYU', sku: '', description: '', category: 'T-Shirts',
   price: '', discountPercentage: '', stockQuantity: '', rating: '', reviewCount: '',
 };
 
 function fromProduct(p: Product): FormState {
   return {
     name: p.name, brand: p.brand || '', sku: p.sku || '', description: p.description || '',
-    category: p.category || 'Electronics', price: String(p.price ?? ''),
+    category: p.category || 'T-Shirts', price: String(p.price ?? ''),
     discountPercentage: String(p.discountPercentage ?? ''), stockQuantity: String(p.stockQuantity ?? ''),
     rating: p.rating != null ? String(p.rating) : '', reviewCount: p.reviewCount != null ? String(p.reviewCount) : '',
   };
@@ -43,11 +52,15 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, pr
   const [preview, setPreview] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [rows, setRows] = useState<VariantRow[]>([]);
+  const [presetColour, setPresetColour] = useState('');
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setForm(product ? fromProduct(product) : empty);
+    setRows((product?.variants ?? []).map((v) => ({ size: v.size, color: v.color ?? '', stock: String(v.stockQuantity) })));
+    setPresetColour('');
     setPhoto(null);
     setPreview(null);
     setError(null);
@@ -78,11 +91,28 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, pr
   };
 
   const currentImage = preview || product?.imageUrl || null;
+  const hasSizes = rows.length > 0;
+  const sizeTotal = rows.reduce((sum, r) => sum + (Number(r.stock) || 0), 0);
+  const updateRow = (index: number, patch: Partial<VariantRow>) => setRows((list) => list.map((r, i) => (i === index ? { ...r, ...patch } : r)));
+  const addPreset = (sizes: string[]) =>
+    setRows((list) => [
+      ...list,
+      ...sizes
+        .filter((size) => !list.some((r) => r.size.toLowerCase() === size.toLowerCase() && r.color.trim().toLowerCase() === presetColour.trim().toLowerCase()))
+        .map((size) => ({ size, color: presetColour.trim(), stock: '10' })),
+    ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setError(null);
+    const usable = rows.filter((r) => r.size.trim());
+    const keys = usable.map((r) => `${r.size.trim().toLowerCase()}|${r.color.trim().toLowerCase()}`);
+    if (new Set(keys).size !== keys.length) {
+      setError('Each size and colour can only appear once.');
+      setIsSaving(false);
+      return;
+    }
     try {
       await onSubmit(
         {
@@ -93,7 +123,8 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, pr
           category: form.category,
           price: Number(form.price),
           discountPercentage: form.discountPercentage !== '' ? Number(form.discountPercentage) : undefined,
-          stockQuantity: Number(form.stockQuantity),
+          stockQuantity: usable.length ? usable.reduce((sum, r) => sum + (Number(r.stock) || 0), 0) : Number(form.stockQuantity),
+          variants: usable.length ? usable.map((r) => ({ size: r.size.trim(), color: r.color.trim() || undefined, stockQuantity: Math.max(0, Math.floor(Number(r.stock) || 0)) })) : undefined,
           rating: form.rating !== '' ? Number(form.rating) : undefined,
           reviewCount: form.reviewCount !== '' ? Number(form.reviewCount) : undefined,
           // Keep the existing picture unless a new photo is uploaded right after saving.
@@ -180,10 +211,10 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, pr
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="qk-label sm:col-span-2">Product name
-                <input className="qk-input" required maxLength={255} value={form.name} onChange={set('name')} placeholder="Sony WH-1000XM5 Wireless Headphones" />
+                <input className="qk-input" required maxLength={255} value={form.name} onChange={set('name')} placeholder="VAYU Essential Crew Tee" />
               </label>
               <label className="qk-label">Brand
-                <input className="qk-input" value={form.brand} onChange={set('brand')} placeholder="Sony" />
+                <input className="qk-input" value={form.brand} onChange={set('brand')} placeholder="VAYU" />
               </label>
               <label className="qk-label">Category
                 <select className="qk-input cursor-pointer" value={form.category} onChange={set('category')}>
@@ -200,9 +231,33 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, pr
                 <input className="qk-input" type="number" min="0" max="90" step="1" value={form.discountPercentage} onChange={set('discountPercentage')} placeholder="10" />
               </label>
               <label className="qk-label">Stock
-                <input className="qk-input" type="number" required min="0" step="1" value={form.stockQuantity} onChange={set('stockQuantity')} placeholder="50" />
+                <input className="qk-input" type="number" required min="0" step="1" value={hasSizes ? String(sizeTotal) : form.stockQuantity} onChange={set('stockQuantity')} readOnly={hasSizes} title={hasSizes ? 'The total of the sizes below' : undefined} placeholder="50" />
               </label>
             </div>
+
+            <fieldset className="rounded-xl border border-line p-4">
+              <legend className="px-1 text-sm font-medium text-fg">Sizes &amp; colours</legend>
+              <p className="text-xs text-muted">{hasSizes ? `Stock is the total of the sizes: ${sizeTotal}. A size you remove is set to 0 (past orders keep it).` : 'Leave empty for one-size products such as a wallet or a cap.'}</p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <input aria-label="Colour for new sizes" className="qk-input h-9 w-40" value={presetColour} onChange={(e) => setPresetColour(e.target.value)} placeholder="Colour (e.g. Navy)" maxLength={40} />
+                {SIZE_PRESETS.map((p) => (
+                  <button key={p.label} type="button" onClick={() => addPreset(p.sizes)} className="rounded-sm border border-line px-2.5 py-1.5 text-xs text-fg hover:border-fg">+ {p.label}</button>
+                ))}
+                <button type="button" onClick={() => setRows((list) => [...list, { size: '', color: presetColour.trim(), stock: '10' }])} className="rounded-sm border border-line px-2.5 py-1.5 text-xs text-fg hover:border-fg">+ One size row</button>
+              </div>
+              {hasSizes && (
+                <ul className="mt-3 space-y-2">
+                  {rows.map((r, i) => (
+                    <li key={i} className="grid grid-cols-[1fr_1.4fr_1fr_auto] items-center gap-2">
+                      <input aria-label={`Size ${i + 1}`} className="qk-input h-9" value={r.size} onChange={(e) => updateRow(i, { size: e.target.value })} placeholder="Size" maxLength={20} />
+                      <input aria-label={`Colour ${i + 1}`} className="qk-input h-9" value={r.color} onChange={(e) => updateRow(i, { color: e.target.value })} placeholder="Colour" maxLength={40} />
+                      <input aria-label={`Stock ${i + 1}`} className="qk-input h-9" type="number" min="0" step="1" value={r.stock} onChange={(e) => updateRow(i, { stock: e.target.value })} />
+                      <button type="button" aria-label={`Remove size row ${i + 1}`} onClick={() => setRows((list) => list.filter((_, j) => j !== i))} className="grid h-9 w-9 place-items-center rounded-md text-muted hover:bg-subtle hover:text-sale"><Trash2 className="h-4 w-4" /></button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </fieldset>
 
             <label className="qk-label">Description
               <textarea className="qk-input" rows={4} required value={form.description} onChange={set('description')} placeholder="What makes this product worth buying?" />
@@ -212,7 +267,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, pr
               <summary className="cursor-pointer select-none font-medium text-fg">More details</summary>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 <label className="qk-label">SKU
-                  <input className="qk-input font-mono" value={form.sku} onChange={set('sku')} placeholder="SKU-ELEC-071" />
+                  <input className="qk-input font-mono" value={form.sku} onChange={set('sku')} placeholder="VY-TEE-010" />
                 </label>
                 <label className="qk-label">Rating
                   <input className="qk-input" type="number" min="1" max="5" step="0.1" value={form.rating} onChange={set('rating')} placeholder="4.5" />

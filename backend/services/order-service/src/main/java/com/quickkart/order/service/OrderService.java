@@ -29,6 +29,7 @@ public class OrderService {
     private final StockMovementRepository stockMovements;
     private final CouponService coupons;
     private final OrderReturnRepository returns;
+    private final ProductVariantRepository variantStock;
     /** Customers can ask for a return this many days after delivery. */
     static final int RETURN_WINDOW_DAYS=7;
     static final Set<String> RETURN_REASONS=Set.of("DAMAGED","WRONG_ITEM","NOT_AS_DESCRIBED","NO_LONGER_NEEDED","OTHER");
@@ -41,7 +42,9 @@ public class OrderService {
     static final Set<String> STATUSES=Set.of("PENDING","PLACED","CONFIRMED","PROCESSING","SHIPPED","OUT_FOR_DELIVERY","DELIVERED","CANCELLED","RETURNED");
     public OrderService(OrderRepository orders, CartRepository carts, CartItemRepository cartItems,
                         ProductRepository products, UserRepository users, PaymentRepository payments, ApplicationEventPublisher events,
-                        StockMovementRepository stockMovements, CouponService coupons, OrderReturnRepository returns) {
+                        StockMovementRepository stockMovements, CouponService coupons, OrderReturnRepository returns,
+                        ProductVariantRepository variantStock) {
+        this.variantStock=variantStock;
         this.stockMovements=stockMovements;this.coupons=coupons;this.returns=returns;
         this.orders=orders;this.carts=carts;this.cartItems=cartItems;this.products=products;
         this.users=users;this.payments=payments;this.events=events;
@@ -80,7 +83,7 @@ public class OrderService {
             return response(previous);
         }
         Cart cart=carts.findByUserId(user.getId()).orElseThrow(()->new EmptyCartException("Cart is empty"));
-        List<CartItem> lines=cartItems.findByCartId(cart.getId()).stream().sorted(Comparator.comparing(i->i.getProduct().getId())).toList();
+        List<CartItem> lines=cartItems.findByCartId(cart.getId()).stream().sorted(Comparator.comparing((CartItem i)->i.getProduct().getId()).thenComparing(i->i.getVariant()==null ? 0L : i.getVariant().getId())).toList();
         if(lines.isEmpty()) throw new EmptyCartException("Cart is empty");
         for(CartItem line:lines) {
             Product product=products.findByIdForUpdate(line.getProduct().getId()).orElseThrow(()->new ProductNotFoundException(line.getProduct().getId()));
@@ -90,6 +93,12 @@ public class OrderService {
             if(product.getPrice()==null || product.getPrice().signum()<0) throw conflict("Product price is unavailable");
             if(product.getStockQuantity()<line.getQuantity() || "OUT_OF_STOCK".equalsIgnoreCase(product.getAvailability()) || "DISCONTINUED".equalsIgnoreCase(product.getAvailability()) || "UNAVAILABLE".equalsIgnoreCase(product.getAvailability()))
                 throw new InsufficientStockException("Product unavailable or insufficient stock: "+product.getName());
+            if(line.getVariant()!=null) {
+                ProductVariant variant=variantStock.findByIdForUpdate(line.getVariant().getId()).orElseThrow(()->conflict("That size is no longer available"));
+                entityManager.refresh(variant,LockModeType.PESSIMISTIC_WRITE);
+                if(variant.getStockQuantity()<line.getQuantity())
+                    throw new InsufficientStockException("Insufficient stock for "+product.getName()+" ("+variant.label()+"). Available: "+variant.getStockQuantity());
+            }
         }
         if(!quote.equals(CartQuote.fingerprint(lines))) throw conflict("Cart contents or prices changed. Refresh and confirm the updated total before placing the order.");
         // COD orders are placed straight away; online orders wait in PENDING until the payment succeeds.
@@ -100,7 +109,12 @@ public class OrderService {
             Product product=line.getProduct();
             total=total.add(product.getPrice().multiply(BigDecimal.valueOf(line.getQuantity())));
             product.setStockQuantity(product.getStockQuantity()-line.getQuantity());
-            order.addItem(new OrderItem(order,product,line.getQuantity(),product.getPrice()));
+            OrderItem orderItem=new OrderItem(order,product,line.getQuantity(),product.getPrice());
+            if(line.getVariant()!=null) {
+                line.getVariant().setStockQuantity(line.getVariant().getStockQuantity()-line.getQuantity());
+                orderItem.setVariant(line.getVariant());
+            }
+            order.addItem(orderItem);
         }
         order.setSubtotalAmount(total);
         if(couponCode!=null) {
@@ -112,7 +126,7 @@ public class OrderService {
         order.setTotalAmount(total);
         orders.saveAndFlush(order);
         for(OrderItem item:order.getItems())
-            stockMovements.save(new StockMovement(item.getProduct().getId(),-item.getQuantity(),item.getProduct().getStockQuantity(),"ORDER_PLACED","Order #"+order.getId(),email));
+            stockMovements.save(new StockMovement(item.getProduct().getId(),-item.getQuantity(),item.getProduct().getStockQuantity(),"ORDER_PLACED","Order #"+order.getId()+itemSuffix(item),email));
         // COD: an unpaid collection record. Online: a simulated gateway payment awaiting the customer.
         Payment payment=online
             ? new Payment(order,total,"PENDING",method,"SIM-"+UUID.randomUUID(),LocalDateTime.now())
@@ -255,7 +269,8 @@ public class OrderService {
                 Product product=products.findByIdForUpdate(item.getProduct().getId()).orElseThrow(()->new ProductNotFoundException(item.getProduct().getId()));
                 entityManager.refresh(product,LockModeType.PESSIMISTIC_WRITE);
                 product.setStockQuantity(Math.addExact(product.getStockQuantity(),item.getQuantity()));
-                stockMovements.save(new StockMovement(product.getId(),item.getQuantity(),product.getStockQuantity(),"ORDER_RETURNED","Order #"+order.getId(),"ADMIN"));
+                restockVariant(item);
+                stockMovements.save(new StockMovement(product.getId(),item.getQuantity(),product.getStockQuantity(),"ORDER_RETURNED","Order #"+order.getId()+itemSuffix(item),"ADMIN"));
             }
             Payment payment=payments.findByOrderId(order.getId()).orElse(null);
             if(payment!=null) payment.setStatus("REFUNDED");
@@ -264,6 +279,17 @@ public class OrderService {
         }
         ret.resolve(approve ? "APPROVED" : "REJECTED",cleanNote);
         return ReturnResponse.from(ret,response(order));
+    }
+    /** Puts the units of a cancelled or returned line back on the size they were taken from. */
+    private void restockVariant(OrderItem item) {
+        if(item.getVariant()==null) return;
+        ProductVariant variant=variantStock.findByIdForUpdate(item.getVariant().getId()).orElse(null);
+        if(variant==null) return;
+        entityManager.refresh(variant,LockModeType.PESSIMISTIC_WRITE);
+        variant.setStockQuantity(Math.addExact(variant.getStockQuantity(),item.getQuantity()));
+    }
+    private static String itemSuffix(OrderItem item) {
+        return item.getSize()==null ? "" : " · "+item.getSize()+(item.getColor()==null ? "" : " / "+item.getColor());
     }
     private Order lockedOrder(Long id) {
         Order order=orders.findByIdForUpdate(id).orElseThrow(()->new OrderNotFoundException(id));
@@ -294,7 +320,8 @@ public class OrderService {
                 Product product=products.findByIdForUpdate(item.getProduct().getId()).orElseThrow(()->new ProductNotFoundException(item.getProduct().getId()));
                 entityManager.refresh(product,LockModeType.PESSIMISTIC_WRITE);
                 product.setStockQuantity(Math.addExact(product.getStockQuantity(),item.getQuantity()));
-                stockMovements.save(new StockMovement(product.getId(),item.getQuantity(),product.getStockQuantity(),"ORDER_CANCELLED","Order #"+order.getId(),actor));
+                restockVariant(item);
+                stockMovements.save(new StockMovement(product.getId(),item.getQuantity(),product.getStockQuantity(),"ORDER_CANCELLED","Order #"+order.getId()+itemSuffix(item),actor));
             }
             order.setCancelledAt(LocalDateTime.now());order.setCancelledBy(actor);
             coupons.release(order.getCouponCode());

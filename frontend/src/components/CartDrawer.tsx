@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { ArrowRight, ImageOff, Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { CartItemResponse } from '../types';
-import { formatINR } from '../utils/formatters';
+import { formatINR, variantLabel } from '../utils/formatters';
 
 interface CartDrawerProps {
   onProceedToCheckout: () => void;
@@ -87,7 +87,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
           ) : (
             <ul className="divide-y divide-line">
               {items.map((item: CartItemResponse) => (
-                <li key={item.productId} className="flex gap-4 py-5">
+                <li key={`${item.productId}-${item.variantId ?? 0}`} className="flex gap-4 py-5">
                   <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-subtle">
                     {item.imageUrl ? (
                       <img
@@ -104,6 +104,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
                   <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="line-clamp-2 text-sm font-medium text-fg">{item.productName}</h3>
+                      {variantLabel(item) && <p className="mt-0.5 text-xs text-muted">{variantLabel(item)}</p>}
                       <span className="shrink-0 text-sm font-semibold text-fg">{formatINR(item.subtotal)}</span>
                     </div>
                     <p className="mt-0.5 text-xs text-muted">{formatINR(item.price || item.subtotal / item.quantity)} each</p>
@@ -118,8 +119,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
                       <div className="flex h-9 items-center rounded-full border border-line">
                         <button
                           type="button"
-                          aria-label={`Decrease quantity for ${item.productName}`}
-                          onClick={() => void updateQuantity(item.productId, item.quantity - 1).catch(() => {})}
+                          aria-label={`Decrease quantity for ${item.productName}${variantLabel(item) ? ` (${variantLabel(item)})` : ''}`}
+                          onClick={() => void updateQuantity(item.productId, item.quantity - 1, item.variantId).catch(() => {})}
                           className="grid h-9 w-9 place-items-center rounded-l-full text-fg hover:bg-subtle disabled:opacity-40"
                           disabled={disabled}
                         >
@@ -128,8 +129,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
                         <span className="w-7 text-center text-sm font-medium tabular-nums text-fg">{item.quantity}</span>
                         <button
                           type="button"
-                          aria-label={`Increase quantity for ${item.productName}`}
-                          onClick={() => void updateQuantity(item.productId, item.quantity + 1).catch(() => {})}
+                          aria-label={`Increase quantity for ${item.productName}${variantLabel(item) ? ` (${variantLabel(item)})` : ''}`}
+                          onClick={() => void updateQuantity(item.productId, item.quantity + 1, item.variantId).catch(() => {})}
                           className="grid h-9 w-9 place-items-center rounded-r-full text-fg hover:bg-subtle disabled:opacity-40"
                           disabled={disabled}
                         >
@@ -138,9 +139,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
                       </div>
                       <button
                         type="button"
-                        onClick={() => void removeItem(item.productId).catch(() => {})}
+                        onClick={() => void removeItem(item.productId, item.variantId).catch(() => {})}
                         className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs text-muted hover:bg-subtle hover:text-sale disabled:opacity-40"
-                        aria-label={`Remove ${item.productName}`}
+                        aria-label={`Remove ${item.productName}${variantLabel(item) ? ` (${variantLabel(item)})` : ''}`}
                         disabled={disabled}
                       >
                         <Trash2 className="h-3.5 w-3.5" /> Remove
