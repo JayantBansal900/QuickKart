@@ -134,7 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (requireAdmin && role !== "ADMIN")
       throw new Error("This account does not have administrator access.");
     if (!requireAdmin && role === "ADMIN")
-      throw new Error("Administrator accounts sign in through the admin console at /admin/login.");
+      throw new Error("This is an administrator account. Choose “Admin” above to sign in.");
   };
   const establish = async (
     operation: () => Promise<AuthResponse>,
@@ -156,10 +156,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setUser(identity);
     setStatus("authenticated");
     setSessionError(null);
-    const destination = safeDestination(
+    const requested = safeDestination(
       new URLSearchParams(location.search).get("next"),
       response.role === "ADMIN" ? "/admin" : "/account/profile",
     );
+    // The admin always lands in the admin console, even when the sign-in started from a store page.
+    const destination = response.role === "ADMIN" && !requested.startsWith("/admin") ? "/admin" : requested;
     navigate(destination, { replace: true });
     return response;
   };

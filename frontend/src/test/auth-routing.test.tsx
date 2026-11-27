@@ -429,14 +429,14 @@ it("mobile menu works from account authentication pages", async () => {
   );
 });
 
-it("administrator accounts are refused on the customer sign-in and get no session", async () => {
+it("an administrator account with Customer chosen gets no session", async () => {
   fetchMock.mockResolvedValue(
     response({ ...identity, role: "ADMIN", token: "admin-token" }),
   );
   mount("/login");
   await credentials();
   fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
-  expect((await screen.findByRole("alert")).textContent).toMatch(/admin console/);
+  expect((await screen.findByRole("alert")).textContent).toMatch(/Choose .Admin. above/);
   expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
 });
 it.each([
@@ -602,5 +602,49 @@ describe("two-step sign-in (emailed code)", () => {
     fireEvent.click(screen.getByRole("button", { name: "Sign In to Admin" }));
     expect(await screen.findByText("This account does not have administrator access.")).toBeTruthy();
     expect(screen.queryByLabelText("Sign-in code")).toBeNull();
+  });
+});
+
+describe("one sign-in page for customers and the admin", () => {
+  const pending = (role: "USER" | "ADMIN") => ({
+    token: null, email: "test@example.invalid", role, emailVerified: true, accountStatus: "ACTIVE",
+    mfaRequired: true, message: "We sent a 6-digit sign-in code to te***@example.invalid.",
+  });
+
+  it("choosing Admin on the store sign-in page opens the admin console", async () => {
+    fetchMock.mockImplementation(async (input) => {
+      const path = String(input);
+      if (path.endsWith("/auth/login")) return response(pending("ADMIN"));
+      if (path.endsWith("/auth/login/verify")) return response({ ...identity, role: "ADMIN", token: "admin-token" });
+      if (path.endsWith("/user/profile")) return response({ ...identity, role: "ADMIN" });
+      return response({});
+    });
+    mount("/login");
+    await credentials();
+    fireEvent.click(screen.getByRole("radio", { name: "Admin" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    fireEvent.change(await screen.findByLabelText("Sign-in code"), { target: { value: "123456" } });
+    fireEvent.click(screen.getByRole("button", { name: "Verify and sign in" }));
+    await screen.findByRole("heading", { name: "Admin content" });
+    expect(localStorage.getItem(TOKEN_KEY)).toBe("admin-token");
+  });
+
+  it("an admin account left on Customer is told to choose Admin", async () => {
+    fetchMock.mockImplementation(async () => response(pending("ADMIN")));
+    mount("/login");
+    await credentials();
+    expect(screen.getByRole("radio", { name: "Customer" }).getAttribute("aria-checked")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    expect(await screen.findByText(/Choose .Admin. above/)).toBeTruthy();
+    expect(screen.queryByLabelText("Sign-in code")).toBeNull();
+  });
+
+  it("a customer account cannot sign in with Admin chosen", async () => {
+    fetchMock.mockImplementation(async () => response(pending("USER")));
+    mount("/login");
+    await credentials();
+    fireEvent.click(screen.getByRole("radio", { name: "Admin" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    expect(await screen.findByText("This account does not have administrator access.")).toBeTruthy();
   });
 });

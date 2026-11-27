@@ -37,6 +37,8 @@ export function AuthPage() {
   const [limited, setLimited] = useState(false);
   /** Set after a correct password: the message about the emailed sign-in code. */
   const [mfa, setMfa] = useState<string | null>(null);
+  /** Same sign-in page for both: customers go to the store, the admin to the admin console. */
+  const [asAdmin, setAsAdmin] = useState(() => new URLSearchParams(location.search).get("as") === "admin");
   const heading = useRef<HTMLHeadingElement>(null);
   // Reset per-screen fields when the mode changes. Done during render (not in an effect) so there
   // is no window where the new screen is visible and a fast typist's input then gets wiped.
@@ -71,7 +73,7 @@ export function AuthPage() {
     setBusy(true);
     setError("");
     try {
-      await auth.verifyLogin(email, code);
+      await auth.verifyLogin(email, code, { requireAdmin: asAdmin });
     } catch (err) {
       setError(err instanceof Error ? err.message : "That code did not work.");
       if (err instanceof Error && /sign in again|expired|too many/i.test(err.message)) setMfa(null);
@@ -110,7 +112,7 @@ export function AuthPage() {
         navigate("/login" + suffix);
         setNotice("Password updated. Sign in with your new password — other devices have been signed out.");
       } else if (mode === "login") {
-        const result = await auth.login(email, password);
+        const result = await auth.login(email, password, { requireAdmin: asAdmin });
         if (result.mfaRequired) setMfa(result.message ?? "We emailed you a 6-digit sign-in code.");
       }
       else if (mode === "register") {
@@ -181,6 +183,22 @@ export function AuthPage() {
           <div className="mb-8 flex rounded-lg bg-subtle p-1">
             {tab("/login", "Sign in", mode === "login")}
             {tab("/register", "Create account", mode === "register")}
+          </div>
+        )}
+        {mode === "login" && !mfa && (
+          <div role="radiogroup" aria-label="Sign in as" className="mb-6 grid grid-cols-2 gap-2">
+            {[false, true].map((admin) => (
+              <button
+                key={admin ? "admin" : "customer"}
+                type="button"
+                role="radio"
+                aria-checked={asAdmin === admin}
+                onClick={() => { setAsAdmin(admin); setError(""); }}
+                className={`rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors ${asAdmin === admin ? "border-fg bg-fg text-bg" : "border-line text-fg hover:border-fg"}`}
+              >
+                {admin ? "Admin" : "Customer"}
+              </button>
+            ))}
           </div>
         )}
         <h1 ref={heading} tabIndex={-1} className="qk-display text-4xl text-fg outline-none">
