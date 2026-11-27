@@ -16,6 +16,8 @@ import {
   CheckoutRequest,
   UpdateOrderStatusRequest,
   SystemStatusResponse,
+  ComponentDetail,
+  ComponentActionResult,
   PageResponse,
   ProductSearchQuery,
   CategoryCount,
@@ -266,6 +268,21 @@ export const api = {
   },
 
   // ─── Admin System Status API ─────────────────────────────────────────────────
+
+  /** Troubleshooting view of one dependency on the System Status page. */
+  async getSystemComponent(key: string): Promise<ComponentDetail> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/system/components/${encodeURIComponent(key)}`, { headers: getAuthHeaders() });
+    return handleResponse<ComponentDetail>(res);
+  },
+
+  /** Runs one of the safe fixes offered by a component view. */
+  async runSystemAction(key: string, action: string): Promise<ComponentActionResult> {
+    const res = await apiFetch(`${API_BASE_URL}/admin/system/components/${encodeURIComponent(key)}/actions/${encodeURIComponent(action)}`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse<ComponentActionResult>(res);
+  },
 
   async getSystemStatus(): Promise<SystemStatusResponse> {
     const res = await apiFetch(`${API_BASE_URL}/admin/system/status`, {

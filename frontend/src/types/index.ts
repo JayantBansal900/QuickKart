@@ -166,10 +166,31 @@ export interface AnalyticsInsights {
 
 /** One dependency in the admin System Status page. */
 export interface ComponentStatus {
+  /** Opens the troubleshooting view: postgres, redis, kafka, product-service, order-service, outbox. */
+  key: string;
   name: string;
   status: 'UP' | 'DOWN';
   latencyMs: number;
   detail: string;
+}
+
+export interface ComponentDetail {
+  key: string;
+  name: string;
+  status: 'UP' | 'DOWN';
+  latencyMs: number;
+  facts: { label: string; value: string }[];
+  problems: string[];
+  advice: string[];
+  actions: { id: string; label: string; description: string }[];
+  checkedAt: string;
+}
+
+export interface ComponentActionResult {
+  component: string;
+  action: string;
+  message: string;
+  ranAt: string;
 }
 
 export interface SystemStatusResponse {

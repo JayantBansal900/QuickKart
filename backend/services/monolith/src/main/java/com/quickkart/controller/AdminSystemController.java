@@ -14,9 +14,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminSystemController {
 
     private final SystemStatusService systemStatusService;
+    private final com.quickkart.service.SystemDiagnosticsService diagnostics;
 
-    public AdminSystemController(SystemStatusService systemStatusService) {
+    public AdminSystemController(SystemStatusService systemStatusService, com.quickkart.service.SystemDiagnosticsService diagnostics) {
         this.systemStatusService = systemStatusService;
+        this.diagnostics = diagnostics;
+    }
+
+    /** Troubleshooting view of one component: numbers, problems found, what to do, safe fixes. */
+    @GetMapping("/components/{key}")
+    public ResponseEntity<com.quickkart.service.SystemDiagnosticsService.ComponentDetail> component(@org.springframework.web.bind.annotation.PathVariable String key) {
+        return ResponseEntity.ok(diagnostics.details(key));
+    }
+
+    /** Runs one of the safe fixes offered by the component view (for example clearing the product cache). */
+    @org.springframework.web.bind.annotation.PostMapping("/components/{key}/actions/{action}")
+    public ResponseEntity<com.quickkart.service.SystemDiagnosticsService.ActionResult> run(
+            @org.springframework.web.bind.annotation.PathVariable String key,
+            @org.springframework.web.bind.annotation.PathVariable String action,
+            org.springframework.security.core.Authentication auth) {
+        return ResponseEntity.ok(diagnostics.run(key, action, auth.getName()));
     }
 
     @GetMapping("/status")

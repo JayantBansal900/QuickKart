@@ -27,7 +27,8 @@ import java.util.concurrent.Callable;
 @Service
 public class SystemStatusService {
 
-    public record ComponentStatus(String name, String status, long latencyMs, String detail) {}
+    /** {@code key} opens the troubleshooting view for this component (see SystemDiagnosticsService). */
+    public record ComponentStatus(String key, String name, String status, long latencyMs, String detail) {}
 
     public record SystemStatus(String overall, Instant checkedAt, List<ComponentStatus> components) {}
 
@@ -58,24 +59,24 @@ public class SystemStatusService {
 
     public SystemStatus check() {
         List<ComponentStatus> components = List.of(
-                probe("PostgreSQL", "Database query failed", () -> jdbc.queryForObject("SELECT 1", Integer.class)),
-                probe("Redis", "Cache did not answer PING", this::pingRedis),
-                probe("Kafka", "Broker unreachable", this::describeKafka),
-                probe("Product Service", "Health endpoint not UP", () -> serviceHealth(productServiceUrl)),
-                probe("Order Service", "Health endpoint not UP", () -> serviceHealth(orderServiceUrl)),
+                probe("postgres", "PostgreSQL", "Database query failed", () -> jdbc.queryForObject("SELECT 1", Integer.class)),
+                probe("redis", "Redis", "Cache did not answer PING", this::pingRedis),
+                probe("kafka", "Kafka", "Broker unreachable", this::describeKafka),
+                probe("product-service", "Product Service", "Health endpoint not UP", () -> serviceHealth(productServiceUrl)),
+                probe("order-service", "Order Service", "Health endpoint not UP", () -> serviceHealth(orderServiceUrl)),
                 outboxBacklog()
         );
         boolean allUp = components.stream().allMatch(c -> "UP".equals(c.status()));
         return new SystemStatus(allUp ? "UP" : "DEGRADED", Instant.now(), components);
     }
 
-    private ComponentStatus probe(String name, String failure, Callable<?> check) {
+    private ComponentStatus probe(String key, String name, String failure, Callable<?> check) {
         long start = System.nanoTime();
         try {
             check.call();
-            return new ComponentStatus(name, "UP", elapsedMs(start), "Healthy");
+            return new ComponentStatus(key, name, "UP", elapsedMs(start), "Healthy");
         } catch (Exception ex) {
-            return new ComponentStatus(name, "DOWN", elapsedMs(start), failure);
+            return new ComponentStatus(key, name, "DOWN", elapsedMs(start), failure);
         }
     }
 
@@ -90,10 +91,10 @@ public class SystemStatusService {
             Long stale = jdbc.queryForObject("SELECT COUNT(*) FROM outbox_events WHERE published_at IS NULL AND created_at < ?",
                     Long.class, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now().minusMinutes(2)));
             long p = pending == null ? 0 : pending, st = stale == null ? 0 : stale;
-            return new ComponentStatus("Order events (outbox)", st == 0 ? "UP" : "DOWN", elapsedMs(start),
+            return new ComponentStatus("outbox", "Order events (outbox)", st == 0 ? "UP" : "DOWN", elapsedMs(start),
                     st == 0 ? p + " pending" : st + " event(s) waiting over 2 minutes");
         } catch (RuntimeException ex) {
-            return new ComponentStatus("Order events (outbox)", "DOWN", elapsedMs(start), "Outbox not readable");
+            return new ComponentStatus("outbox", "Order events (outbox)", "DOWN", elapsedMs(start), "Outbox not readable");
         }
     }
 

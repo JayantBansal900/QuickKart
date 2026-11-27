@@ -20,6 +20,7 @@ A full-stack e-commerce app: a React storefront and admin panel on top of Spring
 - **Two-step sign-in** for customers and the admin: after the password, a 6-digit code is emailed (valid 5 minutes, 5 tries, one-time use); only the code gives a session.
 - Forgot / reset password by emailed code. A reset signs the account out on every device.
 - Browse **30 QuickKart own-brand products** in three categories (Clothing, Shoes, Accessories). Every product image is drawn by `scripts/catalog/design-products.mjs` in one house style with the QuickKart logo, so there are no third-party photos. Server-side search, category / size / colour / price filters, sort and pagination.
+- **System Status with troubleshooting** (admin): PostgreSQL, Redis, Kafka, product-service, order-service and the order-event outbox each show UP/DOWN; clicking one shows its numbers (DB size and schema version, cache hit rate, Kafka consumer lag and failed events, waiting outbox events…), the problems found, what to do, and the fixes that are safe to run from the browser: **clear the product cache** and **replay failed (dead-letter) order events**.
 - Clothes and shoes have **sizes and colours**, each with its own stock (S–XXL, waist 28–36, UK 6–11). The cart, checkout, cancellation and returns all work per size; sold-out sizes are shown struck through, and the Fashion category can be filtered by size and colour.
 - Cart, then checkout with a saved delivery address: pay by cash on delivery, or by UPI / card through the simulated gateway (a failed payment can be retried; unpaid orders are cancelled after 30 minutes and their stock released).
 - Order history with a step tracker (`Placed → Confirmed → Packed → Shipped → Out for delivery → Delivered`), cancellation with stock restore and an automatic refund for paid orders.
@@ -133,12 +134,12 @@ With `MAIL_TRANSPORT=console` (the default), OTP emails are written to the monol
 
 | Suite | Count | Command |
 |---|---:|---|
-| Monolith (auth, two-step sign-in, admin, analytics, email, Kafka consumer, security) | 105 | `mvn verify` in `backend/services/monolith` |
+| Monolith (auth, two-step sign-in, admin, analytics, system troubleshooting, email, Kafka consumer, security) | 109 | `mvn verify` in `backend/services/monolith` |
 | Order service (cart, checkout, payments, coupons, returns, outbox) | 63 | `mvn verify` in `backend/services/order-service` |
 | Product service (search, cache, admin, categories, reviews, wishlist, stock history) | 55 | `mvn verify` in `backend/services/product-service` |
 | API gateway | 7 | `mvn verify` in `backend/services/api-gateway` |
-| Frontend (Vitest + Testing Library) | 101 | `npm test` in `frontend` |
-| End-to-end against the running stack | 101 checks | `node scripts/e2e-smoke.mjs .` (needs `MAIL_TRANSPORT=console`) |
+| Frontend (Vitest + Testing Library) | 106 | `npm test` in `frontend` |
+| End-to-end against the running stack | 104 checks | `node scripts/e2e-smoke.mjs .` (needs `MAIL_TRANSPORT=console`) |
 
 Kafka tests use an embedded broker. PostgreSQL-specific tests (locking, migrations) run against a Testcontainers database in CI. GitHub Actions runs all of these on every push ([ci.yml](.github/workflows/ci.yml)).
 

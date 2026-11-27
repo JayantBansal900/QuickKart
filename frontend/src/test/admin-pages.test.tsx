@@ -210,8 +210,8 @@ describe("admin system status", () => {
             overall: "DEGRADED",
             checkedAt: "2026-11-17T10:00:00Z",
             components: [
-              { name: "PostgreSQL", status: "UP", latencyMs: 3, detail: "Healthy" },
-              { name: "Kafka", status: "DOWN", latencyMs: 2000, detail: "Broker unreachable" },
+              { key: "postgres", name: "PostgreSQL", status: "UP", latencyMs: 3, detail: "Healthy" },
+              { key: "kafka", name: "Kafka", status: "DOWN", latencyMs: 2000, detail: "Broker unreachable" },
             ],
           }),
     );
@@ -219,5 +219,68 @@ describe("admin system status", () => {
     await screen.findByText("Broker unreachable");
     expect(screen.getByText("DEGRADED")).toBeTruthy();
     expect(screen.getByText("PostgreSQL")).toBeTruthy();
+  });
+});
+
+describe("system troubleshooting", () => {
+  const statusBody = {
+    overall: "UP",
+    checkedAt: "2026-11-27T10:00:00Z",
+    components: [{ key: "redis", name: "Redis", status: "UP", latencyMs: 2, detail: "Healthy" }],
+  };
+  const redisDetail = (cached: string) => ({
+    key: "redis", name: "Redis", status: "UP", latencyMs: 2, checkedAt: "2026-11-27T10:00:00Z",
+    facts: [{ label: "Cached product pages", value: cached }],
+    problems: [],
+    advice: ["If the store shows an old price, clear the product cache."],
+    actions: [{ id: "clear-product-cache", label: "Clear product cache", description: "Deletes only the cached product listings." }],
+  });
+
+  it("clicking a component shows its numbers, advice and a safe fix that runs after confirmation", async () => {
+    const actions: string[] = [];
+    let cached = "12";
+    fetchMock.mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/user/profile")) return json(admin);
+      if (url.endsWith("/admin/system/status")) return json(statusBody);
+      if (url.endsWith("/actions/clear-product-cache") && init?.method === "POST") {
+        actions.push(url);
+        cached = "0";
+        return json({ component: "redis", action: "clear-product-cache", message: "Cleared 12 cached product page(s).", ranAt: "2026-11-27T10:01:00Z" });
+      }
+      if (url.endsWith("/admin/system/components/redis")) return json(redisDetail(cached));
+      return json({});
+    });
+    mount(<AdminSystemPage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Troubleshoot Redis" }));
+    const panel = await screen.findByRole("dialog", { name: /Redis/ });
+    expect(await within(panel).findByText("Cached product pages")).toBeTruthy();
+    expect(within(panel).getByText("No problems found.")).toBeTruthy();
+
+    fireEvent.click(within(panel).getByRole("button", { name: "Clear product cache" }));
+    const confirmBox = await screen.findByRole("alertdialog");
+    expect(actions).toEqual([]); // nothing runs before the admin confirms
+    fireEvent.click(within(confirmBox).getByRole("button", { name: "Clear product cache" }));
+    expect(await within(panel).findByText("Cleared 12 cached product page(s).")).toBeTruthy();
+    expect(actions).toHaveLength(1);
+    expect(await within(panel).findByText("0")).toBeTruthy();
+  });
+
+  it("a component that is down lists the problem and what to do", async () => {
+    fetchMock.mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith("/user/profile")) return json(admin);
+      if (url.endsWith("/admin/system/status")) return json({ ...statusBody, overall: "DEGRADED", components: [{ key: "kafka", name: "Kafka", status: "DOWN", latencyMs: 2000, detail: "Broker unreachable" }] });
+      return json({
+        key: "kafka", name: "Kafka", status: "DOWN", latencyMs: 2000, checkedAt: "2026-11-27T10:00:00Z",
+        facts: [], problems: ["The Kafka broker is unreachable."], advice: ["Start it again: docker compose up -d --wait kafka"], actions: [],
+      });
+    });
+    mount(<AdminSystemPage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Troubleshoot Kafka" }));
+    const panel = await screen.findByRole("dialog", { name: /Kafka/ });
+    expect(await within(panel).findByText("The Kafka broker is unreachable.")).toBeTruthy();
+    expect(within(panel).getByText(/docker compose up -d --wait kafka/)).toBeTruthy();
+    expect(within(panel).queryByText("Fix from here")).toBeNull();
   });
 });

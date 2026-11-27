@@ -137,6 +137,14 @@ const A = adminLogin.json?.token;
 const sys = await call("GET", "/admin/system/status", { token: A });
 check("system status: all components UP", sys.json?.overall === "UP",
   (sys.json?.components ?? []).map((c) => `${c.name}=${c.status}(${c.latencyMs}ms)`).join(", "));
+const views = await Promise.all((sys.json?.components ?? []).map((c) => call("GET", `/admin/system/components/${c.key}`, { token: A })));
+check("every component opens a troubleshooting view with numbers and advice",
+  views.length === 6 && views.every((v) => v.status === 200 && v.json?.facts?.length > 0 && v.json?.advice?.length > 0 && !/localhost|jdbc:|password/i.test(v.text)),
+  views.map((v) => `${v.json?.key}=${v.json?.status}`).join(", "));
+const cacheFix = await call("POST", "/admin/system/components/redis/actions/clear-product-cache", { token: A });
+check("admin can clear the product cache from System Status", cacheFix.status === 200 && /cache/i.test(cacheFix.json?.message ?? ""), cacheFix.json?.message);
+const badFix = await call("POST", "/admin/system/components/postgres/actions/drop-everything", { token: A });
+check("only the offered fixes can be run", badFix.status === 400, `status=${badFix.status}`);
 check("system status leaks no hosts/secrets", !/localhost|jdbc:|password|secret|:9092|:5432/i.test(sys.text));
 const users = await call("GET", "/admin/users", { token: A });
 check("admin users list is paged and has no password/otp fields", users.status === 200 && Array.isArray(users.json?.content) && !/password|otp|hash/i.test(users.text), `${users.json?.totalElements} users`);
