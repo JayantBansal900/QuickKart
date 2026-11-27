@@ -10,6 +10,8 @@ public class AuthResponse {
     private boolean emailVerified;
     private String accountStatus;
     private String message;
+    /** True when the password was right and an emailed code is needed to finish signing in. */
+    private boolean mfaRequired;
 
     public AuthResponse() {
     }
@@ -97,5 +99,13 @@ public class AuthResponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public boolean isMfaRequired() {
+        return mfaRequired;
+    }
+
+    public void setMfaRequired(boolean mfaRequired) {
+        this.mfaRequired = mfaRequired;
     }
 }

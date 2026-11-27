@@ -65,6 +65,9 @@ public class ProductService {
         org.springframework.data.jpa.domain.Specification<Product> spec = (root, cq, cb) -> {
             java.util.List<jakarta.persistence.criteria.Predicate> where = new java.util.ArrayList<>();
             if (cat != null) where.add(cb.equal(cb.upper(root.get("category")), cat));
+            // Retired (discontinued) products are only listed when asked for: past orders still need them, the range does not.
+            var retired = cb.equal(cb.upper(cb.coalesce(root.get("availability"), "")), "DISCONTINUED");
+            where.add("RETIRED".equals(level) ? retired : cb.not(retired));
             if ("LOW".equals(level)) where.add(cb.lessThan(root.get("stockQuantity"), LOW_STOCK_THRESHOLD));
             if ("OUT".equals(level)) where.add(cb.lessThanOrEqualTo(root.get("stockQuantity"), 0));
             if (!query.isEmpty()) {

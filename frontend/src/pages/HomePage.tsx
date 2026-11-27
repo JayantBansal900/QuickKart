@@ -2,19 +2,14 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   AlertCircle,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
-  Dumbbell,
+  Footprints,
   Gem,
-  Home,
-  Laptop,
   LayoutGrid,
   Search,
   Shirt,
-  ShoppingBasket,
   SlidersHorizontal,
-  Sparkles,
   X,
 } from 'lucide-react';
 
@@ -69,13 +64,8 @@ function categoryImage(id: string): string {
 /** Shown until /api/categories answers (and as a fallback if it fails). */
 const DEFAULT_CATEGORIES: Category[] = [
   { id: 'ALL', label: 'All products', icon: LayoutGrid },
-  { id: 'ELECTRONICS', label: 'Electronics', icon: Laptop },
-  { id: 'FASHION', label: 'Fashion', icon: Shirt },
-  { id: 'HOME & LIVING', label: 'Home & Living', icon: Home },
-  { id: 'SPORTS', label: 'Sports', icon: Dumbbell },
-  { id: 'BOOKS', label: 'Books', icon: BookOpen },
-  { id: 'BEAUTY', label: 'Beauty', icon: Sparkles },
-  { id: 'GROCERIES', label: 'Groceries', icon: ShoppingBasket },
+  { id: 'CLOTHING', label: 'Clothing', icon: Shirt },
+  { id: 'SHOES', label: 'Shoes', icon: Footprints },
   { id: 'ACCESSORIES', label: 'Accessories', icon: Gem },
 ];
 
@@ -341,11 +331,11 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
       {/* ---------- Intro and categories ---------- */}
       {isBrowsing && (
         <section className="qk-container pt-10 md:pt-14" aria-labelledby="home-heading">
-          <h1 id="home-heading" className="qk-display max-w-2xl text-4xl text-fg md:text-5xl">Everyday things, at fair prices.</h1>
+          <h1 id="home-heading" className="qk-display max-w-2xl text-4xl text-fg md:text-5xl">Clothes, shoes and accessories. One brand.</h1>
           <p className="mt-3 max-w-xl text-base text-muted">
-            {totalProducts > 0 ? `${totalProducts} products` : 'Products'} in 8 categories. Pay by UPI, card or cash on delivery.
+            {totalProducts > 0 ? `${totalProducts} QuickKart products` : 'QuickKart products'}, designed by us, in sizes S to XXL. Pay by UPI, card or cash on delivery.
           </p>
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {categories.filter((c) => c.id !== 'ALL').slice(0, 8).map((cat) => (
               <button
                 key={cat.id}
@@ -359,7 +349,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
                   alt=""
                   loading="lazy"
                   onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
-                  className="h-12 w-12 shrink-0 rounded-md bg-subtle object-cover"
+                  className="h-16 w-16 shrink-0 rounded-md bg-subtle object-cover"
                 />
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-semibold text-fg">{cat.label}</span>
@@ -413,7 +403,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
                   })}
                 </ul>
               </div>
-              {(selectedCategory === 'FASHION' || sizeFilter || colorFilter) && <>
+              {(selectedCategory === 'CLOTHING' || selectedCategory === 'SHOES' || sizeFilter || colorFilter) && <>
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-[0.1em] text-fg">Size</h3>
                 {SIZE_GROUPS.map((g) => (
@@ -517,7 +507,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
               >
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
               </select>
-              {(selectedCategory === 'FASHION' || sizeFilter || colorFilter) && <>
+              {(selectedCategory === 'CLOTHING' || selectedCategory === 'SHOES' || sizeFilter || colorFilter) && <>
               <select aria-label="Size" value={sizeFilter} onChange={(e) => updateParams({ size: e.target.value })} className="qk-input h-10 w-auto shrink-0 cursor-pointer pr-8 lg:hidden">
                 <option value="">Any size</option>
                 {SIZE_GROUPS.flatMap((g) => g.sizes).map((sz) => <option key={sz} value={sz}>{sz}</option>)}

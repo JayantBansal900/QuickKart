@@ -127,4 +127,17 @@ class ProductVariantsIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)));
     }
+
+    @Test
+    void retiredProductsLeaveTheAdminListUnlessAskedFor() throws Exception {
+        String name = "Retired tee " + UUID.randomUUID();
+        Long id = create(name, null);
+        mvc.perform(put("/api/admin/products/" + id).header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
+                        .content(product(name, null).replace("}", ",\"availability\":\"DISCONTINUED\"}")))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/admin/products").param("q", name).header("Authorization", admin))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(0));
+        mvc.perform(get("/api/admin/products").param("q", name).param("stock", "RETIRED").header("Authorization", admin))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1));
+    }
 }

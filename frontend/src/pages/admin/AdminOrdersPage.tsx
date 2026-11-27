@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { api } from "../../services/api";
 import { OrderResponse, OrderStatus, PageResponse } from "../../types";
-import { formatINR } from "../../utils/formatters";
+import { formatINR, variantLabel } from "../../utils/formatters";
 import { useConfirm } from "../../components/ConfirmDialog";
 import {
   AdminPageHeader,
@@ -34,6 +34,18 @@ export const NEXT_STATUS: Record<OrderStatus, OrderStatus[]> = {
   CANCELLED: [],
   RETURNED: [],
 };
+
+/** Button text for moving an order to the next step. */
+const ACTION: Partial<Record<OrderStatus, string>> = {
+  CONFIRMED: "Confirm order",
+  PROCESSING: "Start packing",
+  SHIPPED: "Ship…",
+  OUT_FOR_DELIVERY: "Out for delivery",
+  DELIVERED: "Mark delivered",
+};
+
+/** The delivery journey shown in the order details. */
+const JOURNEY: OrderStatus[] = ["PLACED", "CONFIRMED", "PROCESSING", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED"];
 
 const COURIERS = ["Delhivery", "Blue Dart", "Ekart", "DTDC", "India Post", "Xpressbees"];
 
@@ -194,31 +206,56 @@ export function AdminOrdersPage() {
                       {nextOptions.length === 0 ? (
                         <span className="text-xs text-muted">{o.status === "PENDING" ? "Awaiting payment" : "Final"}</span>
                       ) : (
-                        <select
-                          aria-label={`Update status for order ${o.id}`}
-                          disabled={updatingId === o.id}
-                          value=""
-                          onChange={(e) => e.target.value && void changeStatus(o, e.target.value as OrderStatus)}
-                          className="rounded-md border border-line bg-surface px-2 py-1.5 text-xs font-semibold"
-                        >
-                          <option value="">Move to…</option>
-                          {nextOptions.map((s) => (
-                            <option key={s} value={s}>{label(s)}</option>
+                        <div className="flex justify-end gap-2">
+                          {NEXT_STATUS[o.status].map((s) => (
+                            <button
+                              key={s}
+                              type="button"
+                              aria-label={`${ACTION[s] ?? label(s)} for order ${o.id}`}
+                              disabled={updatingId === o.id}
+                              onClick={() => void changeStatus(o, s)}
+                              className="rounded-md bg-fg px-3 py-1.5 text-xs font-semibold text-bg hover:opacity-90 disabled:opacity-40"
+                            >
+                              {ACTION[s] ?? label(s)}
+                            </button>
                           ))}
-                        </select>
+                          {o.cancellable && (
+                            <button
+                              type="button"
+                              aria-label={`Cancel order ${o.id}`}
+                              disabled={updatingId === o.id}
+                              onClick={() => void changeStatus(o, "CANCELLED")}
+                              className="rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-sale hover:bg-sale-soft disabled:opacity-40"
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </div>
                       )}
                     </td>
                   </tr>
                   {isOpen && (
                     <tr className="bg-subtle">
                       <td colSpan={6} className="px-4 py-4 text-sm">
+                        {JOURNEY.includes(o.status) && (
+                          <ol className="mb-4 flex flex-wrap items-center gap-1 text-xs" aria-label={`Progress of order ${o.id}`}>
+                            {JOURNEY.map((step, i) => {
+                              const done = JOURNEY.indexOf(o.status) >= i;
+                              return (
+                                <li key={step} className={`rounded-full px-2.5 py-1 ${done ? "bg-fg text-bg" : "bg-surface text-muted"}`} aria-current={o.status === step ? "step" : undefined}>
+                                  {label(step)}
+                                </li>
+                              );
+                            })}
+                          </ol>
+                        )}
                         <div className="grid gap-4 sm:grid-cols-2">
                           <div>
                             <h3 className="mb-1 text-xs font-semibold uppercase text-muted">Items</h3>
                             <ul className="space-y-1">
                               {o.items.map((item) => (
-                                <li key={item.productId} className="flex justify-between gap-3">
-                                  <span>{item.quantity} × {item.productName}</span>
+                                <li key={`${item.productId}-${item.size ?? ''}-${item.color ?? ''}`} className="flex justify-between gap-3">
+                                  <span>{item.quantity} × {item.productName}{variantLabel(item) ? ` (${variantLabel(item)})` : ""}</span>
                                   <span className="tabular-nums">{formatINR(item.subtotal)}</span>
                                 </li>
                               ))}

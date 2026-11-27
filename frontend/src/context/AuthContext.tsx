@@ -37,6 +37,12 @@ interface AuthContextType {
     password: string,
     options?: { requireAdmin?: boolean },
   ) => Promise<AuthResponse>;
+  /** Second step after login() answered mfaRequired: the emailed code. */
+  verifyLogin: (
+    email: string,
+    otp: string,
+    options?: { requireAdmin?: boolean },
+  ) => Promise<AuthResponse>;
   register: (
     name: string,
     email: string,
@@ -123,6 +129,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       window.removeEventListener("storage", storage);
     };
   }, [restore, clear]);
+  /** Separate front doors: staff use the admin console, customers use the store sign-in. */
+  const checkPortal = (role: string | undefined, requireAdmin: boolean) => {
+    if (requireAdmin && role !== "ADMIN")
+      throw new Error("This account does not have administrator access.");
+    if (!requireAdmin && role === "ADMIN")
+      throw new Error("Administrator accounts sign in through the admin console at /admin/login.");
+  };
   const establish = async (
     operation: () => Promise<AuthResponse>,
     requireAdmin = false,
@@ -137,11 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       );
     // Checked BEFORE the token is stored: a customer using the admin login gets no session.
     // (UX only — the backend independently enforces ADMIN on every /api/admin call.)
-    if (requireAdmin && response.role !== "ADMIN")
-      throw new Error("This account does not have administrator access.");
-    // Separate front doors: staff use the admin console, customers use the store sign-in.
-    if (!requireAdmin && response.role === "ADMIN")
-      throw new Error("Administrator accounts sign in through the admin console at /admin/login.");
+    checkPortal(response.role, requireAdmin);
     localStorage.setItem(TOKEN_KEY, response.token);
     const { token: _token, ...identity } = response;
     setUser(identity);
@@ -178,11 +187,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         retrySession: () => void restore(),
         isAuthenticated: status === "authenticated",
         isAdmin: status === "authenticated" && user?.role === "ADMIN",
-        login: (email, password, options) =>
-          establish(
-            () => api.login(email.trim(), password),
-            options?.requireAdmin === true,
-          ),
+        login: async (email, password, options) => {
+          const requireAdmin = options?.requireAdmin === true;
+          const response = await api.login(email.trim(), password);
+          if (response.mfaRequired) {
+            // Wrong door: say so now, not after the customer has typed the code.
+            checkPortal(response.role, requireAdmin);
+            return response;
+          }
+          return establish(async () => response, requireAdmin);
+        },
+        verifyLogin: (email, otp, options) =>
+          establish(() => api.verifyLogin(email.trim(), otp), options?.requireAdmin === true),
         register: (name, email, password, phone) =>
           api.register(name.trim(), email.trim(), password, phone),
         verifyOtp: (request) => establish(() => api.verifyOtp(request)),

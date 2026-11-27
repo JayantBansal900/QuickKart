@@ -57,6 +57,7 @@ class AuthServiceTest {
     @BeforeEach
     void setUp() {
         authService = new AuthService(userRepository, emailVerificationRepository, passwordEncoder, jwtService, emailService, hasher, limiter);
+        authService.setMfaEnabled(false); // the two-step sign-in has its own tests (LoginMfaIntegrationTest)
     }
 
     @Test

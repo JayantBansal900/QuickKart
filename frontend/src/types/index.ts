@@ -19,6 +19,8 @@ export interface AuthResponse {
   emailVerified?: boolean;
   accountStatus?: string;
   message?: string;
+  /** The password was right; finish with the code emailed to the account. */
+  mfaRequired?: boolean;
 }
 
 export interface VerifyOtpRequest {

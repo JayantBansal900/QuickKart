@@ -2,13 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const canonicalCategories = new Set([
-  'Electronics',
-  'Fashion',
-  'Home & Living',
-  'Sports',
-  'Books',
-  'Beauty',
-  'Groceries',
+  'Clothing',
+  'Shoes',
   'Accessories'
 ]);
 
@@ -137,7 +132,7 @@ console.log(`\n==================================================`);
 console.log(`VALIDATION SUMMARY:`);
 console.log(`  Total Products Validated: ${products.length}`);
 console.log(`  Unique SKUs: ${seenSkus.size}`);
-console.log(`  Total Categories Covered: ${Object.keys(categoryCounts).length} / 8`);
+console.log(`  Total Categories Covered: ${Object.keys(categoryCounts).length} / 3`);
 console.log(`  Total Errors: ${errors}`);
 console.log(`  Total Warnings: ${warnings}`);
 console.log(`==================================================`);

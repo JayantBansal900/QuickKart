@@ -274,3 +274,11 @@ Because "shipped" without a tracking number is the most common support ticket in
 **What was deliberately left out?** Per-colour photos and per-size prices.
 
 **A detour worth mentioning honestly:** the store was briefly rebranded as a menswear label (Flyway V9) and then brought back to the general store (V10). Both changes are forward-only migrations, so a database at any version upgrades cleanly; nothing was rewritten in place.
+
+## Two-step sign-in (email one-time code)
+
+**How does it work?** `POST /api/auth/login` checks the password and, if it is right, emails a 6-digit code and answers `mfaRequired: true` with **no token**. `POST /api/auth/login/verify` checks the code and only then issues the JWT. Customers and the admin go through the same two steps.
+
+**What stops guessing?** The code is stored as a keyed hash (never in plain text), expires after 5 minutes, allows 5 tries and works once. Only the newest code is valid. Both endpoints are rate-limited per email, and an unknown email gets the same error as a wrong code.
+
+**Why email and not an authenticator app?** It reuses the existing, tested email-code machinery (sign-up and password reset) and needs no extra app. An authenticator app (TOTP) would be the next step.

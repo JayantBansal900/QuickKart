@@ -527,3 +527,80 @@ describe("forgot and reset password", () => {
     expect(window.location.search).not.toContain("example.invalid");
   });
 });
+
+describe("two-step sign-in (emailed code)", () => {
+  const pending = (role: "USER" | "ADMIN") => ({
+    token: null, email: "test@example.invalid", role, emailVerified: true, accountStatus: "ACTIVE",
+    mfaRequired: true, message: "We sent a 6-digit sign-in code to te***@example.invalid.",
+  });
+
+  it("a correct password asks for the code, and only the code creates the session", async () => {
+    const verified: string[] = [];
+    fetchMock.mockImplementation(async (input, init) => {
+      const path = String(input);
+      if (path.endsWith("/auth/login")) return response(pending("USER"));
+      if (path.endsWith("/auth/login/verify")) {
+        verified.push(String(init?.body));
+        return response({ ...identity, token: "mfa-token" });
+      }
+      if (path.endsWith("/user/profile")) return response(identity);
+      return response({ content: [], items: [] });
+    });
+    mount("/login");
+    await credentials();
+    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    expect(await screen.findByText(/te\*\*\*@example.invalid/)).toBeTruthy();
+    expect(localStorage.getItem(TOKEN_KEY)).toBeNull(); // no session after the password alone
+
+    fireEvent.change(screen.getByLabelText("Sign-in code"), { target: { value: "12 34 56" } });
+    fireEvent.click(screen.getByRole("button", { name: "Verify and sign in" }));
+    await screen.findByRole("heading", { name: "Protected profile" });
+    expect(JSON.parse(verified[0])).toEqual({ email: "test@example.invalid", otp: "123456" });
+    expect(localStorage.getItem(TOKEN_KEY)).toBe("mfa-token");
+  });
+
+  it("a wrong code shows the error and keeps the code screen", async () => {
+    fetchMock.mockImplementation(async (input) => {
+      const path = String(input);
+      if (path.endsWith("/auth/login")) return response(pending("USER"));
+      if (path.endsWith("/auth/login/verify")) return response({ message: "Invalid sign-in code. 4 attempt(s) remaining." }, 400);
+      return response({});
+    });
+    mount("/login");
+    await credentials();
+    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    fireEvent.change(await screen.findByLabelText("Sign-in code"), { target: { value: "000000" } });
+    fireEvent.click(screen.getByRole("button", { name: "Verify and sign in" }));
+    expect(await screen.findByText(/4 attempt\(s\) remaining/)).toBeTruthy();
+    expect(screen.getByLabelText("Sign-in code")).toBeTruthy();
+    expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
+  });
+
+  it("the admin console also asks for the code and refuses customer accounts before it", async () => {
+    fetchMock.mockImplementation(async (input) => {
+      const path = String(input);
+      if (path.endsWith("/auth/login")) return response(pending("ADMIN"));
+      if (path.endsWith("/auth/login/verify")) return response({ ...identity, role: "ADMIN", token: "admin-token" });
+      if (path.endsWith("/user/profile")) return response({ ...identity, role: "ADMIN" });
+      return response({});
+    });
+    mount("/admin/login");
+    fireEvent.change(await screen.findByLabelText("Admin Email"), { target: { value: "test@example.invalid" } });
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "correct-password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sign In to Admin" }));
+    fireEvent.change(await screen.findByLabelText("Sign-in code"), { target: { value: "654321" } });
+    fireEvent.click(screen.getByRole("button", { name: "Verify and sign in" }));
+    await screen.findByRole("heading", { name: "Admin content" });
+    expect(localStorage.getItem(TOKEN_KEY)).toBe("admin-token");
+  });
+
+  it("a customer account is turned away at the admin console without a code step", async () => {
+    fetchMock.mockImplementation(async () => response(pending("USER")));
+    mount("/admin/login");
+    fireEvent.change(await screen.findByLabelText("Admin Email"), { target: { value: "test@example.invalid" } });
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "correct-password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sign In to Admin" }));
+    expect(await screen.findByText("This account does not have administrator access.")).toBeTruthy();
+    expect(screen.queryByLabelText("Sign-in code")).toBeNull();
+  });
+});

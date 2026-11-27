@@ -70,6 +70,16 @@ export const api = {
     return data;
   },
 
+  /** Second sign-in step: the emailed code gives the session. */
+  async verifyLogin(email: string, otp: string): Promise<AuthResponse> {
+    const res = await apiFetch(`${API_BASE_URL}/auth/login/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp }),
+    });
+    return handleResponse<AuthResponse>(res);
+  },
+
   async register(
     name: string,
     email: string,

@@ -26,8 +26,8 @@ public class AuthRateLimiter {
         local = environment.acceptsProfiles(Profiles.of("dev", "test")) && !environment.acceptsProfiles(Profiles.of("prod"));
     }
     public void check(String action, String identity) {
-        int limit = switch(action) { case "login" -> 10; case "verify", "reset" -> 10; case "resend", "forgot" -> 3; case "register" -> 5; default -> 60; };
-        long seconds = switch(action) { case "register" -> 3600; case "resend", "verify", "forgot", "reset" -> 300; default -> 60; };
+        int limit = switch(action) { case "login" -> 10; case "verify", "reset", "login-verify" -> 10; case "resend", "forgot" -> 3; case "register" -> 5; default -> 60; };
+        long seconds = switch(action) { case "register" -> 3600; case "resend", "verify", "forgot", "reset", "login-verify" -> 300; default -> 60; };
         String key;
         try { key = "quickkart:auth:" + action + ":" + HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(identity.getBytes(StandardCharsets.UTF_8))); }
         catch (java.security.GeneralSecurityException ex) { throw new IllegalStateException(ex); }

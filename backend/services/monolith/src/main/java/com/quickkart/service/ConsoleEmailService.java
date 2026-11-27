@@ -31,6 +31,19 @@ public class ConsoleEmailService implements EmailService {
     }
 
     @Override
+    public void sendLoginOtp(String toEmail, String userName, String otp) {
+        log.info("""
+                ================================================================================
+                [QUICKKART NOTIFICATION SERVICE - EMAIL DISPATCH]
+                To: {} ({})
+                Subject: Your QuickKart sign-in code
+                Sign-in Code: {}
+                Validity: 5 Minutes
+                ================================================================================
+                """, toEmail, userName, otp);
+    }
+
+    @Override
     public void sendPasswordResetOtp(String toEmail, String userName, String otp) {
         log.info("""
                 ================================================================================

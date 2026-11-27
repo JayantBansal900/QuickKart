@@ -3,7 +3,7 @@ import { ImagePlus, Loader2, Trash2, UploadCloud, X } from 'lucide-react';
 import { Product, ProductRequest } from '../types';
 
 /** Used until the admin category list has loaded. */
-const DEFAULT_CATEGORIES = ['Electronics', 'Fashion', 'Home & Living', 'Sports', 'Books', 'Beauty', 'Groceries', 'Accessories'];
+const DEFAULT_CATEGORIES = ['Clothing', 'Shoes', 'Accessories'];
 
 /** One-click size sets for the usual kinds of product. */
 const SIZE_PRESETS = [
@@ -32,14 +32,14 @@ type FormState = {
 };
 
 const empty: FormState = {
-  name: '', brand: '', sku: '', description: '', category: 'Electronics',
+  name: '', brand: 'QuickKart', sku: '', description: '', category: 'Clothing',
   price: '', discountPercentage: '', stockQuantity: '', rating: '', reviewCount: '',
 };
 
 function fromProduct(p: Product): FormState {
   return {
     name: p.name, brand: p.brand || '', sku: p.sku || '', description: p.description || '',
-    category: p.category || 'Electronics', price: String(p.price ?? ''),
+    category: p.category || 'Clothing', price: String(p.price ?? ''),
     discountPercentage: String(p.discountPercentage ?? ''), stockQuantity: String(p.stockQuantity ?? ''),
     rating: p.rating != null ? String(p.rating) : '', reviewCount: p.reviewCount != null ? String(p.reviewCount) : '',
   };
@@ -211,10 +211,10 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, pr
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="qk-label sm:col-span-2">Product name
-                <input className="qk-input" required maxLength={255} value={form.name} onChange={set('name')} placeholder="Levi's Men's Classic Crew Neck T-Shirt" />
+                <input className="qk-input" required maxLength={255} value={form.name} onChange={set('name')} placeholder="QuickKart Essential Crew Tee" />
               </label>
               <label className="qk-label">Brand
-                <input className="qk-input" value={form.brand} onChange={set('brand')} placeholder="Levi's" />
+                <input className="qk-input" value={form.brand} onChange={set('brand')} placeholder="QuickKart" />
               </label>
               <label className="qk-label">Category
                 <select className="qk-input cursor-pointer" value={form.category} onChange={set('category')}>
@@ -267,7 +267,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({ isOpen, pr
               <summary className="cursor-pointer select-none font-medium text-fg">More details</summary>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 <label className="qk-label">SKU
-                  <input className="qk-input font-mono" value={form.sku} onChange={set('sku')} placeholder="SKU-FASH-071" />
+                  <input className="qk-input font-mono" value={form.sku} onChange={set('sku')} placeholder="QK-CLO-031" />
                 </label>
                 <label className="qk-label">Rating
                   <input className="qk-input" type="number" min="1" max="5" step="0.1" value={form.rating} onChange={set('rating')} placeholder="4.5" />

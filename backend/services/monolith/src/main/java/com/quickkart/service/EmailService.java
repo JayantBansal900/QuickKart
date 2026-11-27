@@ -11,6 +11,11 @@ public interface EmailService {
      */
     void sendVerificationOtp(String toEmail, String userName, String otp);
 
+    /** Sends the one-time code for the second step of signing in. */
+    default void sendLoginOtp(String toEmail, String userName, String otp) {
+        sendVerificationOtp(toEmail, userName, otp);
+    }
+
     /** Sends the one-time code for resetting a forgotten password. */
     void sendPasswordResetOtp(String toEmail, String userName, String otp);
 

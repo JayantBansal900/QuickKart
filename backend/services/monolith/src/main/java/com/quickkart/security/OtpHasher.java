@@ -19,6 +19,8 @@ public class OtpHasher {
     }
     public static final String REGISTRATION = "REGISTRATION_VERIFICATION";
     public static final String PASSWORD_RESET = "PASSWORD_RESET";
+    /** Second step of sign-in (email one-time code). */
+    public static final String LOGIN = "LOGIN_MFA";
 
     public String hash(String email, String otp) {
         return hash(REGISTRATION, email, otp);

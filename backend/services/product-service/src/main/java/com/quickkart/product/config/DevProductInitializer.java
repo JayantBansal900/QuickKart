@@ -57,7 +57,7 @@ public class DevProductInitializer implements CommandLineRunner {
                 return;
             }
 
-            log.info("Loading the QuickKart product catalog dataset in product-service from catalog.json...");
+            log.info("Loading the QuickKart catalog (30 own-brand products) dataset in product-service from catalog.json...");
             InputStream inputStream = resource.getInputStream();
             List<Map<String, Object>> items = objectMapper.readValue(inputStream, new TypeReference<List<Map<String, Object>>>() {});
 
@@ -76,7 +76,7 @@ public class DevProductInitializer implements CommandLineRunner {
 
                 BigDecimal price = new BigDecimal(item.get("price").toString());
                 Double discountPercentage = item.get("discountPercentage") != null ? Double.parseDouble(item.get("discountPercentage").toString()) : 0.0;
-                Double rating = item.get("rating") != null ? Double.parseDouble(item.get("rating").toString()) : 4.0;
+                Double rating = item.get("rating") != null ? Double.parseDouble(item.get("rating").toString()) : null; // ratings come from real reviews
                 Integer reviewCount = item.get("reviewCount") != null ? Integer.parseInt(item.get("reviewCount").toString()) : 0;
                 Integer stockQuantity = item.get("stockQuantity") != null ? Integer.parseInt(item.get("stockQuantity").toString()) : 50;
 

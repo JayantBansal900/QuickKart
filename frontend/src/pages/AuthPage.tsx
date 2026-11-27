@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ApiError } from "../services/http";
+import { LoginCodeStep } from "../components/LoginCodeStep";
 import { safeDestination } from "../routing";
 import { api } from "../services/api";
 
@@ -34,12 +35,15 @@ export function AuthPage() {
   const pending = useRef(false);
   const [cooldown, setCooldown] = useState(0);
   const [limited, setLimited] = useState(false);
+  /** Set after a correct password: the message about the emailed sign-in code. */
+  const [mfa, setMfa] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   // Reset per-screen fields when the mode changes. Done during render (not in an effect) so there
   // is no window where the new screen is visible and a fast typist's input then gets wiped.
   const [shownMode, setShownMode] = useState(mode);
   if (shownMode !== mode) {
     setShownMode(mode);
+    setMfa(null);
     setError("");
     setPassword("");
     setConfirmPassword("");
@@ -61,6 +65,21 @@ export function AuthPage() {
       </p>
     );
   if (auth.isAuthenticated) return <Navigate replace to={next} />;
+  const verifyCode = async (code: string) => {
+    if (pending.current) return;
+    pending.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      await auth.verifyLogin(email, code);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "That code did not work.");
+      if (err instanceof Error && /sign in again|expired|too many/i.test(err.message)) setMfa(null);
+    } finally {
+      pending.current = false;
+      setBusy(false);
+    }
+  };
   const perform = async (resend = false) => {
     if (pending.current || (cooldown > 0 && (resend || limited))) return;
     pending.current = true;
@@ -90,7 +109,10 @@ export function AuthPage() {
         await api.resetPassword({ email: email.trim(), otp, newPassword: password });
         navigate("/login" + suffix);
         setNotice("Password updated. Sign in with your new password — other devices have been signed out.");
-      } else if (mode === "login") await auth.login(email, password);
+      } else if (mode === "login") {
+        const result = await auth.login(email, password);
+        if (result.mfaRequired) setMfa(result.message ?? "We emailed you a 6-digit sign-in code.");
+      }
       else if (mode === "register") {
         await auth.register(name, email, password, phone || undefined);
         setNotice(
@@ -140,20 +162,14 @@ export function AuthPage() {
     <div className="qk-container grid min-h-[calc(100vh-4rem)] items-center gap-10 py-10 lg:grid-cols-2">
       {/* Brand panel (desktop only) */}
       <div className="relative hidden h-full min-h-[560px] overflow-hidden rounded-2xl bg-[#171412] p-12 text-white lg:flex lg:flex-col lg:justify-between">
-        <img
-          src="/categories/auth.webp"
-          alt=""
-          onError={(e) => { e.currentTarget.style.display = "none"; }}
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-70"
-        />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
         <p className="relative text-lg font-semibold tracking-tight">quickkart</p>
         <div className="relative">
           <h2 className="qk-display text-5xl">Shop smarter.<br /><span className="text-white/70">Delivered fast.</span></h2>
           <ul className="mt-8 space-y-3 text-sm opacity-80">
-            <li>✓ 144 hand-picked products across 8 categories</li>
+            <li>✓ 30 QuickKart products: clothing, shoes and accessories</li>
             <li>✓ Pay by UPI, card or cash on delivery</li>
-            <li>✓ Email-verified accounts</li>
+            <li>✓ Two-step sign-in with an emailed code</li>
           </ul>
         </div>
         <p className="relative text-xs opacity-60">© {new Date().getFullYear()} QuickKart</p>
@@ -188,7 +204,17 @@ export function AuthPage() {
           </p>
         )}
 
+        {mode === "login" && mfa && (
+          <LoginCodeStep
+            message={mfa}
+            busy={busy}
+            onVerify={(code) => void verifyCode(code)}
+            onResend={() => void perform()}
+            onBack={() => { setMfa(null); setPassword(""); setError(""); }}
+          />
+        )}
         <form
+          hidden={mode === "login" && !!mfa}
           className="mt-8 space-y-4"
           onSubmit={(e) => {
             e.preventDefault();

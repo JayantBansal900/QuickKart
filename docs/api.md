@@ -1,6 +1,6 @@
 # API reference
 
-Every call goes through the gateway at `http://localhost:8080`. Bodies are JSON. Authenticated endpoints need `Authorization: Bearer <jwt>` from `/api/auth/login`.
+Every call goes through the gateway at `http://localhost:8080`. Bodies are JSON. Authenticated endpoints need `Authorization: Bearer <jwt>` from `/api/auth/login/verify` (sign-in is two-step: password, then the emailed code).
 
 Errors share one shape:
 
@@ -27,7 +27,8 @@ Errors share one shape:
 | POST | `/api/auth/register` | – | `name, email, password, phoneNumber?` | `201`, account `PENDING_VERIFICATION`, code emailed. No token. Registering again with an email that was never verified restarts the signup with a fresh code; a verified email gives `409`. |
 | POST | `/api/auth/verify-otp` | – | `email, otp` | `200` account active |
 | POST | `/api/auth/resend-otp` | – | `email` | `200` generic message |
-| POST | `/api/auth/login` | – | `email, password` | `200 { token, id, name, email, role, emailVerified, accountStatus }` |
+| POST | `/api/auth/login` | – | `email, password` | `200 { mfaRequired: true, token: null, role, message }`: a 6-digit sign-in code is emailed |
+| POST | `/api/auth/login/verify` | – | `email, otp` | `200 { token, id, name, email, role, emailVerified, accountStatus }`; the code is valid 5 min, 5 tries, one-time use |
 | GET | `/api/auth/me` | user | – | current account |
 | POST | `/api/auth/forgot-password` | – | `email` | `200` generic message (same for unknown emails) |
 | POST | `/api/auth/reset-password` | – | `email, otp (6 digits), newPassword (6–128)` | `200`. All existing tokens for the account stop working. |

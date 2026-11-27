@@ -68,6 +68,12 @@ public class AuthController {
         ));
     }
 
+    /** Second sign-in step: the code emailed after a correct password. */
+    @PostMapping("/login/verify")
+    public ResponseEntity<AuthResponse> verifyLogin(@Valid @RequestBody VerifyOtpRequest request) {
+        return ResponseEntity.ok(authService.verifyLoginOtp(request));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);

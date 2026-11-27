@@ -102,12 +102,33 @@ describe("admin dispatch", () => {
     });
     mount(<AdminOrdersPage />);
     await screen.findByText("asha@example.invalid");
-    fireEvent.change(screen.getByLabelText("Update status for order 41"), { target: { value: "SHIPPED" } });
+    fireEvent.click(screen.getByRole("button", { name: "Ship… for order 41" }));
     const dialog = await screen.findByRole("dialog", { name: /Dispatch order #41/ });
     expect(patches).toEqual([]); // nothing sent yet
     fireEvent.change(within(dialog).getByLabelText("Courier"), { target: { value: "Blue Dart" } });
     fireEvent.change(within(dialog).getByLabelText(/Tracking number/), { target: { value: "BD123456" } });
     fireEvent.click(within(dialog).getByRole("button", { name: "Mark as shipped" }));
     await waitFor(() => expect(JSON.parse(patches[0])).toEqual({ status: "SHIPPED", courier: "Blue Dart", trackingNumber: "BD123456" }));
+  });
+});
+
+describe("admin order steps", () => {
+  it("moves an order one step at a time with a single click", async () => {
+    const patches: string[] = [];
+    fetchMock.mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/user/profile")) return json(admin);
+      if (init?.method === "PATCH") {
+        patches.push(String(init.body));
+        return json(order({ status: "CONFIRMED" }));
+      }
+      return json(page([order({ status: "PLACED" })]));
+    });
+    mount(<AdminOrdersPage />);
+    await screen.findByText("asha@example.invalid");
+    expect(screen.queryByRole("button", { name: "Mark delivered for order 41" })).toBeNull(); // no skipping steps
+    fireEvent.click(screen.getByRole("button", { name: "Confirm order for order 41" }));
+    await waitFor(() => expect(JSON.parse(patches[0])).toEqual({ status: "CONFIRMED" }));
+    expect(await screen.findByRole("button", { name: "Start packing for order 41" })).toBeTruthy();
   });
 });

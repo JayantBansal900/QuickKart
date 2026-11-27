@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Creates the eight default categories when the table is empty (migration V6 inserts the same
+ * Creates the three QuickKart categories when the table is empty (migration V6 inserts the same
  * rows in Docker). Runs before the catalog seeder, whose products need these categories.
  * Never touches existing rows, so admin edits are kept.
  */
@@ -24,14 +24,9 @@ public class CategoryInitializer implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(CategoryInitializer.class);
 
     static final List<Category> DEFAULTS = List.of(
-            new Category("Electronics", "Phones, audio, laptops and smart devices", "/categories/electronics.webp", 10),
-            new Category("Fashion", "Clothing, footwear and everyday style", "/categories/fashion.webp", 20),
-            new Category("Home & Living", "Kitchen, decor and home essentials", "/categories/home-living.webp", 30),
-            new Category("Sports", "Fitness, outdoor and sports gear", "/categories/sports.webp", 40),
-            new Category("Books", "Bestsellers, classics and learning", "/categories/books.webp", 50),
-            new Category("Beauty", "Skincare, haircare and grooming", "/categories/beauty.webp", 60),
-            new Category("Groceries", "Pantry staples, snacks and beverages", "/categories/groceries.webp", 70),
-            new Category("Accessories", "Watches, bags, eyewear and more", "/categories/accessories.webp", 80));
+            new Category("Clothing", "Tees, shirts, hoodies, jackets, jeans and more", "/categories/clothing.webp", 10),
+            new Category("Shoes", "Sneakers, boots, loafers and slides", "/categories/shoes.webp", 20),
+            new Category("Accessories", "Caps, bags, wallets, belts, watches and sunglasses", "/categories/accessories.webp", 30));
 
     private final CategoryRepository categories;
 

@@ -39,6 +39,15 @@ public class AuthService {
 
     private static final String REGISTRATION_PURPOSE = OtpHasher.REGISTRATION;
     private static final String RESET_PURPOSE = OtpHasher.PASSWORD_RESET;
+    private static final String LOGIN_PURPOSE = OtpHasher.LOGIN;
+
+    /** Sign-in needs the password AND a code emailed to the account (two-step). Off only in tests. */
+    @org.springframework.beans.factory.annotation.Value("${app.auth.mfa.enabled:true}")
+    private boolean mfaEnabled = true;
+
+    void setMfaEnabled(boolean mfaEnabled) {
+        this.mfaEnabled = mfaEnabled;
+    }
     private static final int OTP_EXPIRY_MINUTES = 5;
     private static final int MAX_OTP_ATTEMPTS = 5;
     private static final String NO_ACTIVE_CHALLENGE =
@@ -234,21 +243,75 @@ public class AuthService {
                 !("USER".equals(user.getRole()) || "ADMIN".equals(user.getRole()))) {
             throw new InvalidCredentialsException("Account is not active");
         }
+        if (mfaEnabled) {
+            // Step 1 of 2: the password is right, now prove access to the inbox. No token yet.
+            String rawOtp = String.format("%06d", secureRandom.nextInt(1_000_000));
+            emailVerificationRepository.findAllByEmailAndPurposeAndVerifiedFalse(normalizedEmail, LOGIN_PURPOSE)
+                    .forEach(previous -> previous.setVerified(true)); // only the newest code works
+            emailVerificationRepository.save(new EmailVerification(
+                    normalizedEmail,
+                    otpHasher.hash(LOGIN_PURPOSE, normalizedEmail, rawOtp),
+                    LOGIN_PURPOSE,
+                    LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES)));
+            String name = user.getName();
+            sendAfterCommit(() -> emailService.sendLoginOtp(normalizedEmail, name, rawOtp));
+            AuthResponse pending = new AuthResponse(null, null, null, normalizedEmail, user.getRole(),
+                    true, user.getAccountStatus(), "We sent a 6-digit sign-in code to " + maskEmail(normalizedEmail) + ".");
+            pending.setMfaRequired(true);
+            return pending;
+        }
+        return issueSession(user, "Authentication successful");
+    }
+
+    /**
+     * Step 2 of 2: checks the emailed sign-in code (5 attempts, 5 minutes, one-time use) and only then
+     * issues the JWT. The same error is returned for an unknown email and a missing code.
+     */
+    @Transactional(noRollbackFor = {InvalidOtpException.class, OtpExpiredException.class, MaxOtpAttemptsExceededException.class})
+    public AuthResponse verifyLoginOtp(VerifyOtpRequest request) {
+        if (request == null || request.getEmail() == null || request.getOtp() == null) {
+            throw new IllegalArgumentException("Email and code must not be null");
+        }
+        String normalizedEmail = request.getEmail().trim().toLowerCase(java.util.Locale.ROOT);
+        rateLimiter.check("login-verify", normalizedEmail);
+        User user = userRepository.findByEmailForUpdate(normalizedEmail)
+                .filter(u -> u.isEmailVerified() && "ACTIVE".equals(u.getAccountStatus()))
+                .orElseThrow(() -> new InvalidOtpException(NO_ACTIVE_CHALLENGE));
+        EmailVerification challenge = emailVerificationRepository
+                .findTopByEmailAndPurposeAndVerifiedFalseOrderByCreatedAtDesc(normalizedEmail, LOGIN_PURPOSE)
+                .orElseThrow(() -> new InvalidOtpException(NO_ACTIVE_CHALLENGE));
+        if (challenge.getAttempts() >= MAX_OTP_ATTEMPTS) {
+            challenge.setVerified(true);
+            throw new MaxOtpAttemptsExceededException("Too many incorrect codes. Please sign in again to get a new code.");
+        }
+        challenge.setAttempts(challenge.getAttempts() + 1);
+        if (!challenge.getExpiryAt().isAfter(LocalDateTime.now())) {
+            challenge.setVerified(true);
+            throw new OtpExpiredException("This sign-in code has expired. Please sign in again.");
+        }
+        if (!otpHasher.matches(LOGIN_PURPOSE, normalizedEmail, request.getOtp(), challenge.getOtpHash())) {
+            if (challenge.getAttempts() >= MAX_OTP_ATTEMPTS) challenge.setVerified(true);
+            int remaining = MAX_OTP_ATTEMPTS - challenge.getAttempts();
+            throw new InvalidOtpException("Invalid sign-in code. " + (remaining > 0 ? remaining + " attempt(s) remaining." : "Please sign in again."));
+        }
+        challenge.setVerified(true); // one-time use
+        return issueSession(user, "Authentication successful");
+    }
+
+    private AuthResponse issueSession(User user, String message) {
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
-
         String token = jwtService.generateToken(user);
+        return new AuthResponse(token, user.getId(), user.getName(), user.getEmail(), user.getRole(),
+                user.isEmailVerified(), user.getAccountStatus(), message);
+    }
 
-        return new AuthResponse(
-                token,
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRole(),
-                user.isEmailVerified(),
-                user.getAccountStatus(),
-                "Authentication successful"
-        );
+    /** "jo***@gmail.com": enough to recognise the inbox, not enough to read the address. */
+    static String maskEmail(String email) {
+        int at = email.indexOf('@');
+        if (at <= 0) return "your email";
+        String local = email.substring(0, at);
+        return local.substring(0, Math.min(2, local.length())) + "***" + email.substring(at);
     }
 
     private String timingDummyHash() {

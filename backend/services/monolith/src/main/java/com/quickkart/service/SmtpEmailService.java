@@ -41,6 +41,17 @@ public class SmtpEmailService implements EmailService {
     }
 
     @Override
+    public void sendLoginOtp(String email, String name, String otp) {
+        send(email, "Your QuickKart sign-in code",
+                "Hi " + displayName(name) + ",%n%nYour QuickKart sign-in code is: %s%n%n".formatted(otp)
+                        + "It expires in 5 minutes. If you did not just try to sign in, change your password.%n".formatted(),
+                layout("Your sign-in code",
+                        "Hi " + HtmlUtils.htmlEscape(displayName(name)) + ", use this code to finish signing in.",
+                        otp,
+                        "This code expires in <b>5 minutes</b>. If this wasn't you, someone knows your password: reset it now."));
+    }
+
+    @Override
     public void sendPasswordResetOtp(String email, String name, String otp) {
         send(email, "Reset your QuickKart password",
                 "Hi " + displayName(name) + ",%n%nYour QuickKart password reset code is: %s%n%n".formatted(otp)

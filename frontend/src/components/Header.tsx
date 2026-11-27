@@ -18,13 +18,8 @@ interface HeaderProps {
 
 /** Shown until /api/categories answers (and if it fails). */
 const FALLBACK_CATEGORIES = [
-  { key: 'ELECTRONICS', name: 'Electronics' },
-  { key: 'FASHION', name: 'Fashion' },
-  { key: 'HOME & LIVING', name: 'Home & Living' },
-  { key: 'SPORTS', name: 'Sports' },
-  { key: 'BOOKS', name: 'Books' },
-  { key: 'BEAUTY', name: 'Beauty' },
-  { key: 'GROCERIES', name: 'Groceries' },
+  { key: 'CLOTHING', name: 'Clothing' },
+  { key: 'SHOES', name: 'Shoes' },
   { key: 'ACCESSORIES', name: 'Accessories' },
 ];
 

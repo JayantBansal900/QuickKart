@@ -48,11 +48,23 @@ const docker = (...args) => execFileSync("docker", args, {
 const dockerLogs = (c, since = "10m") => { try { return execFileSync("docker", ["logs", "--since", since, c], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64e6 }); } catch (e) { return (e.stdout || "") + (e.stderr || ""); } };
 const redis = (...args) => docker("exec", "-e", "REDISCLI_AUTH", `${PREFIX}-redis`, "redis-cli", ...args).trim();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-function otpFor(email) {
+function otpFor(email, label = "Verification Code") {
   const logs = dockerLogs(`${PREFIX}-monolith`);
-  const re = new RegExp(`To: ${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[\\s\\S]*?Verification Code: (\\d{6})`, "g");
+  const re = new RegExp(`To: ${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[\\s\\S]*?${label}: (\\d{6})`, "g");
   let m, last = null; while ((m = re.exec(logs))) last = m[1];
   return last;
+}
+/** Newest sign-in code (second login step) for this email, from the console mail log. */
+function loginCodeFor(email) {
+  return otpFor(email, "Sign-in Code");
+}
+/** Two-step sign-in: password, then the emailed code. Returns both responses. */
+async function signIn(email, password) {
+  const first = await call("POST", "/auth/login", { body: { email, password } });
+  let code = null;
+  for (let i = 0; i < 20 && !code; i++) { await sleep(250); code = first.json?.mfaRequired ? loginCodeFor(email) : null; }
+  const second = code ? await call("POST", "/auth/login/verify", { body: { email, otp: code } }) : first;
+  return { first, second, code };
 }
 const stamp = Date.now();
 
@@ -115,8 +127,12 @@ const tSecond = performance.now(); await call("GET", "/products?sort=name&page=3
 results.push(`INFO  single-sample latency via gateway: miss ${missMs.toFixed(1)} ms, hit ${hitMs.toFixed(1)} ms (one sample each, not a benchmark)`);
 
 // ---------- 4. Admin login & guard rails ----------
-const adminLogin = await call("POST", "/auth/login", { body: { email: env.DEV_ADMIN_EMAIL, password: env.DEV_ADMIN_PASSWORD } });
-check("dev admin login", adminLogin.status === 200 && adminLogin.json?.role === "ADMIN", `status=${adminLogin.status}`);
+const adminSignIn = await signIn(env.DEV_ADMIN_EMAIL, env.DEV_ADMIN_PASSWORD);
+check("admin password alone gives no session (code required)", adminSignIn.first.status === 200 && adminSignIn.first.json?.mfaRequired === true && !adminSignIn.first.json?.token, `status=${adminSignIn.first.status}`);
+const adminLogin = adminSignIn.second;
+check("admin signs in with the emailed code", adminLogin.status === 200 && adminLogin.json?.role === "ADMIN" && !!adminLogin.json?.token, `status=${adminLogin.status}`);
+const adminCount = await call("GET", "/admin/users?role=ADMIN&size=50", { token: adminLogin.json?.token });
+check("there is exactly one administrator", (adminCount.json?.content ?? []).filter((u) => u.role === "ADMIN").length === 1, `${(adminCount.json?.content ?? []).filter((u) => u.role === "ADMIN").length} admins`);
 const A = adminLogin.json?.token;
 const sys = await call("GET", "/admin/system/status", { token: A });
 check("system status: all components UP", sys.json?.overall === "UP",
@@ -129,7 +145,7 @@ check("admin order list is paged", ordersPage.status === 200 && ordersPage.json?
 const lowStock = await call("GET", "/admin/products?stock=LOW&sort=stock", { token: A });
 check("admin product list filters low stock", lowStock.status === 200 && (lowStock.json?.content ?? []).every((p) => p.stockQuantity < 5), `${lowStock.json?.totalElements} low`);
 const categories = await call("GET", "/categories");
-check("public category list (admin-managed)", categories.status === 200 && categories.json?.length >= 8 && categories.json.every((c) => c.key && c.name && c.active), categories.json?.map((c) => c.name).join(", "));
+check("public category list (admin-managed)", categories.status === 200 && categories.json?.length === 3 && categories.json.every((c) => c.key && c.name && c.active), categories.json?.map((c) => c.name).join(", "));
 const insights = await call("GET", "/admin/analytics/insights?days=7", { token: A });
 check("analytics insights: one point per day", insights.status === 200 && insights.json?.daily?.length === 7, `revenue=${insights.json?.revenue}`);
 const selfSuspend = await call("PATCH", `/admin/users/${adminLogin.json?.id}/status`, { token: A, body: { status: "SUSPENDED" } });
@@ -198,8 +214,15 @@ const replay = await call("POST", "/auth/verify-otp", { body: { email, otp } });
 check("OTP replay rejected", replay.status === 400, `status=${replay.status}`);
 const dup = await call("POST", "/auth/register", { body: { name: "Dup", email, password } });
 check("registering a verified email → 409, email not echoed", dup.status === 409 && !dup.text.includes(email), `status=${dup.status}`);
-const login = await call("POST", "/auth/login", { body: { email, password } });
-check("verified customer login", login.status === 200 && login.json?.role === "USER");
+const wrongCode = await call("POST", "/auth/login", { body: { email, password } });
+await sleep(500);
+const badCode = await call("POST", "/auth/login/verify", { body: { email, otp: loginCodeFor(email) === "000000" ? "111111" : "000000" } });
+check("wrong sign-in code rejected", wrongCode.json?.mfaRequired === true && badCode.status === 400 && !badCode.json?.token, `status=${badCode.status}`);
+const customerSignIn = await signIn(email, password);
+const login = customerSignIn.second;
+check("verified customer signs in with password + emailed code", customerSignIn.first.json?.mfaRequired === true && login.status === 200 && login.json?.role === "USER" && !!login.json?.token, `status=${login.status}`);
+const codeReplay = await call("POST", "/auth/login/verify", { body: { email, otp: customerSignIn.code } });
+check("sign-in code cannot be reused", codeReplay.status === 400, `status=${codeReplay.status}`);
 const C = login.json?.token;
 
 // ---------- 6. Customer flow: cart → checkout → orders ----------
@@ -346,8 +369,8 @@ check("deleting an ordered product → 409", delOrdered.status === 409, `status=
 await call("PATCH", `/admin/products/${target.id}/stock`, { token: A, body: { adjustment: 1 } });
 
 // ---------- 6b. Sizes (variants): cart, checkout, stock per size, cancel ----------
-const sized = (await call("GET", "/products?category=FASHION&variantSize=M&size=24")).json?.content ?? [];
-check("size filter returns fashion items that have M in stock", sized.length > 0 && sized.every((p) => p.variants.some((v) => v.size === "M" && v.stockQuantity > 0)), `${sized.length} found`);
+const sized = (await call("GET", "/products?category=CLOTHING&variantSize=M&size=24")).json?.content ?? [];
+check("size filter returns clothing that has M in stock", sized.length > 0 && sized.every((p) => p.variants.some((v) => v.size === "M" && v.stockQuantity > 0)), `${sized.length} found`);
 const tee = sized[0];
 const sizeM = tee.variants.find((v) => v.size === "M" && v.stockQuantity > 0);
 const noSize = await call("POST", "/cart/items", { token: C, body: { productId: tee.id, quantity: 1 } });

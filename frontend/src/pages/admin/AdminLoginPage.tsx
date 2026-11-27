@@ -4,6 +4,7 @@ import { ShieldCheck } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ApiError } from "../../services/http";
 import { safeDestination } from "../../routing";
+import { LoginCodeStep } from "../../components/LoginCodeStep";
 
 /**
  * Dedicated administrator sign-in. Uses the same backend /api/auth/login, but refuses to
@@ -16,6 +17,7 @@ export function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [mfa, setMfa] = useState<string | null>(null);
   const pending = useRef(false);
 
   const requested = safeDestination(new URLSearchParams(location.search).get("next"), "/admin");
@@ -32,12 +34,29 @@ export function AdminLoginPage() {
     setBusy(true);
     setError("");
     try {
-      await auth.login(email, password, { requireAdmin: true });
+      const result = await auth.login(email, password, { requireAdmin: true });
+      if (result.mfaRequired) setMfa(result.message ?? "We emailed you a 6-digit sign-in code.");
     } catch (err) {
       setPassword("");
       if (err instanceof ApiError && err.status === 429)
         setError("Too many attempts. Please wait a minute and try again.");
       else setError(err instanceof Error ? err.message : "Sign-in failed.");
+    } finally {
+      pending.current = false;
+      setBusy(false);
+    }
+  };
+
+  const verifyCode = async (code: string) => {
+    if (pending.current) return;
+    pending.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      await auth.verifyLogin(email, code, { requireAdmin: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "That code did not work.");
+      if (err instanceof Error && /sign in again|expired|too many/i.test(err.message)) { setMfa(null); setPassword(""); }
     } finally {
       pending.current = false;
       setBusy(false);
@@ -67,6 +86,15 @@ export function AdminLoginPage() {
             {error}
           </p>
         )}
+        {mfa ? (
+          <LoginCodeStep
+            message={mfa}
+            busy={busy}
+            onVerify={(code) => void verifyCode(code)}
+            onResend={() => void submit({ preventDefault() {} } as React.FormEvent)}
+            onBack={() => { setMfa(null); setPassword(""); setError(""); }}
+          />
+        ) : (
         <form className="space-y-4" onSubmit={submit}>
           <label className="block text-sm font-medium text-fg">
             Admin Email
@@ -80,6 +108,7 @@ export function AdminLoginPage() {
             {busy ? "Signing in…" : "Sign In to Admin"}
           </button>
         </form>
+        )}
         <Link to="/" className="mt-5 block text-center text-xs text-muted underline">
           Back to store
         </Link>

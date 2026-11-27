@@ -135,21 +135,15 @@ node scripts/load-test.mjs --duration 15 --concurrency 20
 
 ## 5. Catalog data
 
-Categories are managed in the admin panel (Admin → Categories); the eight defaults are created by migration V6 (and by product-service on an empty table). The catalog lives in `backend/services/product-service/src/main/resources/catalog.json`: 144 products (18 per category) with real brands, matching names, approximate Indian street prices and a product photo each. The seeder only inserts SKUs that are missing; it never overwrites existing rows. To push edited names, brands, prices or descriptions into an existing database (stock is left alone), run:
+Categories are managed in the admin panel (Admin → Categories); the three defaults (Clothing, Shoes, Accessories) come from migration V11 (and from product-service on an empty table). The catalog lives in `backend/services/product-service/src/main/resources/catalog.json`: 30 QuickKart products with sizes and colours. It is generated, together with every product image, by `scripts/catalog/design-products.mjs` (see [scripts/catalog/README.md](../scripts/catalog/README.md)). The seeder only inserts SKUs that are missing; it never overwrites existing rows.
 
-```bash
-docker exec -i quickkart-postgres psql -U postgres -d quickkart -v ON_ERROR_STOP=1 < scripts/database/refresh-catalog-details.sql
-```
-
-Product photos live in `frontend/public/products/photos/` (Pixabay, free licence; see [photo-credits.md](photo-credits.md)). How they were chosen and how to re-download them is in [scripts/catalog/README.md](../scripts/catalog/README.md). Category tiles use `frontend/public/categories/`. Admins can replace any product photo from the admin panel. Check that every product has a valid image with:
+Product images live in `frontend/public/products/qk/` and the category tiles in `frontend/public/categories/`. They are drawn by the script, so there are no third-party photos. Admins can replace any product photo from the admin panel. Check the catalog with:
 
 ```bash
 cd frontend && node scripts/validate-catalog.cjs
 ```
 
-The first seed gave 20 catalog products 0 stock. catalog.json is fixed; for an existing database run `scripts/database/fix-seed-stock.sql` (it only changes those products while they are still at 0, and records each change in the stock history).
-
-To shrink an older database (which had 535 seed products) to the current catalog, run `scripts/database/trim-to-catalog.sql` after a backup. Products that appear in past orders are kept but marked `DISCONTINUED`, which hides them from search and category counts.
+To clean an older database (after migration V11), run `scripts/database/remove-retired-products.sql` after a backup: products that are not QuickKart own-brand and were never ordered are deleted; ordered ones stay `DISCONTINUED`, which hides them from the store.
 
 ## 6. Cleaning up test data
 
