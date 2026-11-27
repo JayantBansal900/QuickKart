@@ -64,7 +64,7 @@ class AdminProductControllerIntegrationTest {
                 "Initial description",
                 new BigDecimal("450.00"),
                 15,
-                "Jackets"
+                "Electronics"
         ));
     }
 
@@ -76,7 +76,7 @@ class AdminProductControllerIntegrationTest {
                 "High performance RTX GPU laptop",
                 new BigDecimal("1499.99"),
                 10,
-                "jackets"
+                "electronics"
         );
 
         mockMvc.perform(post("/api/admin/products")
@@ -88,7 +88,7 @@ class AdminProductControllerIntegrationTest {
                 .andExpect(jsonPath("$.name").value("Gaming Laptop Ultra"))
                 .andExpect(jsonPath("$.price").value(1499.99))
                 .andExpect(jsonPath("$.stockQuantity").value(10))
-                .andExpect(jsonPath("$.category").value("Jackets")); // stored with the category's canonical name
+                .andExpect(jsonPath("$.category").value("Electronics")); // stored with the category's canonical name
 
         request.setCategory("Not A Category");
         mockMvc.perform(post("/api/admin/products")
@@ -106,7 +106,7 @@ class AdminProductControllerIntegrationTest {
                 "Updated detailed description",
                 new BigDecimal("499.99"),
                 25,
-                "Jackets"
+                "Electronics"
         );
 
         mockMvc.perform(put("/api/admin/products/" + sampleProduct.getId())
@@ -148,7 +148,7 @@ class AdminProductControllerIntegrationTest {
                 "Should fail",
                 new BigDecimal("100.00"),
                 5,
-                "Jackets"
+                "Electronics"
         );
 
         mockMvc.perform(post("/api/admin/products")
@@ -179,7 +179,7 @@ class AdminProductControllerIntegrationTest {
                 "Should fail",
                 new BigDecimal("100.00"),
                 5,
-                "Jackets"
+                "Electronics"
         );
 
         mockMvc.perform(post("/api/admin/products")

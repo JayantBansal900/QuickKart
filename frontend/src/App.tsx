@@ -21,9 +21,6 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthPage } from "./pages/AuthPage";
 import { HomePage } from "./pages/HomePage";
 const WishlistPage = lazy(() => import("./pages/WishlistPage").then((m) => ({ default: m.WishlistPage })));
-const InvoicePage = lazy(() => import("./pages/InvoicePage").then((m) => ({ default: m.InvoicePage })));
-const InfoPage = lazy(() => import("./pages/InfoPage").then((m) => ({ default: m.InfoPage })));
-const CategoriesPage = lazy(() => import("./pages/CategoriesPage").then((m) => ({ default: m.CategoriesPage })));
 const OrdersPage = lazy(() =>
   import("./pages/OrdersPage").then((m) => ({ default: m.OrdersPage })),
 );
@@ -139,7 +136,6 @@ export function ApplicationShell() {
           <div className="qk-container flex flex-col py-2 text-[15px] font-medium">
             {[
               ["/", "Shop"],
-              ["/categories", "Categories"],
               ["/account/orders", "My Orders"],
               ["/account/profile", "My Account"],
               ["/cart", "Cart"],
@@ -179,8 +175,6 @@ export function ApplicationShell() {
               <Route key={path} path={path} element={<AuthPage />} />
             ))}
             {/* Public pages: guests can browse categories and read store information. */}
-            <Route path="/categories" element={<CategoriesPage />} />
-            <Route path="/info/:slug" element={<InfoPage />} />
             <Route element={<ProtectedRoute />}>
               <Route
                 path="/account"
@@ -202,7 +196,6 @@ export function ApplicationShell() {
                 }
               />
               <Route path="/account/wishlist" element={<WishlistPage />} />
-              <Route path="/account/orders/:orderId/invoice" element={<InvoicePage />} />
               <Route path="/cart" element={<CommerceRoute />} />
               <Route path="/checkout" element={<CommerceRoute checkout />} />
             </Route>

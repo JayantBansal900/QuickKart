@@ -57,7 +57,7 @@ public class DevProductInitializer implements CommandLineRunner {
                 return;
             }
 
-            log.info("Loading the VAYU product catalog dataset in product-service from catalog.json...");
+            log.info("Loading the QuickKart product catalog dataset in product-service from catalog.json...");
             InputStream inputStream = resource.getInputStream();
             List<Map<String, Object>> items = objectMapper.readValue(inputStream, new TypeReference<List<Map<String, Object>>>() {});
 

@@ -268,11 +268,6 @@ export const OrdersPage: React.FC<{ onNavigateToStore: () => void }> = ({ onNavi
                       </div>
                     )}
                     <div className="flex shrink-0 flex-wrap gap-2">
-                    {order.status !== 'PENDING' && order.status !== 'CANCELLED' && (
-                      <Link to={`/account/orders/${order.id}/invoice`} className="qk-btn qk-btn-ghost h-10 px-4">
-                        <FileText className="h-4 w-4" /> Invoice
-                      </Link>
-                    )}
                     {order.returnable && (
                       <button type="button" className="qk-btn qk-btn-ghost h-10 px-4" onClick={() => setReturning(order)}>
                         <RotateCcw className="h-4 w-4" /> Return

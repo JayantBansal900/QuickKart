@@ -346,8 +346,8 @@ check("deleting an ordered product → 409", delOrdered.status === 409, `status=
 await call("PATCH", `/admin/products/${target.id}/stock`, { token: A, body: { adjustment: 1 } });
 
 // ---------- 6b. Sizes (variants): cart, checkout, stock per size, cancel ----------
-const sized = (await call("GET", "/products?category=T-SHIRTS&variantSize=M&size=24")).json?.content ?? [];
-check("size filter returns T-shirts that have M in stock", sized.length > 0 && sized.every((p) => p.variants.some((v) => v.size === "M" && v.stockQuantity > 0)), `${sized.length} found`);
+const sized = (await call("GET", "/products?category=FASHION&variantSize=M&size=24")).json?.content ?? [];
+check("size filter returns fashion items that have M in stock", sized.length > 0 && sized.every((p) => p.variants.some((v) => v.size === "M" && v.stockQuantity > 0)), `${sized.length} found`);
 const tee = sized[0];
 const sizeM = tee.variants.find((v) => v.size === "M" && v.stockQuantity > 0);
 const noSize = await call("POST", "/cart/items", { token: C, body: { productId: tee.id, quantity: 1 } });
@@ -372,8 +372,8 @@ const teeBack = (await call("GET", `/products/${tee.id}`)).json;
 check("cancelling puts the size back", sizedCancel.json?.status === "CANCELLED" && teeBack?.variants?.find((v) => v.id === sizeM.id)?.stockQuantity === sizeM.stockQuantity && teeBack?.stockQuantity === tee.stockQuantity, `status=${sizedCancel.json?.status}`);
 const adjustSized = await call("PATCH", `/admin/products/${tee.id}/stock`, { token: A, body: { adjustment: 5 } });
 check("admin cannot adjust a sized product's total directly", adjustSized.status === 400, `status=${adjustSized.status}`);
-const colourFilter = await call("GET", "/products?variantSize=32&color=black&size=24");
-check("size and colour filters combine", colourFilter.status === 200 && colourFilter.json?.content?.every((p) => p.variants.some((v) => v.size === "32" && v.color.toLowerCase().includes("black") && v.stockQuantity > 0)), `${colourFilter.json?.totalElements} found`);
+const colourFilter = await call("GET", "/products?variantSize=8&color=white&size=24");
+check("size and colour filters combine", colourFilter.status === 200 && colourFilter.json?.content?.every((p) => p.variants.some((v) => v.size === "8" && v.color.toLowerCase().includes("white") && v.stockQuantity > 0)), `${colourFilter.json?.totalElements} found`);
 
 // ---------- 7. Suspension takes effect immediately ----------
 const sus = await call("PATCH", `/admin/users/${v2.json?.id}/status`, { token: A, body: { status: "SUSPENDED" } });

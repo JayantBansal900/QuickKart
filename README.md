@@ -1,6 +1,4 @@
-# VAYU — a men’s clothing brand and its online store
-
-> VAYU (formerly QuickKart) is a men’s clothing brand: 60 pieces in 8 categories (T-shirts, shirts, jeans, trousers, jackets, hoodies, footwear, accessories) with real sizes and colours, a customer store and an admin back office.
+# QuickKart
 [![CI](https://github.com/JayantBansal900/QuickKart/actions/workflows/ci.yml/badge.svg)](https://github.com/JayantBansal900/QuickKart/actions/workflows/ci.yml)
 
 A full-stack e-commerce app: a React storefront and admin panel on top of Spring Boot services behind an API gateway, with PostgreSQL, Redis and Kafka. It runs locally with Docker Compose.
@@ -20,8 +18,8 @@ A full-stack e-commerce app: a React storefront and admin panel on top of Spring
 **Customers**
 - Sign up with email + password, then verify the account with a 6-digit code sent by email (real SMTP, e.g. Gmail).
 - Forgot / reset password by emailed code. A reset signs the account out on every device.
-- Browse 60 pieces in 8 men’s categories, each with a photo, **sizes and colours** (S–XXL, waist 28–36, UK shoe 6–11), with server-side search, category / size / colour / price filters, sort (including "most popular") and pagination. Trending and deals sections, related products, a categories page.
-- Every size has its own stock: the cart, checkout, cancellation and returns all work per size, and the product total is the sum of its sizes. Sold-out sizes are shown struck through.
+- Browse 144 hand-picked products (18 per category, each with a photo) with server-side search, category filter, price range, sort (including "most popular") and pagination. Trending and deals sections, related products, a categories page.
+- Clothes and shoes have **sizes and colours**, each with its own stock (S–XXL, waist 28–36, UK 6–11). The cart, checkout, cancellation and returns all work per size; sold-out sizes are shown struck through, and the Fashion category can be filtered by size and colour.
 - Cart, then checkout with a saved delivery address: pay by cash on delivery, or by UPI / card through the simulated gateway (a failed payment can be retried; unpaid orders are cancelled after 30 minutes and their stock released).
 - Order history with a step tracker (`Placed → Confirmed → Packed → Shipped → Out for delivery → Delivered`), cancellation with stock restore and an automatic refund for paid orders.
 - Emails sent asynchronously through Kafka: order confirmation, payment received / failed, shipped, out for delivery, delivered, cancelled.
@@ -92,7 +90,7 @@ Measured on the local Docker stack (16 vCPU, 8 GB for Docker), 20 concurrent cli
 | Category counts (cached) | 1112 | 16.1 ms | 29.7 ms | 52.5 ms | 0 |
 | Gateway health (routing overhead baseline) | 1399 | 12.9 ms | 24.4 ms | 39.8 ms | 0 |
 
-Measured on the earlier 144-product catalog, median of four runs after a warm-up run. Caching gives about 1.5× the search throughput on this small catalog (2.7× when the catalog had 535 products), because the uncached query gets more expensive as the table grows. These are local numbers for comparison, not a production SLA. See [docs/performance.md](docs/performance.md).
+Measured on the 144-product catalog, median of four runs after a warm-up run. Caching gives about 1.5× the search throughput on this small catalog (2.7× when the catalog had 535 products), because the uncached query gets more expensive as the table grows. These are local numbers for comparison, not a production SLA. See [docs/performance.md](docs/performance.md).
 
 ---
 
@@ -112,7 +110,7 @@ Then edit `.env`:
 | `REDIS_PASSWORD` | any random value, e.g. from `openssl rand -hex 24` (required) |
 | `DEV_ADMIN_ENABLED`, `DEV_ADMIN_EMAIL`, `DEV_ADMIN_PASSWORD` | `true`, any email, a password of 12+ characters, if you want the admin panel |
 
-Everything else has working defaults. The 60-product VAYU catalog (`catalog.json`) is seeded when `DEV_PRODUCTS_ENABLED=true` (the default).
+Everything else has working defaults. The 144-product catalog is seeded automatically on first start.
 
 ```bash
 for s in monolith product-service order-service api-gateway; do (cd backend/services/$s && mvn -q package -DskipTests); done
@@ -138,7 +136,7 @@ With `MAIL_TRANSPORT=console` (the default), OTP emails are written to the monol
 | Order service (cart, checkout, payments, coupons, returns, outbox) | 63 | `mvn verify` in `backend/services/order-service` |
 | Product service (search, cache, admin, categories, reviews, wishlist, stock history) | 54 | `mvn verify` in `backend/services/product-service` |
 | API gateway | 7 | `mvn verify` in `backend/services/api-gateway` |
-| Frontend (Vitest + Testing Library) | 98 | `npm test` in `frontend` |
+| Frontend (Vitest + Testing Library) | 96 | `npm test` in `frontend` |
 | End-to-end against the running stack | 97 checks | `node scripts/e2e-smoke.mjs .` (needs `MAIL_TRANSPORT=console`) |
 
 Kafka tests use an embedded broker. PostgreSQL-specific tests (locking, migrations) run against a Testcontainers database in CI. GitHub Actions runs all of these on every push ([ci.yml](.github/workflows/ci.yml)).
@@ -154,7 +152,7 @@ backend/services/
 frontend/            React 19 + TypeScript storefront and admin panel
 infrastructure/
   docker/            Dockerfiles and nginx config
-  postgres/          init schema + Flyway migrations (V1…V9)
+  postgres/          init schema + Flyway migrations (V1…V10)
 scripts/             e2e smoke test, load test, catalog photo pipeline, database maintenance SQL
 docs/                architecture, API reference, development, performance, interview guide
 ```

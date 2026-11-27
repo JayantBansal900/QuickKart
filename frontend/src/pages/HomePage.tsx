@@ -2,17 +2,19 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   AlertCircle,
-  ArrowRight,
-  Banknote,
+  BookOpen,
   ChevronLeft,
   ChevronRight,
+  Dumbbell,
   Gem,
+  Home,
+  Laptop,
   LayoutGrid,
-  RotateCcw,
   Search,
   Shirt,
+  ShoppingBasket,
   SlidersHorizontal,
-  Truck,
+  Sparkles,
   X,
 } from 'lucide-react';
 
@@ -67,13 +69,13 @@ function categoryImage(id: string): string {
 /** Shown until /api/categories answers (and as a fallback if it fails). */
 const DEFAULT_CATEGORIES: Category[] = [
   { id: 'ALL', label: 'All products', icon: LayoutGrid },
-  { id: 'T-SHIRTS', label: 'T-Shirts', icon: Shirt },
-  { id: 'SHIRTS', label: 'Shirts', icon: Shirt },
-  { id: 'JEANS', label: 'Jeans', icon: Shirt },
-  { id: 'TROUSERS', label: 'Trousers', icon: Shirt },
-  { id: 'JACKETS', label: 'Jackets', icon: Shirt },
-  { id: 'HOODIES & SWEATSHIRTS', label: 'Hoodies & Sweatshirts', icon: Shirt },
-  { id: 'FOOTWEAR', label: 'Footwear', icon: Shirt },
+  { id: 'ELECTRONICS', label: 'Electronics', icon: Laptop },
+  { id: 'FASHION', label: 'Fashion', icon: Shirt },
+  { id: 'HOME & LIVING', label: 'Home & Living', icon: Home },
+  { id: 'SPORTS', label: 'Sports', icon: Dumbbell },
+  { id: 'BOOKS', label: 'Books', icon: BookOpen },
+  { id: 'BEAUTY', label: 'Beauty', icon: Sparkles },
+  { id: 'GROCERIES', label: 'Groceries', icon: ShoppingBasket },
   { id: 'ACCESSORIES', label: 'Accessories', icon: Gem },
 ];
 
@@ -83,7 +85,7 @@ const SIZE_GROUPS = [
   { label: 'Waist (in)', sizes: ['28', '30', '32', '34', '36'] },
   { label: 'Footwear (UK)', sizes: ['6', '7', '8', '9', '10', '11'] },
 ];
-const COLOUR_FILTERS = ['Black', 'White', 'Navy', 'Grey', 'Blue', 'Olive', 'Brown', 'Red'];
+const COLOUR_FILTERS = ['Black', 'White', 'Navy', 'Grey', 'Blue'];
 
 const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'featured', label: 'Featured' },
@@ -208,23 +210,13 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
   const totalResults = results?.totalElements ?? 0;
   const totalPages = results?.totalPages ?? 0;
 
-  // ---- Showcase sections and department counts: small, independent requests ----
-  const [heroProducts, setHeroProducts] = useState<Product[]>([]);
-  const [dealProducts, setDealProducts] = useState<Product[]>([]);
+  // ---- Category list and counts: two small requests ----
   const [categoryCounts, setCategoryCounts] = useState<CategoryCount[]>([]);
-  const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
   const [apiCategories, setApiCategories] = useState<ApiCategory[] | null>(null);
   useEffect(() => {
     let active = true;
-    api.searchProducts({ sort: 'popular', size: 4 })
-      .then((p) => active && setTrendingProducts(p.content)).catch(() => {});
     api.getCategories()
       .then((c) => active && setApiCategories(c)).catch(() => {});
-    api.searchProducts({ sort: 'rating-desc', size: 3 })
-      .then((p) => active && setHeroProducts(p.content)).catch(() => {});
-    api.searchProducts({ sort: 'discount-desc', size: 8 })
-      .then((p) => active && setDealProducts(p.content.filter((x) => (x.discountPercentage ?? 0) > 0 && x.stockQuantity > 0).slice(0, 4)))
-      .catch(() => {});
     api.getCategoryCounts()
       .then((c) => active && setCategoryCounts(c)).catch(() => {});
     return () => { active = false; };
@@ -346,146 +338,39 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
         </nav>
       </aside>
 
-      {/* ---------- Hero ---------- */}
+      {/* ---------- Intro and categories ---------- */}
       {isBrowsing && (
-        <section className="qk-container pt-4 md:pt-6">
-          <div className="relative isolate flex min-h-[440px] items-end overflow-hidden rounded-xl bg-neutral-900 md:min-h-[540px]">
-            <img
-              src="/categories/vayu-hero.webp"
-              alt=""
-              className="absolute inset-0 -z-10 h-full w-full object-cover opacity-90"
-            />
-            <span className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/30 to-black/0 md:bg-gradient-to-r md:from-black/75 md:via-black/35 md:to-transparent" />
-            <div className="w-full animate-rise p-6 sm:p-10 lg:p-14">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/70">The new season edit</p>
-              <h1 className="qk-display mt-4 max-w-2xl text-5xl text-white sm:text-6xl lg:text-7xl">
-                Made to move with you.
-              </h1>
-              <p className="mt-5 max-w-lg text-base leading-relaxed text-white/80">
-                VAYU is menswear for every day: honest fabrics, clean cuts and a fit you can count on. {totalProducts > 0 ? `${totalProducts} pieces` : 'Tees, shirts, jeans and jackets'} in sizes S to XXL. Pay by UPI, card or cash on delivery.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <button type="button" onClick={scrollToCatalog} className="qk-btn h-12 bg-white px-7 text-neutral-950 hover:bg-white/90">
-                  Shop the collection <ArrowRight className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setSortBy('discount-desc'); scrollToCatalog(); }}
-                  className="qk-btn h-12 border border-white/40 px-7 text-white hover:bg-white/10"
-                >
-                  The sale
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <dl className="mt-4 grid grid-cols-1 divide-y divide-line rounded-xl border border-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            {[
-              { icon: Truck, title: 'Free delivery', text: 'On every order, no minimum' },
-              { icon: Banknote, title: 'Pay your way', text: 'UPI, card or cash on delivery' },
-              { icon: RotateCcw, title: '7-day returns', text: 'Wrong size? Send it back and we refund it' },
-            ].map(({ icon: Icon, title, text }) => (
-              <div key={title} className="flex items-center gap-3 px-5 py-4">
-                <Icon className="h-5 w-5 shrink-0 text-fg" />
-                <div>
-                  <dt className="text-sm font-semibold text-fg">{title}</dt>
-                  <dd className="text-xs text-muted">{text}</dd>
-                </div>
-              </div>
-            ))}
-          </dl>
-        </section>
-      )}
-
-      {/* ---------- Category tiles ---------- */}
-      {isBrowsing && (
-        <section className="qk-container pt-14" aria-labelledby="categories-heading">
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <h2 id="categories-heading" className="qk-display text-2xl text-fg md:text-3xl">Shop by category</h2>
-            <button type="button" onClick={() => navigate('/categories')} className="flex shrink-0 items-center gap-1 text-sm font-medium text-fg hover:underline">
-              All categories <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="qk-scrollbar-none -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0">
-            {categories.filter((c) => c.id !== 'ALL').slice(0, 8).map((cat) => {
-              const Icon = cat.icon;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => { setSelectedCategory(cat.id); scrollToCatalog(); }}
-                  aria-pressed={selectedCategory === cat.id}
-                  className="group relative isolate grid aspect-[4/3] w-56 shrink-0 place-items-center overflow-hidden rounded-lg bg-subtle text-left md:w-auto"
-                >
-                  <Icon className="h-7 w-7 text-muted" />
-                  <img
-                    src={cat.imageUrl || categoryImage(cat.id)}
-                    alt=""
-                    loading="lazy"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 dark:brightness-[0.85]"
-                  />
-                  <span className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-                  <span className="absolute inset-x-4 bottom-3.5 text-white">
-                    <span className="block text-base font-semibold leading-tight">{cat.label}</span>
-                    <span className="mt-0.5 block text-xs text-white/75">{countFor(cat.id)} items</span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* ---------- Deals ---------- */}
-      {isBrowsing && sortBy === 'featured' && dealProducts.length > 0 && (
-        <section className="qk-container pt-14" aria-labelledby="deals-heading">
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <h2 id="deals-heading" className="qk-display text-2xl text-fg md:text-3xl">The sale</h2>
-              <p className="mt-1 text-sm text-muted">The biggest discounts in the store right now.</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => { setSortBy('discount-desc'); scrollToCatalog(); }}
-              className="flex shrink-0 items-center gap-1 text-sm font-medium text-fg hover:underline"
-            >
-              View all <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-5">
-            {dealProducts.map((p) => (
-              <ProductCard key={`deal-${p.id}`} product={p} onViewDetails={setSelectedProduct} />
+        <section className="qk-container pt-10 md:pt-14" aria-labelledby="home-heading">
+          <h1 id="home-heading" className="qk-display max-w-2xl text-4xl text-fg md:text-5xl">Everyday things, at fair prices.</h1>
+          <p className="mt-3 max-w-xl text-base text-muted">
+            {totalProducts > 0 ? `${totalProducts} products` : 'Products'} in 8 categories. Pay by UPI, card or cash on delivery.
+          </p>
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {categories.filter((c) => c.id !== 'ALL').slice(0, 8).map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => { setSelectedCategory(cat.id); scrollToCatalog(); }}
+                aria-pressed={selectedCategory === cat.id}
+                className="group flex items-center gap-3 rounded-lg border border-line bg-surface p-2 text-left transition-colors hover:border-fg"
+              >
+                <img
+                  src={cat.imageUrl || categoryImage(cat.id)}
+                  alt=""
+                  loading="lazy"
+                  onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+                  className="h-12 w-12 shrink-0 rounded-md bg-subtle object-cover"
+                />
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-semibold text-fg">{cat.label}</span>
+                  <span className="block text-xs text-muted">{countFor(cat.id)} items</span>
+                </span>
+              </button>
             ))}
           </div>
         </section>
       )}
 
-      {/* ---------- Trending ---------- */}
-      {isBrowsing && sortBy === 'featured' && trendingProducts.length > 0 && (
-        <section className="qk-container pt-14" aria-labelledby="trending-heading">
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <h2 id="trending-heading" className="qk-display text-2xl text-fg md:text-3xl">Bestsellers</h2>
-              <p className="mt-1 text-sm text-muted">The products shoppers review and buy the most.</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => { setSortBy('popular'); scrollToCatalog(); }}
-              className="flex shrink-0 items-center gap-1 text-sm font-medium text-fg hover:underline"
-            >
-              View all <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-5">
-            {trendingProducts.map((p) => (
-              <ProductCard key={`trend-${p.id}`} product={p} onViewDetails={setSelectedProduct} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ---------- Catalog ---------- */}
       <section id="catalog-results" className="qk-container scroll-mt-36 pb-20 pt-14" aria-labelledby="catalog-heading">
         <div className="flex flex-col gap-1 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -528,6 +413,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
                   })}
                 </ul>
               </div>
+              {(selectedCategory === 'FASHION' || sizeFilter || colorFilter) && <>
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-[0.1em] text-fg">Size</h3>
                 {SIZE_GROUPS.map((g) => (
@@ -551,6 +437,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
                   ))}
                 </div>
               </div>
+              </>}
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-[0.1em] text-fg">Sort by</h3>
                 <ul className="mt-3 space-y-0.5">
@@ -630,6 +517,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
               >
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
               </select>
+              {(selectedCategory === 'FASHION' || sizeFilter || colorFilter) && <>
               <select aria-label="Size" value={sizeFilter} onChange={(e) => updateParams({ size: e.target.value })} className="qk-input h-10 w-auto shrink-0 cursor-pointer pr-8 lg:hidden">
                 <option value="">Any size</option>
                 {SIZE_GROUPS.flatMap((g) => g.sizes).map((sz) => <option key={sz} value={sz}>{sz}</option>)}
@@ -638,6 +526,7 @@ export const HomePage: React.FC<HomePageProps> = ({ isSidebarOpen, onCloseSideba
                 <option value="">Any colour</option>
                 {COLOUR_FILTERS.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
+              </>}
 
               <div className="flex h-10 shrink-0 items-center gap-1 rounded-lg border border-line bg-surface px-3">
                 <span className="text-sm text-muted">₹</span>

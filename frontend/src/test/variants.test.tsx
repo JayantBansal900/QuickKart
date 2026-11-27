@@ -20,8 +20,8 @@ vi.mock("../services/api", () => ({
 }));
 
 const tee: Product = {
-  id: 11, name: "VAYU Essential Crew Tee", brand: "VAYU", description: "Soft cotton tee.", price: 699, stockQuantity: 9,
-  category: "T-Shirts", availability: "IN_STOCK",
+  id: 11, name: "Levi's Classic Crew Tee", brand: "Levi's", description: "Soft cotton tee.", price: 699, stockQuantity: 9,
+  category: "Fashion", availability: "IN_STOCK",
   variants: [
     { id: 1, size: "M", color: "Black", stockQuantity: 4 },
     { id: 2, size: "L", color: "Black", stockQuantity: 0 },
@@ -65,7 +65,7 @@ describe("product page size picker", () => {
   });
 
   it("products without sizes add straight to the cart", async () => {
-    const wallet: Product = { id: 5, name: "VAYU Wallet", description: "d", price: 1299, stockQuantity: 8, category: "Accessories" };
+    const wallet: Product = { id: 5, name: "Leather Wallet", description: "d", price: 1299, stockQuantity: 8, category: "Accessories" };
     render(<ProductDetailsModal product={wallet} onClose={() => undefined} />);
     expect(screen.queryByRole("radiogroup", { name: "Colour" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Add to cart/ }));
@@ -78,7 +78,7 @@ describe("product card", () => {
     const open = vi.fn();
     render(<ProductCard product={tee} onViewDetails={open} />);
     expect(screen.getByText("2 colours")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Choose a size for VAYU Essential Crew Tee" }));
+    fireEvent.click(screen.getByRole("button", { name: "Choose a size for Levi's Classic Crew Tee" }));
     expect(open).toHaveBeenCalledWith(tee);
     expect(cart.addToCart).not.toHaveBeenCalled();
   });
@@ -87,8 +87,8 @@ describe("product card", () => {
 describe("admin sizes editor", () => {
   it("adds a size set in one click and saves the total as the stock", async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
-    render(<AdminProductModal isOpen product={null} categories={["T-Shirts"]} onClose={() => undefined} onSubmit={onSubmit} />);
-    fireEvent.change(screen.getByLabelText("Product name"), { target: { value: "VAYU Test Tee" } });
+    render(<AdminProductModal isOpen product={null} categories={["Fashion"]} onClose={() => undefined} onSubmit={onSubmit} />);
+    fireEvent.change(screen.getByLabelText("Product name"), { target: { value: "Test Tee" } });
     fireEvent.change(screen.getByLabelText("Price (₹)"), { target: { value: "799" } });
     fireEvent.change(screen.getByLabelText("Description"), { target: { value: "A tee." } });
     fireEvent.change(screen.getByLabelText("Colour for new sizes"), { target: { value: "Navy" } });
@@ -107,8 +107,8 @@ describe("admin sizes editor", () => {
 
   it("refuses the same size and colour twice", async () => {
     const onSubmit = vi.fn();
-    render(<AdminProductModal isOpen product={null} categories={["T-Shirts"]} onClose={() => undefined} onSubmit={onSubmit} />);
-    fireEvent.change(screen.getByLabelText("Product name"), { target: { value: "VAYU Dup Tee" } });
+    render(<AdminProductModal isOpen product={null} categories={["Fashion"]} onClose={() => undefined} onSubmit={onSubmit} />);
+    fireEvent.change(screen.getByLabelText("Product name"), { target: { value: "Dup Tee" } });
     fireEvent.change(screen.getByLabelText("Price (₹)"), { target: { value: "799" } });
     fireEvent.change(screen.getByLabelText("Description"), { target: { value: "A tee." } });
     fireEvent.click(screen.getByRole("button", { name: "+ One size row" }));
@@ -118,5 +118,14 @@ describe("admin sizes editor", () => {
     fireEvent.click(screen.getByRole("button", { name: "Create product" }));
     expect(await screen.findByText("Each size and colour can only appear once.")).toBeTruthy();
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+});
+
+describe("size label", () => {
+  it("names shoe and waist sizes", async () => {
+    const { sizeLabelFor } = await import("../components/VariantPicker");
+    expect(sizeLabelFor([{ id: 1, size: "8", stockQuantity: 1 }])).toBe("Size (UK)");
+    expect(sizeLabelFor([{ id: 1, size: "32", stockQuantity: 1 }])).toBe("Waist (in)");
+    expect(sizeLabelFor([{ id: 1, size: "M", stockQuantity: 1 }])).toBe("Size");
   });
 });

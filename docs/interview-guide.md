@@ -1,4 +1,4 @@
-# VAYU (formerly QuickKart) — interview guide
+# QuickKart — interview guide
 
 How to explain this project in an interview. Every answer here matches the code; where something is *not* built, say so plainly. Interviewers respect honest scope much more than inflated claims.
 
@@ -6,7 +6,7 @@ How to explain this project in an interview. Every answer here matches the code;
 
 ## 1. The 60-second pitch
 
-> "VAYU is a men’s clothing brand’s online store, a full-stack e-commerce app I built with Spring Boot and React. The backend is split into an API gateway, a product service, an order service and a monolith for auth and admin, with PostgreSQL, Redis and Kafka, all running on Docker Compose.
+> "QuickKart is a full-stack e-commerce app I built with Spring Boot and React. The backend is split into an API gateway, a product service, an order service and a monolith for auth and admin, with PostgreSQL, Redis and Kafka, all running on Docker Compose.
 >
 > I focused on the problems real shops actually hit:
 > - **No overselling:** checkout uses row locks.
@@ -265,12 +265,12 @@ Because "shipped" without a tracking number is the most common support ticket in
 
 ## Sizes and colours (product variants)
 
-**How is stock kept per size without breaking everything else?** A `product_variants` table (size, colour, stock) hangs off `products`. For a product with sizes, `products.stock_quantity` is kept equal to the *sum* of its sizes, so listings, search, analytics and the "in stock" badge work unchanged. Cart lines and order lines point at a variant (`variant_id`, plus the size and colour copied as text so an old order still reads right if the variant is later edited).
+**How is stock kept per size without breaking everything else?** A `product_variants` table (size, colour, stock) hangs off `products`. For a product with sizes, `products.stock_quantity` is kept equal to the *sum* of its sizes, so listings, search, analytics and the "in stock" badge work unchanged. Cart and order lines point at a variant (`variant_id`), and order lines also copy the size and colour as text so an old order still reads right if the variant is edited later.
 
-**Where is overselling prevented?** At checkout the order service locks the product row and then the variant row (`SELECT … FOR UPDATE`, always in product-then-variant order, lines sorted so two checkouts cannot deadlock), re-checks the size's stock, and decrements both. Cancelling an order or approving a return puts the units back on the same size.
+**Where is overselling prevented?** At checkout the order service locks the product row, then the variant row (`SELECT … FOR UPDATE`, lines sorted the same way every time so two checkouts cannot deadlock), re-checks the size's stock and decrements both. Cancelling or approving a return puts the units back on the same size.
 
-**What if a shopper does not choose a size?** The API answers 400 ("Choose a size") for a product that has sizes, and the UI disables sold-out sizes. A cart line is unique per (cart, product, variant), enforced by a unique index on `COALESCE(variant_id, 0)`.
+**What if no size is chosen?** The API answers 400 for a product that has sizes. A cart line is unique per (cart, product, variant), enforced by a unique index on `COALESCE(variant_id, 0)`.
 
-**What did you deliberately not do?** Per-colour photos (one photo per product type) and per-variant prices: every size of a product costs the same.
+**What was deliberately left out?** Per-colour photos and per-size prices.
 
-**Honest note:** the catalog photos are generic Pixabay pictures of the *type* of garment, not photos of the exact item.
+**A detour worth mentioning honestly:** the store was briefly rebranded as a menswear label (Flyway V9) and then brought back to the general store (V10). Both changes are forward-only migrations, so a database at any version upgrades cleanly; nothing was rewritten in place.

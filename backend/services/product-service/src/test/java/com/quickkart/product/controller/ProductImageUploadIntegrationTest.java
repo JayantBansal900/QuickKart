@@ -59,7 +59,7 @@ class ProductImageUploadIntegrationTest {
         long n = System.nanoTime();
         admin = token("img-admin-" + n + "@quickkart.com", "ADMIN");
         user = token("img-user-" + n + "@quickkart.com", "USER");
-        product = products.save(new Product("Upload Kettle " + n, "d", new BigDecimal("999.00"), 5, "Hoodies & Sweatshirts"));
+        product = products.save(new Product("Upload Kettle " + n, "d", new BigDecimal("999.00"), 5, "Home & Living"));
     }
 
     @Test

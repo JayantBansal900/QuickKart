@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Check, ImageOff, Minus, Plus, ShoppingBag, Star, Truck, X, Zap } from 'lucide-react';
 
 import { Product } from '../types';
-import { VariantPicker, coloursOf, sizesOf } from './VariantPicker';
+import { VariantPicker, coloursOf, sizeLabelFor, sizesOf } from './VariantPicker';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/formatters';
@@ -205,7 +205,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ produc
                 size={variantId}
                 onColor={(c) => { setColor(c); setVariantId(null); setQuantity(1); }}
                 onSize={(id) => { setVariantId(id); setQuantity(1); }}
-                sizeLabel={product.category === 'Footwear' ? 'Size (UK)' : product.category === 'Jeans' || product.category === 'Trousers' ? 'Waist (in)' : 'Size'}
+                sizeLabel={sizeLabelFor(variants)}
               />
             )}
 

@@ -1,57 +1,29 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { INFO_LINKS } from '../pages/infoLinks';
 import { Logo } from './Header';
 
-const SHOP_LINKS = [
-  { to: '/', label: 'New arrivals' },
-  { to: '/categories', label: 'Shop by category' },
-  { to: '/?sort=discount-desc', label: 'Sale' },
-  { to: '/?sort=popular', label: 'Bestsellers' },
-];
-
-const ACCOUNT_LINKS = [
-  { to: '/account/profile', label: 'My account' },
+const LINKS = [
+  { to: '/', label: 'Shop' },
   { to: '/account/orders', label: 'Orders' },
   { to: '/account/wishlist', label: 'Wishlist' },
-  { to: '/cart', label: 'Cart' },
+  { to: '/account/profile', label: 'Account' },
 ];
 
-function Column({ title, links }: { title: string; links: { to: string; label: string }[] }) {
-  return (
-    <div>
-      <h3 className="text-sm font-semibold text-fg">{title}</h3>
-      <ul className="mt-4 space-y-2.5">
-        {links.map((l) => (
-          <li key={l.to}>
-            <Link to={l.to} className="text-sm text-muted transition-colors hover:text-fg">{l.label}</Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/** Customer-facing footer: shopping links only — no infrastructure or admin details. */
+/** Small footer: brand, a few links and the payment line. */
 export const Footer: React.FC = () => (
-  <footer className="mt-auto border-t border-line bg-subtle/60 print:hidden">
-    <div className="qk-container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
-      <div className="max-w-xs">
-        <Logo />
-        <p className="mt-4 text-sm leading-relaxed text-muted">
-          Menswear made to be worn every day: honest fabrics, clean cuts and a fit you can count on. Pay by UPI, card or cash on delivery.
-        </p>
-      </div>
-      <Column title="Shop" links={SHOP_LINKS} />
-      <Column title="Account" links={ACCOUNT_LINKS} />
-      <nav aria-label="Store information">
-        <Column title="Help" links={INFO_LINKS.map((l) => ({ to: `/info/${l.slug}`, label: l.label }))} />
+  <footer className="mt-auto border-t border-line print:hidden">
+    <div className="qk-container flex flex-col gap-6 py-10 sm:flex-row sm:items-center sm:justify-between">
+      <Logo />
+      <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-2">
+        {LINKS.map((l) => (
+          <Link key={l.to} to={l.to} className="text-sm text-muted transition-colors hover:text-fg">{l.label}</Link>
+        ))}
       </nav>
     </div>
     <div className="border-t border-line">
-      <div className="qk-container flex flex-col gap-2 py-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-        <span>© {new Date().getFullYear()} VAYU. All rights reserved.</span>
-        <span>Prices include GST · Made in India</span>
+      <div className="qk-container flex flex-col gap-1 py-5 text-xs text-muted sm:flex-row sm:justify-between">
+        <span>© {new Date().getFullYear()} QuickKart · a portfolio project, no real payments</span>
+        <span>UPI, card or cash on delivery · 7-day returns</span>
       </div>
     </div>
   </footer>

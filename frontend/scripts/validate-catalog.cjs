@@ -2,13 +2,13 @@ const fs = require('fs');
 const path = require('path');
 
 const canonicalCategories = new Set([
-  'T-Shirts',
-  'Shirts',
-  'Jeans',
-  'Trousers',
-  'Jackets',
-  'Hoodies & Sweatshirts',
-  'Footwear',
+  'Electronics',
+  'Fashion',
+  'Home & Living',
+  'Sports',
+  'Books',
+  'Beauty',
+  'Groceries',
   'Accessories'
 ]);
 
@@ -25,7 +25,7 @@ const rawData = fs.readFileSync(catalogPath, 'utf8');
 const products = JSON.parse(rawData);
 
 console.log(`==================================================`);
-console.log(`VAYU CATALOG & IMAGE ASSETS VALIDATOR`);
+console.log(`QUICKKART CATALOG & IMAGE ASSETS VALIDATOR`);
 console.log(`==================================================`);
 console.log(`Checking catalog dataset at: ${catalogPath}`);
 console.log(`Total Products in Catalog: ${products.length}`);

@@ -18,34 +18,37 @@ interface HeaderProps {
 
 /** Shown until /api/categories answers (and if it fails). */
 const FALLBACK_CATEGORIES = [
-  { key: 'T-SHIRTS', name: 'T-Shirts' },
-  { key: 'SHIRTS', name: 'Shirts' },
-  { key: 'JEANS', name: 'Jeans' },
-  { key: 'TROUSERS', name: 'Trousers' },
-  { key: 'JACKETS', name: 'Jackets' },
-  { key: 'HOODIES & SWEATSHIRTS', name: 'Hoodies & Sweatshirts' },
-  { key: 'FOOTWEAR', name: 'Footwear' },
+  { key: 'ELECTRONICS', name: 'Electronics' },
+  { key: 'FASHION', name: 'Fashion' },
+  { key: 'HOME & LIVING', name: 'Home & Living' },
+  { key: 'SPORTS', name: 'Sports' },
+  { key: 'BOOKS', name: 'Books' },
+  { key: 'BEAUTY', name: 'Beauty' },
+  { key: 'GROCERIES', name: 'Groceries' },
   { key: 'ACCESSORIES', name: 'Accessories' },
 ];
 
 /** Wordmark used in the header and footer. */
-/** VAYU brand mark: a "V" with a thin gust of wind running through it. */
+/** QuickKart brand mark: a shopping bag with a lightning bolt (quick delivery), plus the wordmark. */
 export function LogoMark({ className = 'h-8 w-8' }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
-      <rect width="32" height="32" rx="7" className="fill-fg" />
-      <path d="M8.5 9l7.5 14.5L23.5 9" fill="none" className="stroke-bg" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5.5 15.2c3.4-1.8 6.2 1.2 9.6-.4s5.8-1.2 8.4-.2" fill="none" stroke="#c9a14a" strokeWidth="1.7" strokeLinecap="round" />
+      <rect width="32" height="32" rx="8" className="fill-fg" />
+      <path d="M11.5 11V9.5a4.5 4.5 0 0 1 9 0V11" fill="none" className="stroke-bg" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M7.5 11.5h17l-1.3 13.1a2 2 0 0 1-2 1.9H10.8a2 2 0 0 1-2-1.9z" className="fill-bg" />
+      <path d="M17.4 13.6l-4.6 6h3.1l-1.3 4.6 4.8-6.3h-3.2z" fill="#f5b700" />
     </svg>
   );
 }
 
-/** Wordmark: widely spaced serif capitals. */
 export function Logo({ className = '' }: { className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`}>
+    <span className={`inline-flex items-center gap-2 ${className}`}>
       <LogoMark />
-      <span className="font-display text-[22px] font-semibold leading-none tracking-[0.28em] text-fg">VAYU</span>
+      <span className="text-[19px] leading-none tracking-[-0.03em] text-fg">
+        <span className="font-extrabold">Quick</span>
+        <span className="font-medium">Kart</span>
+      </span>
     </span>
   );
 }
@@ -96,12 +99,6 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 print:hidden bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/85">
-      <div className="bg-fg text-bg">
-        <p className="qk-container py-2 text-center text-xs font-medium tracking-wide">
-          Free delivery on every order<span className="hidden sm:inline"> · Pay by UPI, card or cash on delivery</span>
-        </p>
-      </div>
-
       <div className="border-b border-line">
         <div className="qk-container flex h-16 items-center gap-3 md:gap-8">
           <button
@@ -114,7 +111,7 @@ export const Header: React.FC<HeaderProps> = ({
             {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          <button type="button" onClick={() => onSelectView('store')} aria-label="VAYU Home" className="shrink-0">
+          <button type="button" onClick={() => onSelectView('store')} aria-label="QuickKart Home" className="shrink-0">
             <Logo />
           </button>
 
@@ -230,9 +227,6 @@ export const Header: React.FC<HeaderProps> = ({
               {c.name}
             </button>
           ))}
-          <Link to="/categories" className={subNav(location.pathname === '/categories')}>
-            Categories
-          </Link>
           <span className="ml-auto" />
           {isAuthenticated && (
             <button type="button" onClick={() => onSelectView('orders')} className={subNav(currentView === 'orders')}>

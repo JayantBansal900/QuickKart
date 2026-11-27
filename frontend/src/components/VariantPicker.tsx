@@ -60,7 +60,6 @@ export const VariantPicker: React.FC<VariantPickerProps> = ({ variants, color, s
       <div role="radiogroup" aria-label={sizeLabel}>
         <div className="flex items-baseline justify-between">
           <p className="text-sm text-fg"><span className="font-semibold">{sizeLabel}</span>{chosen && <span className="text-muted"> · {chosen.size}</span>}</p>
-          <a href="/info/returns" target="_blank" rel="noreferrer" className="text-xs text-muted underline underline-offset-2 hover:text-fg">Size guide</a>
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
           {sizes.map((s) => {
@@ -92,3 +91,10 @@ export const VariantPicker: React.FC<VariantPickerProps> = ({ variants, color, s
     </div>
   );
 };
+
+/** "Size (UK)" for shoe sizes, "Waist (in)" for jeans and trousers, otherwise "Size". */
+export function sizeLabelFor(variants: ProductVariant[]): string {
+  const numbers = variants.map((v) => Number(v.size)).filter((n) => !Number.isNaN(n));
+  if (numbers.length === 0 || numbers.length !== variants.length) return 'Size';
+  return Math.max(...numbers) <= 13 ? 'Size (UK)' : 'Waist (in)';
+}

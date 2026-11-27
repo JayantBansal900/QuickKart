@@ -41,7 +41,7 @@ export function PaymentPanel({ order, onPaid, onLater }: Props) {
       <div className="rounded-xl border border-line bg-subtle/60 p-5">
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-2 text-sm font-semibold text-fg">
-            <Icon className="h-4 w-4" /> VAYU Pay · {order.paymentMethod === 'CARD' ? 'Card' : 'UPI'}
+            <Icon className="h-4 w-4" /> QuickKart Pay · {order.paymentMethod === 'CARD' ? 'Card' : 'UPI'}
           </span>
           <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
             Test mode

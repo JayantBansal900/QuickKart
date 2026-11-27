@@ -1,8 +1,6 @@
 import React from 'react';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { InfoPage } from '../pages/InfoPage';
 import { ProductReviews } from '../components/ProductReviews';
 import { api } from '../services/api';
 
@@ -16,28 +14,6 @@ const page = <T,>(content: T[]) => ({ content, page: 0, size: 5, totalElements: 
 
 beforeEach(() => {
   vi.resetAllMocks();
-});
-
-function at(path: string) {
-  return render(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="/info/:slug" element={<InfoPage />} />
-        <Route path="/" element={<p>Home</p>} />
-      </Routes>
-    </MemoryRouter>,
-  );
-}
-
-it('renders a footer information page and links to the others', () => {
-  at('/info/returns');
-  expect(screen.getByRole('heading', { level: 1, name: 'Returns, size & refunds' })).toBeTruthy();
-  expect(screen.getByRole('link', { name: 'Privacy' }).getAttribute('href')).toBe('/info/privacy');
-});
-
-it('sends unknown information pages home', () => {
-  at('/info/nope');
-  expect(screen.getByText('Home')).toBeTruthy();
 });
 
 it('explains why a customer cannot review yet', async () => {

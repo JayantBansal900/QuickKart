@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Creates the eight VAYU categories when the table is empty (migration V6 inserts the same
+ * Creates the eight default categories when the table is empty (migration V6 inserts the same
  * rows in Docker). Runs before the catalog seeder, whose products need these categories.
  * Never touches existing rows, so admin edits are kept.
  */
@@ -24,14 +24,14 @@ public class CategoryInitializer implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(CategoryInitializer.class);
 
     static final List<Category> DEFAULTS = List.of(
-            new Category("T-Shirts", "Crew, polo, henley and oversized tees", "/categories/t-shirts.webp", 10),
-            new Category("Shirts", "Oxford, linen, flannel and formal shirts", "/categories/shirts.webp", 20),
-            new Category("Jeans", "Slim, straight, relaxed and tapered denim", "/categories/jeans.webp", 30),
-            new Category("Trousers", "Chinos, cargos, joggers and formal trousers", "/categories/trousers.webp", 40),
-            new Category("Jackets", "Bombers, denim, puffers and blazers", "/categories/jackets.webp", 50),
-            new Category("Hoodies & Sweatshirts", "Hoodies, sweatshirts and knitwear", "/categories/hoodies.webp", 60),
-            new Category("Footwear", "Sneakers, loafers, boots and slides", "/categories/footwear.webp", 70),
-            new Category("Accessories", "Belts, wallets, caps, watches and more", "/categories/vayu-accessories.webp", 80));
+            new Category("Electronics", "Phones, audio, laptops and smart devices", "/categories/electronics.webp", 10),
+            new Category("Fashion", "Clothing, footwear and everyday style", "/categories/fashion.webp", 20),
+            new Category("Home & Living", "Kitchen, decor and home essentials", "/categories/home-living.webp", 30),
+            new Category("Sports", "Fitness, outdoor and sports gear", "/categories/sports.webp", 40),
+            new Category("Books", "Bestsellers, classics and learning", "/categories/books.webp", 50),
+            new Category("Beauty", "Skincare, haircare and grooming", "/categories/beauty.webp", 60),
+            new Category("Groceries", "Pantry staples, snacks and beverages", "/categories/groceries.webp", 70),
+            new Category("Accessories", "Watches, bags, eyewear and more", "/categories/accessories.webp", 80));
 
     private final CategoryRepository categories;
 

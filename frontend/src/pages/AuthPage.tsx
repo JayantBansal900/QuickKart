@@ -120,7 +120,7 @@ export function AuthPage() {
   };
   const titles = {
     login: ["Sign In", "Welcome back. Sign in to continue shopping."],
-    register: ["Create Account", "Join VAYU in less than a minute."],
+    register: ["Create Account", "Join QuickKart in less than a minute."],
     verify: ["Verify Your Email", "Enter the 6-digit code we sent to your inbox."],
     forgot: ["Forgot Password", "Enter your email and we'll send you a code to reset it."],
     reset: ["Reset Password", "Enter the code from your email and choose a new password."],
@@ -147,16 +147,16 @@ export function AuthPage() {
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-70"
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
-        <p className="relative font-display text-xl font-semibold tracking-[0.28em]">VAYU</p>
+        <p className="relative text-lg font-semibold tracking-tight">quickkart</p>
         <div className="relative">
-          <h2 className="qk-display text-5xl">Made to move<br /><span className="text-white/70">with you.</span></h2>
+          <h2 className="qk-display text-5xl">Shop smarter.<br /><span className="text-white/70">Delivered fast.</span></h2>
           <ul className="mt-8 space-y-3 text-sm opacity-80">
-            <li>✓ 60 pieces in 8 categories, sizes S to XXL</li>
+            <li>✓ 144 hand-picked products across 8 categories</li>
             <li>✓ Pay by UPI, card or cash on delivery</li>
-            <li>✓ 7-day returns if the size is not right</li>
+            <li>✓ Email-verified accounts</li>
           </ul>
         </div>
-        <p className="relative text-xs opacity-60">© {new Date().getFullYear()} VAYU</p>
+        <p className="relative text-xs opacity-60">© {new Date().getFullYear()} QuickKart</p>
       </div>
 
       {/* Form */}

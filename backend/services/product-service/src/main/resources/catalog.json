@@ -1,3634 +1,2759 @@
 [
   {
-    "sku": "VY-TEE-001",
-    "name": "VAYU Essential Crew Tee",
-    "brand": "VAYU",
-    "description": "Our everyday tee in 180 GSM combed cotton. Soft, breathable and cut to sit clean under a jacket or on its own.\n\nColours: White, Black, Navy.",
-    "category": "T-Shirts",
-    "price": 699,
-    "discountPercentage": 0,
-    "rating": 4.3,
-    "reviewCount": 121,
-    "stockQuantity": 238,
-    "imageUrl": "/products/photos/tshirt-i2.webp",
-    "thumbnailUrl": "/products/photos/tshirt-i2.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "White",
-        "stockQuantity": 18
-      },
-      {
-        "size": "M",
-        "color": "White",
-        "stockQuantity": 23
-      },
-      {
-        "size": "L",
-        "color": "White",
-        "stockQuantity": 18
-      },
-      {
-        "size": "XL",
-        "color": "White",
-        "stockQuantity": 8
-      },
-      {
-        "size": "XXL",
-        "color": "White",
-        "stockQuantity": 19
-      },
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 11
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 17
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 15
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 19
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 18
-      },
-      {
-        "size": "S",
-        "color": "Navy",
-        "stockQuantity": 14
-      },
-      {
-        "size": "M",
-        "color": "Navy",
-        "stockQuantity": 20
-      },
-      {
-        "size": "L",
-        "color": "Navy",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XL",
-        "color": "Navy",
-        "stockQuantity": 19
-      },
-      {
-        "size": "XXL",
-        "color": "Navy",
-        "stockQuantity": 19
-      }
-    ]
-  },
-  {
-    "sku": "VY-TEE-002",
-    "name": "VAYU Drop-Shoulder Oversized Tee",
-    "brand": "VAYU",
-    "description": "A relaxed, drop-shoulder fit in heavy cotton jersey with a ribbed collar that keeps its shape wash after wash.\n\nColours: Black, Stone.",
-    "category": "T-Shirts",
-    "price": 999,
-    "discountPercentage": 10,
-    "rating": 4.2,
-    "reviewCount": 306,
-    "stockQuantity": 145,
-    "imageUrl": "/products/photos/tshirt-i2.webp",
-    "thumbnailUrl": "/products/photos/tshirt-i2.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 18
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 8
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 6
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 16
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 10
-      },
-      {
-        "size": "S",
-        "color": "Stone",
-        "stockQuantity": 18
-      },
-      {
-        "size": "M",
-        "color": "Stone",
-        "stockQuantity": 13
-      },
-      {
-        "size": "L",
-        "color": "Stone",
-        "stockQuantity": 22
-      },
-      {
-        "size": "XL",
-        "color": "Stone",
-        "stockQuantity": 12
-      },
-      {
-        "size": "XXL",
-        "color": "Stone",
-        "stockQuantity": 22
-      }
-    ]
-  },
-  {
-    "sku": "VY-TEE-003",
-    "name": "VAYU Heavyweight Boxy Tee",
-    "brand": "VAYU",
-    "description": "240 GSM cotton with a boxy, cropped-at-the-hip cut. Structured enough to hold its line, soft enough to live in.\n\nColours: Off White, Olive.",
-    "category": "T-Shirts",
-    "price": 1199,
-    "discountPercentage": 0,
-    "rating": 4.5,
-    "reviewCount": 153,
-    "stockQuantity": 124,
-    "imageUrl": "/products/photos/tshirt-i2.webp",
-    "thumbnailUrl": "/products/photos/tshirt-i2.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Off White",
-        "stockQuantity": 4
-      },
-      {
-        "size": "M",
-        "color": "Off White",
-        "stockQuantity": 11
-      },
-      {
-        "size": "L",
-        "color": "Off White",
-        "stockQuantity": 4
-      },
-      {
-        "size": "XL",
-        "color": "Off White",
-        "stockQuantity": 16
-      },
-      {
-        "size": "XXL",
-        "color": "Off White",
-        "stockQuantity": 12
-      },
-      {
-        "size": "S",
-        "color": "Olive",
-        "stockQuantity": 19
-      },
-      {
-        "size": "M",
-        "color": "Olive",
-        "stockQuantity": 16
-      },
-      {
-        "size": "L",
-        "color": "Olive",
-        "stockQuantity": 15
-      },
-      {
-        "size": "XL",
-        "color": "Olive",
-        "stockQuantity": 10
-      },
-      {
-        "size": "XXL",
-        "color": "Olive",
-        "stockQuantity": 17
-      }
-    ]
-  },
-  {
-    "sku": "VY-TEE-004",
-    "name": "VAYU Pique Polo",
-    "brand": "VAYU",
-    "description": "Classic pique-knit polo with a two-button placket and a clean collar that stays flat all day.\n\nColours: Navy, White, Forest.",
-    "category": "T-Shirts",
-    "price": 1299,
-    "discountPercentage": 15,
-    "rating": 4.1,
-    "reviewCount": 246,
-    "stockQuantity": 150,
-    "imageUrl": "/products/photos/polo-k3.webp",
-    "thumbnailUrl": "/products/photos/polo-k3.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Navy",
-        "stockQuantity": 11
-      },
-      {
-        "size": "M",
-        "color": "Navy",
-        "stockQuantity": 22
-      },
-      {
-        "size": "L",
-        "color": "Navy",
-        "stockQuantity": 4
-      },
-      {
-        "size": "XL",
-        "color": "Navy",
-        "stockQuantity": 10
-      },
-      {
-        "size": "XXL",
-        "color": "Navy",
-        "stockQuantity": 23
-      },
-      {
-        "size": "S",
-        "color": "White",
-        "stockQuantity": 6
-      },
-      {
-        "size": "M",
-        "color": "White",
-        "stockQuantity": 9
-      },
-      {
-        "size": "L",
-        "color": "White",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XL",
-        "color": "White",
-        "stockQuantity": 14
-      },
-      {
-        "size": "XXL",
-        "color": "White",
-        "stockQuantity": 17
-      },
-      {
-        "size": "S",
-        "color": "Forest",
-        "stockQuantity": 8
-      },
-      {
-        "size": "M",
-        "color": "Forest",
-        "stockQuantity": 11
-      },
-      {
-        "size": "L",
-        "color": "Forest",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XL",
-        "color": "Forest",
-        "stockQuantity": 3
-      },
-      {
-        "size": "XXL",
-        "color": "Forest",
-        "stockQuantity": 12
-      }
-    ]
-  },
-  {
-    "sku": "VY-TEE-005",
-    "name": "VAYU Waffle Henley Tee",
-    "brand": "VAYU",
-    "description": "Waffle-knit cotton henley with a three-button placket. Textured, warm and easy to layer.\n\nColours: Charcoal, Sand.",
-    "category": "T-Shirts",
-    "price": 1099,
-    "discountPercentage": 0,
-    "rating": 4.1,
-    "reviewCount": 192,
-    "stockQuantity": 133,
-    "imageUrl": "/products/photos/tshirt-i2.webp",
-    "thumbnailUrl": "/products/photos/tshirt-i2.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Charcoal",
-        "stockQuantity": 22
-      },
-      {
-        "size": "M",
-        "color": "Charcoal",
-        "stockQuantity": 10
-      },
-      {
-        "size": "L",
-        "color": "Charcoal",
-        "stockQuantity": 19
-      },
-      {
-        "size": "XL",
-        "color": "Charcoal",
-        "stockQuantity": 22
-      },
-      {
-        "size": "XXL",
-        "color": "Charcoal",
-        "stockQuantity": 23
-      },
-      {
-        "size": "S",
-        "color": "Sand",
-        "stockQuantity": 6
-      },
-      {
-        "size": "M",
-        "color": "Sand",
-        "stockQuantity": 13
-      },
-      {
-        "size": "L",
-        "color": "Sand",
-        "stockQuantity": 7
-      },
-      {
-        "size": "XL",
-        "color": "Sand",
-        "stockQuantity": 4
-      },
-      {
-        "size": "XXL",
-        "color": "Sand",
-        "stockQuantity": 7
-      }
-    ]
-  },
-  {
-    "sku": "VY-TEE-006",
-    "name": "VAYU Pocket Tee",
-    "brand": "VAYU",
-    "description": "A soft cotton tee with a single chest pocket and a straight hem. Simple, honest and goes with everything.\n\nColours: Grey Melange, Navy.",
-    "category": "T-Shirts",
-    "price": 799,
-    "discountPercentage": 0,
+    "name": "Sony WH-1000XM5 Wireless Noise Cancelling Headphones",
+    "brand": "Sony",
+    "category": "Electronics",
+    "price": 26990,
+    "discountPercentage": 17,
     "rating": 4.8,
-    "reviewCount": 184,
-    "stockQuantity": 76,
-    "imageUrl": "/products/photos/tshirt-i2.webp",
-    "thumbnailUrl": "/products/photos/tshirt-i2.webp",
+    "reviewCount": 2893,
+    "stockQuantity": 36,
+    "sku": "SKU-ELEC-001",
+    "imageUrl": "/products/photos/headphones-i4.webp",
+    "thumbnailUrl": "/products/photos/headphones-i4.webp",
     "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Grey Melange",
-        "stockQuantity": 16
-      },
-      {
-        "size": "M",
-        "color": "Grey Melange",
-        "stockQuantity": 0
-      },
-      {
-        "size": "L",
-        "color": "Grey Melange",
-        "stockQuantity": 3
-      },
-      {
-        "size": "XL",
-        "color": "Grey Melange",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XXL",
-        "color": "Grey Melange",
-        "stockQuantity": 0
-      },
-      {
-        "size": "S",
-        "color": "Navy",
-        "stockQuantity": 10
-      },
-      {
-        "size": "M",
-        "color": "Navy",
-        "stockQuantity": 13
-      },
-      {
-        "size": "L",
-        "color": "Navy",
-        "stockQuantity": 18
-      },
-      {
-        "size": "XL",
-        "color": "Navy",
-        "stockQuantity": 9
-      },
-      {
-        "size": "XXL",
-        "color": "Navy",
-        "stockQuantity": 7
-      }
-    ]
+    "description": "Industry-leading noise cancellation, 30-hour battery and multipoint Bluetooth."
   },
   {
-    "sku": "VY-TEE-007",
-    "name": "VAYU Breton Stripe Tee",
-    "brand": "VAYU",
-    "description": "Horizontal-stripe cotton tee inspired by classic sailor shirts, with a slim crew neck.\n\nColours: Navy Stripe, Black Stripe.",
-    "category": "T-Shirts",
-    "price": 899,
-    "discountPercentage": 20,
-    "rating": 4.4,
-    "reviewCount": 436,
-    "stockQuantity": 103,
-    "imageUrl": "/products/photos/tshirt-i2.webp",
-    "thumbnailUrl": "/products/photos/tshirt-i2.webp",
+    "name": "Sony WF-1000XM5 Truly Wireless Earbuds",
+    "brand": "Sony",
+    "category": "Electronics",
+    "price": 21990,
+    "discountPercentage": 19,
+    "rating": 3.8,
+    "reviewCount": 77,
+    "stockQuantity": 18,
+    "sku": "SKU-ELEC-002",
+    "imageUrl": "/products/photos/earbuds-i3.webp",
+    "thumbnailUrl": "/products/photos/earbuds-i3.webp",
     "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Navy Stripe",
-        "stockQuantity": 11
-      },
-      {
-        "size": "M",
-        "color": "Navy Stripe",
-        "stockQuantity": 9
-      },
-      {
-        "size": "L",
-        "color": "Navy Stripe",
-        "stockQuantity": 19
-      },
-      {
-        "size": "XL",
-        "color": "Navy Stripe",
-        "stockQuantity": 12
-      },
-      {
-        "size": "XXL",
-        "color": "Navy Stripe",
-        "stockQuantity": 3
-      },
-      {
-        "size": "S",
-        "color": "Black Stripe",
-        "stockQuantity": 0
-      },
-      {
-        "size": "M",
-        "color": "Black Stripe",
-        "stockQuantity": 21
-      },
-      {
-        "size": "L",
-        "color": "Black Stripe",
-        "stockQuantity": 6
-      },
-      {
-        "size": "XL",
-        "color": "Black Stripe",
-        "stockQuantity": 18
-      },
-      {
-        "size": "XXL",
-        "color": "Black Stripe",
-        "stockQuantity": 4
-      }
-    ]
+    "description": "Compact ANC earbuds with LDAC hi-res audio and 8-hour battery."
   },
   {
-    "sku": "VY-TEE-008",
-    "name": "VAYU Longline Curved-Hem Tee",
-    "brand": "VAYU",
-    "description": "A longer back and curved hem for a streetwear silhouette, in lightweight cotton.\n\nColours: Black, White.",
-    "category": "T-Shirts",
-    "price": 849,
-    "discountPercentage": 0,
-    "rating": 4.5,
-    "reviewCount": 278,
-    "stockQuantity": 101,
-    "imageUrl": "/products/photos/tshirt-i2.webp",
-    "thumbnailUrl": "/products/photos/tshirt-i2.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 23
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 14
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 10
-      },
-      {
-        "size": "S",
-        "color": "White",
-        "stockQuantity": 5
-      },
-      {
-        "size": "M",
-        "color": "White",
-        "stockQuantity": 23
-      },
-      {
-        "size": "L",
-        "color": "White",
-        "stockQuantity": 7
-      },
-      {
-        "size": "XL",
-        "color": "White",
-        "stockQuantity": 4
-      },
-      {
-        "size": "XXL",
-        "color": "White",
-        "stockQuantity": 15
-      }
-    ]
-  },
-  {
-    "sku": "VY-TEE-009",
-    "name": "VAYU Open Skies Graphic Tee",
-    "brand": "VAYU",
-    "description": "Soft-hand screen print on 200 GSM cotton. The artwork is water-based ink that will not crack.\n\nColours: White, Black.",
-    "category": "T-Shirts",
-    "price": 949,
-    "discountPercentage": 10,
-    "rating": 4.2,
-    "reviewCount": 220,
-    "stockQuantity": 107,
-    "imageUrl": "/products/photos/tshirt-i2.webp",
-    "thumbnailUrl": "/products/photos/tshirt-i2.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "White",
-        "stockQuantity": 0
-      },
-      {
-        "size": "M",
-        "color": "White",
-        "stockQuantity": 12
-      },
-      {
-        "size": "L",
-        "color": "White",
-        "stockQuantity": 17
-      },
-      {
-        "size": "XL",
-        "color": "White",
-        "stockQuantity": 10
-      },
-      {
-        "size": "XXL",
-        "color": "White",
-        "stockQuantity": 9
-      },
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 24
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 9
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 5
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 5
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 16
-      }
-    ]
-  },
-  {
-    "sku": "VY-SHT-001",
-    "name": "VAYU Oxford Button-Down Shirt",
-    "brand": "VAYU",
-    "description": "Brushed Oxford cotton with a button-down collar. Smart enough for work, easy enough for a weekend.\n\nColours: Sky Blue, White.",
-    "category": "Shirts",
-    "price": 1799,
-    "discountPercentage": 0,
-    "rating": 4.1,
-    "reviewCount": 442,
-    "stockQuantity": 106,
-    "imageUrl": "/products/photos/shirt-i0.webp",
-    "thumbnailUrl": "/products/photos/shirt-i0.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Sky Blue",
-        "stockQuantity": 13
-      },
-      {
-        "size": "M",
-        "color": "Sky Blue",
-        "stockQuantity": 17
-      },
-      {
-        "size": "L",
-        "color": "Sky Blue",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XL",
-        "color": "Sky Blue",
-        "stockQuantity": 17
-      },
-      {
-        "size": "XXL",
-        "color": "Sky Blue",
-        "stockQuantity": 14
-      },
-      {
-        "size": "S",
-        "color": "White",
-        "stockQuantity": 22
-      },
-      {
-        "size": "M",
-        "color": "White",
-        "stockQuantity": 12
-      },
-      {
-        "size": "L",
-        "color": "White",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XL",
-        "color": "White",
-        "stockQuantity": 7
-      },
-      {
-        "size": "XXL",
-        "color": "White",
-        "stockQuantity": 4
-      }
-    ]
-  },
-  {
-    "sku": "VY-SHT-002",
-    "name": "VAYU Linen Resort Shirt",
-    "brand": "VAYU",
-    "description": "Breathable pure linen with a relaxed camp collar. Made for hot days and long evenings.\n\nColours: Sand, White, Sage.",
-    "category": "Shirts",
-    "price": 1899,
-    "discountPercentage": 10,
-    "rating": 4.6,
-    "reviewCount": 348,
-    "stockQuantity": 176,
-    "imageUrl": "/products/photos/shirt-i0.webp",
-    "thumbnailUrl": "/products/photos/shirt-i0.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Sand",
-        "stockQuantity": 0
-      },
-      {
-        "size": "M",
-        "color": "Sand",
-        "stockQuantity": 8
-      },
-      {
-        "size": "L",
-        "color": "Sand",
-        "stockQuantity": 11
-      },
-      {
-        "size": "XL",
-        "color": "Sand",
-        "stockQuantity": 14
-      },
-      {
-        "size": "XXL",
-        "color": "Sand",
-        "stockQuantity": 14
-      },
-      {
-        "size": "S",
-        "color": "White",
-        "stockQuantity": 10
-      },
-      {
-        "size": "M",
-        "color": "White",
-        "stockQuantity": 18
-      },
-      {
-        "size": "L",
-        "color": "White",
-        "stockQuantity": 20
-      },
-      {
-        "size": "XL",
-        "color": "White",
-        "stockQuantity": 4
-      },
-      {
-        "size": "XXL",
-        "color": "White",
-        "stockQuantity": 6
-      },
-      {
-        "size": "S",
-        "color": "Sage",
-        "stockQuantity": 18
-      },
-      {
-        "size": "M",
-        "color": "Sage",
-        "stockQuantity": 14
-      },
-      {
-        "size": "L",
-        "color": "Sage",
-        "stockQuantity": 11
-      },
-      {
-        "size": "XL",
-        "color": "Sage",
-        "stockQuantity": 6
-      },
-      {
-        "size": "XXL",
-        "color": "Sage",
-        "stockQuantity": 22
-      }
-    ]
-  },
-  {
-    "sku": "VY-SHT-003",
-    "name": "VAYU Brushed Flannel Check Shirt",
-    "brand": "VAYU",
-    "description": "Double-brushed cotton flannel in a classic check. Warm, soft and gets better with every wash.\n\nColours: Red Check, Navy Check.",
-    "category": "Shirts",
-    "price": 1699,
-    "discountPercentage": 0,
-    "rating": 4,
-    "reviewCount": 274,
-    "stockQuantity": 104,
-    "imageUrl": "/products/photos/flannel-shirt.webp",
-    "thumbnailUrl": "/products/photos/flannel-shirt.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Red Check",
-        "stockQuantity": 7
-      },
-      {
-        "size": "M",
-        "color": "Red Check",
-        "stockQuantity": 22
-      },
-      {
-        "size": "L",
-        "color": "Red Check",
-        "stockQuantity": 3
-      },
-      {
-        "size": "XL",
-        "color": "Red Check",
-        "stockQuantity": 5
-      },
-      {
-        "size": "XXL",
-        "color": "Red Check",
-        "stockQuantity": 13
-      },
-      {
-        "size": "S",
-        "color": "Navy Check",
-        "stockQuantity": 20
-      },
-      {
-        "size": "M",
-        "color": "Navy Check",
-        "stockQuantity": 0
-      },
-      {
-        "size": "L",
-        "color": "Navy Check",
-        "stockQuantity": 14
-      },
-      {
-        "size": "XL",
-        "color": "Navy Check",
-        "stockQuantity": 3
-      },
-      {
-        "size": "XXL",
-        "color": "Navy Check",
-        "stockQuantity": 17
-      }
-    ]
-  },
-  {
-    "sku": "VY-SHT-004",
-    "name": "VAYU Chambray Work Shirt",
-    "brand": "VAYU",
-    "description": "Lightweight chambray with chest pockets and a relaxed fit, inspired by classic workwear.\n\nColours: Light Indigo, Dark Indigo.",
-    "category": "Shirts",
-    "price": 1599,
-    "discountPercentage": 0,
-    "rating": 4.1,
-    "reviewCount": 328,
-    "stockQuantity": 123,
-    "imageUrl": "/products/photos/shirt-i0.webp",
-    "thumbnailUrl": "/products/photos/shirt-i0.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Light Indigo",
-        "stockQuantity": 9
-      },
-      {
-        "size": "M",
-        "color": "Light Indigo",
-        "stockQuantity": 18
-      },
-      {
-        "size": "L",
-        "color": "Light Indigo",
-        "stockQuantity": 21
-      },
-      {
-        "size": "XL",
-        "color": "Light Indigo",
-        "stockQuantity": 6
-      },
-      {
-        "size": "XXL",
-        "color": "Light Indigo",
-        "stockQuantity": 18
-      },
-      {
-        "size": "S",
-        "color": "Dark Indigo",
-        "stockQuantity": 6
-      },
-      {
-        "size": "M",
-        "color": "Dark Indigo",
-        "stockQuantity": 6
-      },
-      {
-        "size": "L",
-        "color": "Dark Indigo",
-        "stockQuantity": 5
-      },
-      {
-        "size": "XL",
-        "color": "Dark Indigo",
-        "stockQuantity": 22
-      },
-      {
-        "size": "XXL",
-        "color": "Dark Indigo",
-        "stockQuantity": 12
-      }
-    ]
-  },
-  {
-    "sku": "VY-SHT-005",
-    "name": "VAYU Mandarin Collar Shirt",
-    "brand": "VAYU",
-    "description": "A band-collar shirt that sits between a kurta and a shirt. Wear it out over trousers or tucked in.\n\nColours: Black, White, Mustard.",
-    "category": "Shirts",
-    "price": 1499,
-    "discountPercentage": 15,
-    "rating": 4.1,
-    "reviewCount": 289,
-    "stockQuantity": 223,
-    "imageUrl": "/products/photos/shirt-black.webp",
-    "thumbnailUrl": "/products/photos/shirt-black.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 13
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 5
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 17
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 15
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 19
-      },
-      {
-        "size": "S",
-        "color": "White",
-        "stockQuantity": 20
-      },
-      {
-        "size": "M",
-        "color": "White",
-        "stockQuantity": 22
-      },
-      {
-        "size": "L",
-        "color": "White",
-        "stockQuantity": 9
-      },
-      {
-        "size": "XL",
-        "color": "White",
-        "stockQuantity": 11
-      },
-      {
-        "size": "XXL",
-        "color": "White",
-        "stockQuantity": 15
-      },
-      {
-        "size": "S",
-        "color": "Mustard",
-        "stockQuantity": 20
-      },
-      {
-        "size": "M",
-        "color": "Mustard",
-        "stockQuantity": 12
-      },
-      {
-        "size": "L",
-        "color": "Mustard",
-        "stockQuantity": 23
-      },
-      {
-        "size": "XL",
-        "color": "Mustard",
-        "stockQuantity": 22
-      },
-      {
-        "size": "XXL",
-        "color": "Mustard",
-        "stockQuantity": 0
-      }
-    ]
-  },
-  {
-    "sku": "VY-SHT-006",
-    "name": "VAYU Slim Formal Shirt",
-    "brand": "VAYU",
-    "description": "Wrinkle-resistant cotton-blend poplin with a slim cut and a stiff, clean collar.\n\nColours: Burgundy, White.",
-    "category": "Shirts",
-    "price": 1599,
-    "discountPercentage": 0,
-    "rating": 4.6,
-    "reviewCount": 144,
-    "stockQuantity": 122,
-    "imageUrl": "/products/photos/shirt-maroon.webp",
-    "thumbnailUrl": "/products/photos/shirt-maroon.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Burgundy",
-        "stockQuantity": 12
-      },
-      {
-        "size": "M",
-        "color": "Burgundy",
-        "stockQuantity": 12
-      },
-      {
-        "size": "L",
-        "color": "Burgundy",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XL",
-        "color": "Burgundy",
-        "stockQuantity": 18
-      },
-      {
-        "size": "XXL",
-        "color": "Burgundy",
-        "stockQuantity": 8
-      },
-      {
-        "size": "S",
-        "color": "White",
-        "stockQuantity": 18
-      },
-      {
-        "size": "M",
-        "color": "White",
-        "stockQuantity": 4
-      },
-      {
-        "size": "L",
-        "color": "White",
-        "stockQuantity": 20
-      },
-      {
-        "size": "XL",
-        "color": "White",
-        "stockQuantity": 7
-      },
-      {
-        "size": "XXL",
-        "color": "White",
-        "stockQuantity": 23
-      }
-    ]
-  },
-  {
-    "sku": "VY-SHT-007",
-    "name": "VAYU Cuban Collar Printed Shirt",
-    "brand": "VAYU",
-    "description": "Open-collar rayon shirt with an all-over print. Light, drapey and made for holidays.\n\nColours: Palm Print, Geo Print.",
-    "category": "Shirts",
-    "price": 1399,
-    "discountPercentage": 20,
-    "rating": 4.1,
-    "reviewCount": 272,
-    "stockQuantity": 124,
-    "imageUrl": "/products/photos/shirt-i0.webp",
-    "thumbnailUrl": "/products/photos/shirt-i0.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Palm Print",
-        "stockQuantity": 22
-      },
-      {
-        "size": "M",
-        "color": "Palm Print",
-        "stockQuantity": 17
-      },
-      {
-        "size": "L",
-        "color": "Palm Print",
-        "stockQuantity": 11
-      },
-      {
-        "size": "XL",
-        "color": "Palm Print",
-        "stockQuantity": 9
-      },
-      {
-        "size": "XXL",
-        "color": "Palm Print",
-        "stockQuantity": 6
-      },
-      {
-        "size": "S",
-        "color": "Geo Print",
-        "stockQuantity": 19
-      },
-      {
-        "size": "M",
-        "color": "Geo Print",
-        "stockQuantity": 8
-      },
-      {
-        "size": "L",
-        "color": "Geo Print",
-        "stockQuantity": 19
-      },
-      {
-        "size": "XL",
-        "color": "Geo Print",
-        "stockQuantity": 9
-      },
-      {
-        "size": "XXL",
-        "color": "Geo Print",
-        "stockQuantity": 4
-      }
-    ]
-  },
-  {
-    "sku": "VY-SHT-008",
-    "name": "VAYU Field Overshirt",
-    "brand": "VAYU",
-    "description": "A heavier cotton overshirt with two chest pockets. Wear it as a light jacket or over a tee.\n\nColours: Olive, Rust.",
-    "category": "Shirts",
-    "price": 2299,
-    "discountPercentage": 0,
+    "name": "JBL Flip 6 Portable Bluetooth Speaker",
+    "brand": "JBL",
+    "category": "Electronics",
+    "price": 9999,
+    "discountPercentage": 34,
     "rating": 4.3,
-    "reviewCount": 243,
-    "stockQuantity": 100,
-    "imageUrl": "/products/photos/flannel-shirt.webp",
-    "thumbnailUrl": "/products/photos/flannel-shirt.webp",
+    "reviewCount": 1480,
+    "stockQuantity": 33,
+    "sku": "SKU-ELEC-007",
+    "imageUrl": "/products/photos/speaker-i0.webp",
+    "thumbnailUrl": "/products/photos/speaker-i0.webp",
     "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Olive",
-        "stockQuantity": 6
-      },
-      {
-        "size": "M",
-        "color": "Olive",
-        "stockQuantity": 14
-      },
-      {
-        "size": "L",
-        "color": "Olive",
-        "stockQuantity": 10
-      },
-      {
-        "size": "XL",
-        "color": "Olive",
-        "stockQuantity": 7
-      },
-      {
-        "size": "XXL",
-        "color": "Olive",
-        "stockQuantity": 8
-      },
-      {
-        "size": "S",
-        "color": "Rust",
-        "stockQuantity": 24
-      },
-      {
-        "size": "M",
-        "color": "Rust",
-        "stockQuantity": 18
-      },
-      {
-        "size": "L",
-        "color": "Rust",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XL",
-        "color": "Rust",
-        "stockQuantity": 10
-      },
-      {
-        "size": "XXL",
-        "color": "Rust",
-        "stockQuantity": 3
-      }
-    ]
+    "description": "Waterproof IP67 speaker with bold JBL Pro Sound."
   },
   {
-    "sku": "VY-JNS-001",
-    "name": "VAYU Slim Fit Stretch Jeans",
-    "brand": "VAYU",
-    "description": "Soft stretch denim in a slim fit that moves with you. Mid-rise, five-pocket and built for everyday wear.\n\nColours: Indigo, Black.",
-    "category": "Jeans",
-    "price": 1999,
-    "discountPercentage": 0,
-    "rating": 4.7,
-    "reviewCount": 374,
-    "stockQuantity": 113,
-    "imageUrl": "/products/photos/jeans-men.webp",
-    "thumbnailUrl": "/products/photos/jeans-men.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "28",
-        "color": "Indigo",
-        "stockQuantity": 0
-      },
-      {
-        "size": "30",
-        "color": "Indigo",
-        "stockQuantity": 23
-      },
-      {
-        "size": "32",
-        "color": "Indigo",
-        "stockQuantity": 24
-      },
-      {
-        "size": "34",
-        "color": "Indigo",
-        "stockQuantity": 3
-      },
-      {
-        "size": "36",
-        "color": "Indigo",
-        "stockQuantity": 3
-      },
-      {
-        "size": "28",
-        "color": "Black",
-        "stockQuantity": 7
-      },
-      {
-        "size": "30",
-        "color": "Black",
-        "stockQuantity": 24
-      },
-      {
-        "size": "32",
-        "color": "Black",
-        "stockQuantity": 5
-      },
-      {
-        "size": "34",
-        "color": "Black",
-        "stockQuantity": 0
-      },
-      {
-        "size": "36",
-        "color": "Black",
-        "stockQuantity": 24
-      }
-    ]
-  },
-  {
-    "sku": "VY-JNS-002",
-    "name": "VAYU Straight Fit Jeans",
-    "brand": "VAYU",
-    "description": "A classic straight leg in rigid-feel denim. Comfortable through the thigh with a clean, even line.\n\nColours: Mid Blue, Dark Indigo.",
-    "category": "Jeans",
-    "price": 2099,
-    "discountPercentage": 0,
-    "rating": 4.6,
-    "reviewCount": 322,
-    "stockQuantity": 107,
-    "imageUrl": "/products/photos/jeans-men.webp",
-    "thumbnailUrl": "/products/photos/jeans-men.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "28",
-        "color": "Mid Blue",
-        "stockQuantity": 0
-      },
-      {
-        "size": "30",
-        "color": "Mid Blue",
-        "stockQuantity": 8
-      },
-      {
-        "size": "32",
-        "color": "Mid Blue",
-        "stockQuantity": 4
-      },
-      {
-        "size": "34",
-        "color": "Mid Blue",
-        "stockQuantity": 23
-      },
-      {
-        "size": "36",
-        "color": "Mid Blue",
-        "stockQuantity": 17
-      },
-      {
-        "size": "28",
-        "color": "Dark Indigo",
-        "stockQuantity": 17
-      },
-      {
-        "size": "30",
-        "color": "Dark Indigo",
-        "stockQuantity": 7
-      },
-      {
-        "size": "32",
-        "color": "Dark Indigo",
-        "stockQuantity": 10
-      },
-      {
-        "size": "34",
-        "color": "Dark Indigo",
-        "stockQuantity": 18
-      },
-      {
-        "size": "36",
-        "color": "Dark Indigo",
-        "stockQuantity": 3
-      }
-    ]
-  },
-  {
-    "sku": "VY-JNS-003",
-    "name": "VAYU Relaxed Baggy Jeans",
-    "brand": "VAYU",
-    "description": "Wide-leg, low-slung and roomy, the 90s way. Heavy 12 oz denim with a faded wash.\n\nColours: Washed Blue, Washed Black.",
-    "category": "Jeans",
-    "price": 2299,
-    "discountPercentage": 10,
-    "rating": 4.7,
-    "reviewCount": 269,
-    "stockQuantity": 126,
-    "imageUrl": "/products/photos/jeans-men.webp",
-    "thumbnailUrl": "/products/photos/jeans-men.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "28",
-        "color": "Washed Blue",
-        "stockQuantity": 8
-      },
-      {
-        "size": "30",
-        "color": "Washed Blue",
-        "stockQuantity": 6
-      },
-      {
-        "size": "32",
-        "color": "Washed Blue",
-        "stockQuantity": 14
-      },
-      {
-        "size": "34",
-        "color": "Washed Blue",
-        "stockQuantity": 5
-      },
-      {
-        "size": "36",
-        "color": "Washed Blue",
-        "stockQuantity": 17
-      },
-      {
-        "size": "28",
-        "color": "Washed Black",
-        "stockQuantity": 16
-      },
-      {
-        "size": "30",
-        "color": "Washed Black",
-        "stockQuantity": 7
-      },
-      {
-        "size": "32",
-        "color": "Washed Black",
-        "stockQuantity": 21
-      },
-      {
-        "size": "34",
-        "color": "Washed Black",
-        "stockQuantity": 17
-      },
-      {
-        "size": "36",
-        "color": "Washed Black",
-        "stockQuantity": 15
-      }
-    ]
-  },
-  {
-    "sku": "VY-JNS-004",
-    "name": "VAYU Tapered Fit Jeans",
-    "brand": "VAYU",
-    "description": "Room in the thigh, narrower at the ankle. A modern cut that works with sneakers or boots.\n\nColours: Indigo, Grey.",
-    "category": "Jeans",
-    "price": 2199,
-    "discountPercentage": 0,
-    "rating": 4.5,
-    "reviewCount": 43,
-    "stockQuantity": 145,
-    "imageUrl": "/products/photos/jeans-men.webp",
-    "thumbnailUrl": "/products/photos/jeans-men.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "28",
-        "color": "Indigo",
-        "stockQuantity": 0
-      },
-      {
-        "size": "30",
-        "color": "Indigo",
-        "stockQuantity": 16
-      },
-      {
-        "size": "32",
-        "color": "Indigo",
-        "stockQuantity": 20
-      },
-      {
-        "size": "34",
-        "color": "Indigo",
-        "stockQuantity": 20
-      },
-      {
-        "size": "36",
-        "color": "Indigo",
-        "stockQuantity": 22
-      },
-      {
-        "size": "28",
-        "color": "Grey",
-        "stockQuantity": 13
-      },
-      {
-        "size": "30",
-        "color": "Grey",
-        "stockQuantity": 15
-      },
-      {
-        "size": "32",
-        "color": "Grey",
-        "stockQuantity": 11
-      },
-      {
-        "size": "34",
-        "color": "Grey",
-        "stockQuantity": 5
-      },
-      {
-        "size": "36",
-        "color": "Grey",
-        "stockQuantity": 23
-      }
-    ]
-  },
-  {
-    "sku": "VY-JNS-005",
-    "name": "VAYU Black Skinny Jeans",
-    "brand": "VAYU",
-    "description": "High-stretch black denim that keeps its colour. A close fit from hip to ankle.\n\nColours: Jet Black.",
-    "category": "Jeans",
-    "price": 1899,
+    "name": "Apple iPad (10th generation) Wi-Fi 64GB",
+    "brand": "Apple",
+    "category": "Electronics",
+    "price": 34900,
     "discountPercentage": 15,
-    "rating": 4.6,
-    "reviewCount": 196,
-    "stockQuantity": 85,
-    "imageUrl": "/products/photos/jeans-men.webp",
-    "thumbnailUrl": "/products/photos/jeans-men.webp",
+    "rating": 4.7,
+    "reviewCount": 1636,
+    "stockQuantity": 54,
+    "sku": "SKU-ELEC-014",
+    "imageUrl": "/products/photos/tablet-i1.webp",
+    "thumbnailUrl": "/products/photos/tablet-i1.webp",
     "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "28",
-        "color": "Jet Black",
-        "stockQuantity": 18
-      },
-      {
-        "size": "30",
-        "color": "Jet Black",
-        "stockQuantity": 3
-      },
-      {
-        "size": "32",
-        "color": "Jet Black",
-        "stockQuantity": 23
-      },
-      {
-        "size": "34",
-        "color": "Jet Black",
-        "stockQuantity": 19
-      },
-      {
-        "size": "36",
-        "color": "Jet Black",
-        "stockQuantity": 22
-      }
-    ]
+    "description": "10.9-inch Liquid Retina display with A14 Bionic chip."
   },
   {
-    "sku": "VY-JNS-006",
-    "name": "VAYU Light Wash Jeans",
-    "brand": "VAYU",
-    "description": "A sun-faded light wash with subtle whiskering. Pairs with white tees and everything else.\n\nColours: Ice Blue, Sky Wash.",
-    "category": "Jeans",
-    "price": 1999,
-    "discountPercentage": 0,
+    "name": "Apple Watch SE (2nd generation) GPS 40mm",
+    "brand": "Apple",
+    "category": "Electronics",
+    "price": 29900,
+    "discountPercentage": 16,
     "rating": 4.5,
-    "reviewCount": 356,
-    "stockQuantity": 115,
-    "imageUrl": "/products/photos/jeans-men.webp",
-    "thumbnailUrl": "/products/photos/jeans-men.webp",
+    "reviewCount": 685,
+    "stockQuantity": 31,
+    "sku": "SKU-ELEC-015",
+    "imageUrl": "/products/photos/smartwatch-3.webp",
+    "thumbnailUrl": "/products/photos/smartwatch-3.webp",
     "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "28",
-        "color": "Ice Blue",
-        "stockQuantity": 0
-      },
-      {
-        "size": "30",
-        "color": "Ice Blue",
-        "stockQuantity": 6
-      },
-      {
-        "size": "32",
-        "color": "Ice Blue",
-        "stockQuantity": 15
-      },
-      {
-        "size": "34",
-        "color": "Ice Blue",
-        "stockQuantity": 7
-      },
-      {
-        "size": "36",
-        "color": "Ice Blue",
-        "stockQuantity": 4
-      },
-      {
-        "size": "28",
-        "color": "Sky Wash",
-        "stockQuantity": 5
-      },
-      {
-        "size": "30",
-        "color": "Sky Wash",
-        "stockQuantity": 17
-      },
-      {
-        "size": "32",
-        "color": "Sky Wash",
-        "stockQuantity": 14
-      },
-      {
-        "size": "34",
-        "color": "Sky Wash",
-        "stockQuantity": 23
-      },
-      {
-        "size": "36",
-        "color": "Sky Wash",
-        "stockQuantity": 24
-      }
-    ]
+    "description": "Fitness tracking, crash detection and heart-rate notifications."
   },
   {
-    "sku": "VY-JNS-007",
-    "name": "VAYU Raw Selvedge Jeans",
-    "brand": "VAYU",
-    "description": "Unwashed 14 oz selvedge denim. Stiff at first, then it fades to the way you wear it.\n\nColours: Raw Indigo.",
-    "category": "Jeans",
-    "price": 3499,
-    "discountPercentage": 0,
-    "rating": 4.4,
-    "reviewCount": 271,
+    "name": "Samsung T7 Shield 1TB Portable SSD",
+    "brand": "Samsung",
+    "category": "Electronics",
+    "price": 9499,
+    "discountPercentage": 31,
+    "rating": 3.8,
+    "reviewCount": 478,
+    "stockQuantity": 66,
+    "sku": "SKU-ELEC-018",
+    "imageUrl": "/products/photos/external-drive-1.webp",
+    "thumbnailUrl": "/products/photos/external-drive-1.webp",
+    "availability": "IN_STOCK",
+    "description": "Rugged IP65 external SSD with up to 1,050 MB/s transfers."
+  },
+  {
+    "name": "Samsung 990 EVO 1TB NVMe SSD",
+    "brand": "Samsung",
+    "category": "Electronics",
+    "price": 7999,
+    "discountPercentage": 11,
+    "rating": 3.9,
+    "reviewCount": 750,
     "stockQuantity": 69,
-    "imageUrl": "/products/photos/jeans-men.webp",
-    "thumbnailUrl": "/products/photos/jeans-men.webp",
+    "sku": "SKU-ELEC-019",
+    "imageUrl": "/products/photos/nvme-ssd-i0.webp",
+    "thumbnailUrl": "/products/photos/nvme-ssd-i0.webp",
     "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "28",
-        "color": "Raw Indigo",
-        "stockQuantity": 14
-      },
-      {
-        "size": "30",
-        "color": "Raw Indigo",
-        "stockQuantity": 22
-      },
-      {
-        "size": "32",
-        "color": "Raw Indigo",
-        "stockQuantity": 23
-      },
-      {
-        "size": "34",
-        "color": "Raw Indigo",
-        "stockQuantity": 7
-      },
-      {
-        "size": "36",
-        "color": "Raw Indigo",
-        "stockQuantity": 3
-      }
-    ]
+    "description": "PCIe 4.0 internal SSD with speeds up to 5,000 MB/s."
   },
   {
-    "sku": "VY-TRS-001",
-    "name": "VAYU Stretch Chinos",
-    "brand": "VAYU",
-    "description": "Cotton-stretch chinos with a slim-straight fit. Smart-casual and comfortable all day.\n\nColours: Khaki, Navy, Olive.",
-    "category": "Trousers",
-    "price": 1799,
-    "discountPercentage": 0,
-    "rating": 4.3,
-    "reviewCount": 246,
-    "stockQuantity": 231,
-    "imageUrl": "/products/photos/trousers-i3.webp",
-    "thumbnailUrl": "/products/photos/trousers-i3.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "28",
-        "color": "Khaki",
-        "stockQuantity": 14
-      },
-      {
-        "size": "30",
-        "color": "Khaki",
-        "stockQuantity": 13
-      },
-      {
-        "size": "32",
-        "color": "Khaki",
-        "stockQuantity": 19
-      },
-      {
-        "size": "34",
-        "color": "Khaki",
-        "stockQuantity": 20
-      },
-      {
-        "size": "36",
-        "color": "Khaki",
-        "stockQuantity": 17
-      },
-      {
-        "size": "28",
-        "color": "Navy",
-        "stockQuantity": 14
-      },
-      {
-        "size": "30",
-        "color": "Navy",
-        "stockQuantity": 22
-      },
-      {
-        "size": "32",
-        "color": "Navy",
-        "stockQuantity": 19
-      },
-      {
-        "size": "34",
-        "color": "Navy",
-        "stockQuantity": 5
-      },
-      {
-        "size": "36",
-        "color": "Navy",
-        "stockQuantity": 21
-      },
-      {
-        "size": "28",
-        "color": "Olive",
-        "stockQuantity": 8
-      },
-      {
-        "size": "30",
-        "color": "Olive",
-        "stockQuantity": 8
-      },
-      {
-        "size": "32",
-        "color": "Olive",
-        "stockQuantity": 10
-      },
-      {
-        "size": "34",
-        "color": "Olive",
-        "stockQuantity": 21
-      },
-      {
-        "size": "36",
-        "color": "Olive",
-        "stockQuantity": 20
-      }
-    ]
-  },
-  {
-    "sku": "VY-TRS-002",
-    "name": "VAYU Utility Cargo Pants",
-    "brand": "VAYU",
-    "description": "Relaxed cargos with six pockets in sturdy cotton twill. Practical and good looking.\n\nColours: Olive, Stone.",
-    "category": "Trousers",
-    "price": 2199,
-    "discountPercentage": 10,
-    "rating": 4.7,
-    "reviewCount": 154,
-    "stockQuantity": 121,
-    "imageUrl": "/products/photos/cargo-pants.webp",
-    "thumbnailUrl": "/products/photos/cargo-pants.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "28",
-        "color": "Olive",
-        "stockQuantity": 0
-      },
-      {
-        "size": "30",
-        "color": "Olive",
-        "stockQuantity": 21
-      },
-      {
-        "size": "32",
-        "color": "Olive",
-        "stockQuantity": 4
-      },
-      {
-        "size": "34",
-        "color": "Olive",
-        "stockQuantity": 22
-      },
-      {
-        "size": "36",
-        "color": "Olive",
-        "stockQuantity": 17
-      },
-      {
-        "size": "28",
-        "color": "Stone",
-        "stockQuantity": 7
-      },
-      {
-        "size": "30",
-        "color": "Stone",
-        "stockQuantity": 15
-      },
-      {
-        "size": "32",
-        "color": "Stone",
-        "stockQuantity": 18
-      },
-      {
-        "size": "34",
-        "color": "Stone",
-        "stockQuantity": 13
-      },
-      {
-        "size": "36",
-        "color": "Stone",
-        "stockQuantity": 4
-      }
-    ]
-  },
-  {
-    "sku": "VY-TRS-003",
-    "name": "VAYU Fleece Joggers",
-    "brand": "VAYU",
-    "description": "Brushed-fleece joggers with a drawcord waist, side pockets and ribbed cuffs.\n\nColours: Grey Melange, Black.",
-    "category": "Trousers",
-    "price": 1399,
-    "discountPercentage": 0,
-    "rating": 4.5,
-    "reviewCount": 407,
-    "stockQuantity": 154,
-    "imageUrl": "/products/photos/joggers.webp",
-    "thumbnailUrl": "/products/photos/joggers.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Grey Melange",
-        "stockQuantity": 23
-      },
-      {
-        "size": "M",
-        "color": "Grey Melange",
-        "stockQuantity": 0
-      },
-      {
-        "size": "L",
-        "color": "Grey Melange",
-        "stockQuantity": 24
-      },
-      {
-        "size": "XL",
-        "color": "Grey Melange",
-        "stockQuantity": 16
-      },
-      {
-        "size": "XXL",
-        "color": "Grey Melange",
-        "stockQuantity": 16
-      },
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 24
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 24
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 4
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 7
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 16
-      }
-    ]
-  },
-  {
-    "sku": "VY-TRS-004",
-    "name": "VAYU Tailored Formal Trousers",
-    "brand": "VAYU",
-    "description": "Flat-front trousers in a wool-blend suiting fabric with a clean crease and a comfortable waistband.\n\nColours: Charcoal, Navy.",
-    "category": "Trousers",
-    "price": 2299,
-    "discountPercentage": 0,
-    "rating": 4.6,
-    "reviewCount": 79,
-    "stockQuantity": 129,
-    "imageUrl": "/products/photos/trousers-i3.webp",
-    "thumbnailUrl": "/products/photos/trousers-i3.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "28",
-        "color": "Charcoal",
-        "stockQuantity": 11
-      },
-      {
-        "size": "30",
-        "color": "Charcoal",
-        "stockQuantity": 7
-      },
-      {
-        "size": "32",
-        "color": "Charcoal",
-        "stockQuantity": 15
-      },
-      {
-        "size": "34",
-        "color": "Charcoal",
-        "stockQuantity": 14
-      },
-      {
-        "size": "36",
-        "color": "Charcoal",
-        "stockQuantity": 13
-      },
-      {
-        "size": "28",
-        "color": "Navy",
-        "stockQuantity": 15
-      },
-      {
-        "size": "30",
-        "color": "Navy",
-        "stockQuantity": 13
-      },
-      {
-        "size": "32",
-        "color": "Navy",
-        "stockQuantity": 4
-      },
-      {
-        "size": "34",
-        "color": "Navy",
-        "stockQuantity": 14
-      },
-      {
-        "size": "36",
-        "color": "Navy",
-        "stockQuantity": 23
-      }
-    ]
-  },
-  {
-    "sku": "VY-TRS-005",
-    "name": "VAYU Linen Drawstring Pants",
-    "brand": "VAYU",
-    "description": "Easy pull-on linen trousers with an elastic drawstring waist. Cool and light for summer.\n\nColours: Sand, White.",
-    "category": "Trousers",
-    "price": 1699,
-    "discountPercentage": 15,
+    "name": "Samsung Odyssey G5 27-inch QHD Gaming Monitor",
+    "brand": "Samsung",
+    "category": "Electronics",
+    "price": 21999,
+    "discountPercentage": 32,
     "rating": 4.4,
-    "reviewCount": 215,
-    "stockQuantity": 110,
-    "imageUrl": "/products/photos/trousers-i3.webp",
-    "thumbnailUrl": "/products/photos/trousers-i3.webp",
+    "reviewCount": 1790,
+    "stockQuantity": 72,
+    "sku": "SKU-ELEC-020",
+    "imageUrl": "/products/photos/monitor-i2.webp",
+    "thumbnailUrl": "/products/photos/monitor-i2.webp",
     "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Sand",
-        "stockQuantity": 7
-      },
-      {
-        "size": "M",
-        "color": "Sand",
-        "stockQuantity": 12
-      },
-      {
-        "size": "L",
-        "color": "Sand",
-        "stockQuantity": 7
-      },
-      {
-        "size": "XL",
-        "color": "Sand",
-        "stockQuantity": 5
-      },
-      {
-        "size": "XXL",
-        "color": "Sand",
-        "stockQuantity": 10
-      },
-      {
-        "size": "S",
-        "color": "White",
-        "stockQuantity": 23
-      },
-      {
-        "size": "M",
-        "color": "White",
-        "stockQuantity": 17
-      },
-      {
-        "size": "L",
-        "color": "White",
-        "stockQuantity": 13
-      },
-      {
-        "size": "XL",
-        "color": "White",
-        "stockQuantity": 16
-      },
-      {
-        "size": "XXL",
-        "color": "White",
-        "stockQuantity": 0
-      }
-    ]
+    "description": "165Hz curved VA panel with 1ms response time."
   },
   {
-    "sku": "VY-TRS-006",
-    "name": "VAYU Everyday Track Pants",
-    "brand": "VAYU",
-    "description": "Lightweight stretch track pants with a tapered leg and zip pockets.\n\nColours: Black, Navy.",
-    "category": "Trousers",
-    "price": 1199,
-    "discountPercentage": 0,
+    "name": "Logitech MX Master 3S Wireless Mouse",
+    "brand": "Logitech",
+    "category": "Electronics",
+    "price": 9995,
+    "discountPercentage": 24,
     "rating": 4.7,
-    "reviewCount": 71,
-    "stockQuantity": 156,
-    "imageUrl": "/products/photos/joggers.webp",
-    "thumbnailUrl": "/products/photos/joggers.webp",
+    "reviewCount": 829,
+    "stockQuantity": 87,
+    "sku": "SKU-ELEC-025",
+    "imageUrl": "/products/photos/computer-mouse-i2.webp",
+    "thumbnailUrl": "/products/photos/computer-mouse-i2.webp",
     "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 9
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 4
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 13
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 21
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 24
-      },
-      {
-        "size": "S",
-        "color": "Navy",
-        "stockQuantity": 19
-      },
-      {
-        "size": "M",
-        "color": "Navy",
-        "stockQuantity": 13
-      },
-      {
-        "size": "L",
-        "color": "Navy",
-        "stockQuantity": 22
-      },
-      {
-        "size": "XL",
-        "color": "Navy",
-        "stockQuantity": 24
-      },
-      {
-        "size": "XXL",
-        "color": "Navy",
-        "stockQuantity": 7
-      }
-    ]
+    "description": "8K DPI sensor, quiet clicks and MagSpeed scrolling."
   },
   {
-    "sku": "VY-JKT-001",
-    "name": "VAYU Satin Bomber Jacket",
-    "brand": "VAYU",
-    "description": "A glossy satin bomber with ribbed cuffs and a zip front. The one piece that finishes the outfit.\n\nColours: Copper, Black.",
-    "category": "Jackets",
+    "name": "Logitech MX Keys S Wireless Keyboard",
+    "brand": "Logitech",
+    "category": "Electronics",
+    "price": 11995,
+    "discountPercentage": 22,
+    "rating": 4.1,
+    "reviewCount": 41,
+    "stockQuantity": 90,
+    "sku": "SKU-ELEC-026",
+    "imageUrl": "/products/photos/keyboard-0.webp",
+    "thumbnailUrl": "/products/photos/keyboard-0.webp",
+    "availability": "IN_STOCK",
+    "description": "Low-profile backlit keys that connect to three devices."
+  },
+  {
+    "name": "Logitech C920 HD Pro Webcam",
+    "brand": "Logitech",
+    "category": "Electronics",
+    "price": 6795,
+    "discountPercentage": 23,
+    "rating": 4.5,
+    "reviewCount": 100,
+    "stockQuantity": 96,
+    "sku": "SKU-ELEC-028",
+    "imageUrl": "/products/photos/webcam-j0.webp",
+    "thumbnailUrl": "/products/photos/webcam-j0.webp",
+    "availability": "IN_STOCK",
+    "description": "Full HD 1080p video calling with stereo microphones."
+  },
+  {
+    "name": "HyperX Cloud III Gaming Headset",
+    "brand": "HyperX",
+    "category": "Electronics",
+    "price": 8990,
+    "discountPercentage": 19,
+    "rating": 3.8,
+    "reviewCount": 250,
+    "stockQuantity": 114,
+    "sku": "SKU-ELEC-034",
+    "imageUrl": "/products/photos/headset-k2.webp",
+    "thumbnailUrl": "/products/photos/headset-k2.webp",
+    "availability": "IN_STOCK",
+    "description": "53mm drivers with DTS spatial audio and detachable mic."
+  },
+  {
+    "name": "Anker PowerCore 20000mAh Power Bank",
+    "brand": "Anker",
+    "category": "Electronics",
     "price": 3499,
-    "discountPercentage": 0,
-    "rating": 4.6,
-    "reviewCount": 123,
-    "stockQuantity": 151,
-    "imageUrl": "/products/photos/bomber-jacket.webp",
-    "thumbnailUrl": "/products/photos/bomber-jacket.webp",
+    "discountPercentage": 15,
+    "rating": 4,
+    "reviewCount": 2416,
+    "stockQuantity": 123,
+    "sku": "SKU-ELEC-037",
+    "imageUrl": "/products/photos/power-bank-k5.webp",
+    "thumbnailUrl": "/products/photos/power-bank-k5.webp",
     "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Copper",
-        "stockQuantity": 15
-      },
-      {
-        "size": "M",
-        "color": "Copper",
-        "stockQuantity": 11
-      },
-      {
-        "size": "L",
-        "color": "Copper",
-        "stockQuantity": 17
-      },
-      {
-        "size": "XL",
-        "color": "Copper",
-        "stockQuantity": 24
-      },
-      {
-        "size": "XXL",
-        "color": "Copper",
-        "stockQuantity": 22
-      },
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 22
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 18
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 3
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 11
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 8
-      }
-    ]
+    "description": "High-capacity power bank with PowerIQ fast charging."
   },
   {
-    "sku": "VY-JKT-002",
-    "name": "VAYU Classic Denim Jacket",
-    "brand": "VAYU",
-    "description": "A structured trucker jacket in washed denim. Gets better as it breaks in.\n\nColours: Mid Blue, Black.",
-    "category": "Jackets",
-    "price": 2999,
-    "discountPercentage": 0,
-    "rating": 4.5,
-    "reviewCount": 32,
-    "stockQuantity": 137,
-    "imageUrl": "/products/photos/denim-jacket-men.webp",
-    "thumbnailUrl": "/products/photos/denim-jacket-men.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Mid Blue",
-        "stockQuantity": 21
-      },
-      {
-        "size": "M",
-        "color": "Mid Blue",
-        "stockQuantity": 10
-      },
-      {
-        "size": "L",
-        "color": "Mid Blue",
-        "stockQuantity": 10
-      },
-      {
-        "size": "XL",
-        "color": "Mid Blue",
-        "stockQuantity": 17
-      },
-      {
-        "size": "XXL",
-        "color": "Mid Blue",
-        "stockQuantity": 21
-      },
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 11
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 13
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 19
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 15
-      }
-    ]
-  },
-  {
-    "sku": "VY-JKT-003",
-    "name": "VAYU Vegan Leather Biker Jacket",
-    "brand": "VAYU",
-    "description": "An asymmetric-zip biker in soft vegan leather with a quilted lining.\n\nColours: Black.",
-    "category": "Jackets",
-    "price": 4499,
-    "discountPercentage": 10,
-    "rating": 4.5,
-    "reviewCount": 70,
-    "stockQuantity": 62,
-    "imageUrl": "/products/photos/leather-jacket.webp",
-    "thumbnailUrl": "/products/photos/leather-jacket.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 4
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 10
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 16
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 10
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 22
-      }
-    ]
-  },
-  {
-    "sku": "VY-JKT-004",
-    "name": "VAYU Quilted Puffer Jacket",
-    "brand": "VAYU",
-    "description": "Lightweight puffer with a warm synthetic fill, a stand collar and zipped pockets.\n\nColours: Black, Olive.",
-    "category": "Jackets",
+    "name": "Anker Nano 65W GaN USB-C Charger",
+    "brand": "Anker",
+    "category": "Electronics",
     "price": 3999,
-    "discountPercentage": 20,
-    "rating": 4.5,
-    "reviewCount": 396,
-    "stockQuantity": 104,
-    "imageUrl": "/products/photos/puffer-men.webp",
-    "thumbnailUrl": "/products/photos/puffer-men.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 4
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 12
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 5
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 16
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 12
-      },
-      {
-        "size": "S",
-        "color": "Olive",
-        "stockQuantity": 24
-      },
-      {
-        "size": "M",
-        "color": "Olive",
-        "stockQuantity": 4
-      },
-      {
-        "size": "L",
-        "color": "Olive",
-        "stockQuantity": 21
-      },
-      {
-        "size": "XL",
-        "color": "Olive",
-        "stockQuantity": 3
-      },
-      {
-        "size": "XXL",
-        "color": "Olive",
-        "stockQuantity": 3
-      }
-    ]
-  },
-  {
-    "sku": "VY-JKT-005",
-    "name": "VAYU Packable Windbreaker",
-    "brand": "VAYU",
-    "description": "Water-resistant ripstop that folds into its own pocket. A light layer for rain and wind.\n\nColours: Slate, Navy.",
-    "category": "Jackets",
-    "price": 2499,
-    "discountPercentage": 0,
-    "rating": 4.6,
-    "reviewCount": 278,
-    "stockQuantity": 108,
-    "imageUrl": "/products/photos/windbreaker.webp",
-    "thumbnailUrl": "/products/photos/windbreaker.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Slate",
-        "stockQuantity": 5
-      },
-      {
-        "size": "M",
-        "color": "Slate",
-        "stockQuantity": 18
-      },
-      {
-        "size": "L",
-        "color": "Slate",
-        "stockQuantity": 18
-      },
-      {
-        "size": "XL",
-        "color": "Slate",
-        "stockQuantity": 9
-      },
-      {
-        "size": "XXL",
-        "color": "Slate",
-        "stockQuantity": 5
-      },
-      {
-        "size": "S",
-        "color": "Navy",
-        "stockQuantity": 6
-      },
-      {
-        "size": "M",
-        "color": "Navy",
-        "stockQuantity": 18
-      },
-      {
-        "size": "L",
-        "color": "Navy",
-        "stockQuantity": 18
-      },
-      {
-        "size": "XL",
-        "color": "Navy",
-        "stockQuantity": 8
-      },
-      {
-        "size": "XXL",
-        "color": "Navy",
-        "stockQuantity": 3
-      }
-    ]
-  },
-  {
-    "sku": "VY-JKT-006",
-    "name": "VAYU Unstructured Blazer",
-    "brand": "VAYU",
-    "description": "A soft-shouldered, half-lined blazer in a textured blend. Dresses up a tee or dresses down a shirt.\n\nColours: Charcoal, Navy.",
-    "category": "Jackets",
-    "price": 4999,
-    "discountPercentage": 0,
-    "rating": 4.6,
-    "reviewCount": 224,
-    "stockQuantity": 142,
-    "imageUrl": "/products/photos/blazer-i3.webp",
-    "thumbnailUrl": "/products/photos/blazer-i3.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Charcoal",
-        "stockQuantity": 15
-      },
-      {
-        "size": "M",
-        "color": "Charcoal",
-        "stockQuantity": 10
-      },
-      {
-        "size": "L",
-        "color": "Charcoal",
-        "stockQuantity": 24
-      },
-      {
-        "size": "XL",
-        "color": "Charcoal",
-        "stockQuantity": 23
-      },
-      {
-        "size": "XXL",
-        "color": "Charcoal",
-        "stockQuantity": 16
-      },
-      {
-        "size": "S",
-        "color": "Navy",
-        "stockQuantity": 20
-      },
-      {
-        "size": "M",
-        "color": "Navy",
-        "stockQuantity": 11
-      },
-      {
-        "size": "L",
-        "color": "Navy",
-        "stockQuantity": 8
-      },
-      {
-        "size": "XL",
-        "color": "Navy",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XXL",
-        "color": "Navy",
-        "stockQuantity": 15
-      }
-    ]
-  },
-  {
-    "sku": "VY-JKT-007",
-    "name": "VAYU Varsity Jacket",
-    "brand": "VAYU",
-    "description": "Wool-blend body with ribbed trims and snap buttons, a campus classic in clean colours.\n\nColours: Navy/Cream, Black/Grey.",
-    "category": "Jackets",
-    "price": 3799,
-    "discountPercentage": 15,
-    "rating": 4.7,
-    "reviewCount": 366,
-    "stockQuantity": 124,
-    "imageUrl": "/products/photos/bomber-jacket.webp",
-    "thumbnailUrl": "/products/photos/bomber-jacket.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Navy/Cream",
-        "stockQuantity": 10
-      },
-      {
-        "size": "M",
-        "color": "Navy/Cream",
-        "stockQuantity": 14
-      },
-      {
-        "size": "L",
-        "color": "Navy/Cream",
-        "stockQuantity": 11
-      },
-      {
-        "size": "XL",
-        "color": "Navy/Cream",
-        "stockQuantity": 16
-      },
-      {
-        "size": "XXL",
-        "color": "Navy/Cream",
-        "stockQuantity": 11
-      },
-      {
-        "size": "S",
-        "color": "Black/Grey",
-        "stockQuantity": 23
-      },
-      {
-        "size": "M",
-        "color": "Black/Grey",
-        "stockQuantity": 6
-      },
-      {
-        "size": "L",
-        "color": "Black/Grey",
-        "stockQuantity": 6
-      },
-      {
-        "size": "XL",
-        "color": "Black/Grey",
-        "stockQuantity": 19
-      },
-      {
-        "size": "XXL",
-        "color": "Black/Grey",
-        "stockQuantity": 8
-      }
-    ]
-  },
-  {
-    "sku": "VY-HOD-001",
-    "name": "VAYU Pullover Hoodie",
-    "brand": "VAYU",
-    "description": "Midweight brushed-fleece hoodie with a double-layer hood and a kangaroo pocket.\n\nColours: Black, Grey Melange, Navy.",
-    "category": "Hoodies & Sweatshirts",
-    "price": 1799,
-    "discountPercentage": 0,
-    "rating": 4.1,
-    "reviewCount": 114,
-    "stockQuantity": 168,
-    "imageUrl": "/products/photos/hoodie-i3.webp",
-    "thumbnailUrl": "/products/photos/hoodie-i3.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 13
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 3
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 23
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 13
-      },
-      {
-        "size": "S",
-        "color": "Grey Melange",
-        "stockQuantity": 14
-      },
-      {
-        "size": "M",
-        "color": "Grey Melange",
-        "stockQuantity": 5
-      },
-      {
-        "size": "L",
-        "color": "Grey Melange",
-        "stockQuantity": 23
-      },
-      {
-        "size": "XL",
-        "color": "Grey Melange",
-        "stockQuantity": 16
-      },
-      {
-        "size": "XXL",
-        "color": "Grey Melange",
-        "stockQuantity": 24
-      },
-      {
-        "size": "S",
-        "color": "Navy",
-        "stockQuantity": 24
-      },
-      {
-        "size": "M",
-        "color": "Navy",
-        "stockQuantity": 0
-      },
-      {
-        "size": "L",
-        "color": "Navy",
-        "stockQuantity": 7
-      },
-      {
-        "size": "XL",
-        "color": "Navy",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XXL",
-        "color": "Navy",
-        "stockQuantity": 3
-      }
-    ]
-  },
-  {
-    "sku": "VY-HOD-002",
-    "name": "VAYU Zip-Through Hoodie",
-    "brand": "VAYU",
-    "description": "A full-zip hoodie in soft loopback cotton with metal-tipped drawcords.\n\nColours: Grey Melange, Charcoal.",
-    "category": "Hoodies & Sweatshirts",
-    "price": 1999,
-    "discountPercentage": 10,
-    "rating": 4.1,
-    "reviewCount": 48,
-    "stockQuantity": 128,
-    "imageUrl": "/products/photos/zip-hoodie.webp",
-    "thumbnailUrl": "/products/photos/zip-hoodie.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Grey Melange",
-        "stockQuantity": 19
-      },
-      {
-        "size": "M",
-        "color": "Grey Melange",
-        "stockQuantity": 8
-      },
-      {
-        "size": "L",
-        "color": "Grey Melange",
-        "stockQuantity": 5
-      },
-      {
-        "size": "XL",
-        "color": "Grey Melange",
-        "stockQuantity": 21
-      },
-      {
-        "size": "XXL",
-        "color": "Grey Melange",
-        "stockQuantity": 0
-      },
-      {
-        "size": "S",
-        "color": "Charcoal",
-        "stockQuantity": 18
-      },
-      {
-        "size": "M",
-        "color": "Charcoal",
-        "stockQuantity": 19
-      },
-      {
-        "size": "L",
-        "color": "Charcoal",
-        "stockQuantity": 16
-      },
-      {
-        "size": "XL",
-        "color": "Charcoal",
-        "stockQuantity": 22
-      },
-      {
-        "size": "XXL",
-        "color": "Charcoal",
-        "stockQuantity": 0
-      }
-    ]
-  },
-  {
-    "sku": "VY-HOD-003",
-    "name": "VAYU Crewneck Sweatshirt",
-    "brand": "VAYU",
-    "description": "A clean crewneck in 320 GSM terry cotton with a ribbed hem and cuffs.\n\nColours: Black, Navy, Cream.",
-    "category": "Hoodies & Sweatshirts",
-    "price": 1499,
-    "discountPercentage": 0,
-    "rating": 4.2,
-    "reviewCount": 322,
-    "stockQuantity": 201,
-    "imageUrl": "/products/photos/sweatshirt.webp",
-    "thumbnailUrl": "/products/photos/sweatshirt.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Black",
-        "stockQuantity": 12
-      },
-      {
-        "size": "M",
-        "color": "Black",
-        "stockQuantity": 15
-      },
-      {
-        "size": "L",
-        "color": "Black",
-        "stockQuantity": 3
-      },
-      {
-        "size": "XL",
-        "color": "Black",
-        "stockQuantity": 0
-      },
-      {
-        "size": "XXL",
-        "color": "Black",
-        "stockQuantity": 17
-      },
-      {
-        "size": "S",
-        "color": "Navy",
-        "stockQuantity": 23
-      },
-      {
-        "size": "M",
-        "color": "Navy",
-        "stockQuantity": 7
-      },
-      {
-        "size": "L",
-        "color": "Navy",
-        "stockQuantity": 22
-      },
-      {
-        "size": "XL",
-        "color": "Navy",
-        "stockQuantity": 22
-      },
-      {
-        "size": "XXL",
-        "color": "Navy",
-        "stockQuantity": 11
-      },
-      {
-        "size": "S",
-        "color": "Cream",
-        "stockQuantity": 3
-      },
-      {
-        "size": "M",
-        "color": "Cream",
-        "stockQuantity": 11
-      },
-      {
-        "size": "L",
-        "color": "Cream",
-        "stockQuantity": 22
-      },
-      {
-        "size": "XL",
-        "color": "Cream",
-        "stockQuantity": 15
-      },
-      {
-        "size": "XXL",
-        "color": "Cream",
-        "stockQuantity": 18
-      }
-    ]
-  },
-  {
-    "sku": "VY-HOD-004",
-    "name": "VAYU Oversized Hoodie",
-    "brand": "VAYU",
-    "description": "An oversized, dropped-shoulder hoodie in heavyweight fleece with a washed finish.\n\nColours: Washed Black, Stone.",
-    "category": "Hoodies & Sweatshirts",
-    "price": 2199,
-    "discountPercentage": 0,
-    "rating": 4.1,
-    "reviewCount": 55,
-    "stockQuantity": 115,
-    "imageUrl": "/products/photos/hoodie-i3.webp",
-    "thumbnailUrl": "/products/photos/hoodie-i3.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Washed Black",
-        "stockQuantity": 19
-      },
-      {
-        "size": "M",
-        "color": "Washed Black",
-        "stockQuantity": 12
-      },
-      {
-        "size": "L",
-        "color": "Washed Black",
-        "stockQuantity": 3
-      },
-      {
-        "size": "XL",
-        "color": "Washed Black",
-        "stockQuantity": 23
-      },
-      {
-        "size": "XXL",
-        "color": "Washed Black",
-        "stockQuantity": 14
-      },
-      {
-        "size": "S",
-        "color": "Stone",
-        "stockQuantity": 8
-      },
-      {
-        "size": "M",
-        "color": "Stone",
-        "stockQuantity": 7
-      },
-      {
-        "size": "L",
-        "color": "Stone",
-        "stockQuantity": 3
-      },
-      {
-        "size": "XL",
-        "color": "Stone",
-        "stockQuantity": 15
-      },
-      {
-        "size": "XXL",
-        "color": "Stone",
-        "stockQuantity": 11
-      }
-    ]
-  },
-  {
-    "sku": "VY-HOD-005",
-    "name": "VAYU Quarter-Zip Sweatshirt",
-    "brand": "VAYU",
-    "description": "A pullover with a short zip and a stand collar. Smarter than a hoodie, as warm as one.\n\nColours: Navy, Forest.",
-    "category": "Hoodies & Sweatshirts",
-    "price": 1799,
-    "discountPercentage": 15,
-    "rating": 4.7,
-    "reviewCount": 292,
-    "stockQuantity": 162,
-    "imageUrl": "/products/photos/sweatshirt.webp",
-    "thumbnailUrl": "/products/photos/sweatshirt.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Navy",
-        "stockQuantity": 11
-      },
-      {
-        "size": "M",
-        "color": "Navy",
-        "stockQuantity": 5
-      },
-      {
-        "size": "L",
-        "color": "Navy",
-        "stockQuantity": 21
-      },
-      {
-        "size": "XL",
-        "color": "Navy",
-        "stockQuantity": 19
-      },
-      {
-        "size": "XXL",
-        "color": "Navy",
-        "stockQuantity": 23
-      },
-      {
-        "size": "S",
-        "color": "Forest",
-        "stockQuantity": 10
-      },
-      {
-        "size": "M",
-        "color": "Forest",
-        "stockQuantity": 21
-      },
-      {
-        "size": "L",
-        "color": "Forest",
-        "stockQuantity": 19
-      },
-      {
-        "size": "XL",
-        "color": "Forest",
-        "stockQuantity": 23
-      },
-      {
-        "size": "XXL",
-        "color": "Forest",
-        "stockQuantity": 10
-      }
-    ]
-  },
-  {
-    "sku": "VY-HOD-006",
-    "name": "VAYU Chunky Knit Sweater",
-    "brand": "VAYU",
-    "description": "A textured, stripe-knit sweater in a soft cotton-acrylic blend. Layers over a shirt or a tee.\n\nColours: Navy/Grey, Cream.",
-    "category": "Hoodies & Sweatshirts",
-    "price": 2499,
-    "discountPercentage": 0,
-    "rating": 4.2,
-    "reviewCount": 316,
-    "stockQuantity": 106,
-    "imageUrl": "/products/photos/sweater.webp",
-    "thumbnailUrl": "/products/photos/sweater.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "S",
-        "color": "Navy/Grey",
-        "stockQuantity": 23
-      },
-      {
-        "size": "M",
-        "color": "Navy/Grey",
-        "stockQuantity": 3
-      },
-      {
-        "size": "L",
-        "color": "Navy/Grey",
-        "stockQuantity": 9
-      },
-      {
-        "size": "XL",
-        "color": "Navy/Grey",
-        "stockQuantity": 7
-      },
-      {
-        "size": "XXL",
-        "color": "Navy/Grey",
-        "stockQuantity": 21
-      },
-      {
-        "size": "S",
-        "color": "Cream",
-        "stockQuantity": 7
-      },
-      {
-        "size": "M",
-        "color": "Cream",
-        "stockQuantity": 14
-      },
-      {
-        "size": "L",
-        "color": "Cream",
-        "stockQuantity": 7
-      },
-      {
-        "size": "XL",
-        "color": "Cream",
-        "stockQuantity": 15
-      },
-      {
-        "size": "XXL",
-        "color": "Cream",
-        "stockQuantity": 0
-      }
-    ]
-  },
-  {
-    "sku": "VY-FTW-001",
-    "name": "VAYU Court Low Sneakers",
-    "brand": "VAYU",
-    "description": "Clean leather-look low-tops with a cushioned insole and a durable rubber cupsole.\n\nColours: White, Off White.",
-    "category": "Footwear",
-    "price": 2999,
-    "discountPercentage": 0,
-    "rating": 4.6,
-    "reviewCount": 434,
-    "stockQuantity": 138,
-    "imageUrl": "/products/photos/sneakers-white.webp",
-    "thumbnailUrl": "/products/photos/sneakers-white.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "6",
-        "color": "White",
-        "stockQuantity": 16
-      },
-      {
-        "size": "7",
-        "color": "White",
-        "stockQuantity": 17
-      },
-      {
-        "size": "8",
-        "color": "White",
-        "stockQuantity": 16
-      },
-      {
-        "size": "9",
-        "color": "White",
-        "stockQuantity": 19
-      },
-      {
-        "size": "10",
-        "color": "White",
-        "stockQuantity": 13
-      },
-      {
-        "size": "11",
-        "color": "White",
-        "stockQuantity": 18
-      },
-      {
-        "size": "6",
-        "color": "Off White",
-        "stockQuantity": 0
-      },
-      {
-        "size": "7",
-        "color": "Off White",
-        "stockQuantity": 6
-      },
-      {
-        "size": "8",
-        "color": "Off White",
-        "stockQuantity": 12
-      },
-      {
-        "size": "9",
-        "color": "Off White",
-        "stockQuantity": 5
-      },
-      {
-        "size": "10",
-        "color": "Off White",
-        "stockQuantity": 7
-      },
-      {
-        "size": "11",
-        "color": "Off White",
-        "stockQuantity": 9
-      }
-    ]
-  },
-  {
-    "sku": "VY-FTW-002",
-    "name": "VAYU Chunky Street Sneakers",
-    "brand": "VAYU",
-    "description": "A bold, chunky-soled sneaker with a mesh and synthetic upper for all-day comfort.\n\nColours: White/Navy, Grey/Red.",
-    "category": "Footwear",
-    "price": 3499,
-    "discountPercentage": 10,
-    "rating": 4.4,
-    "reviewCount": 399,
-    "stockQuantity": 121,
-    "imageUrl": "/products/photos/chunky-sneakers.webp",
-    "thumbnailUrl": "/products/photos/chunky-sneakers.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "6",
-        "color": "White/Navy",
-        "stockQuantity": 0
-      },
-      {
-        "size": "7",
-        "color": "White/Navy",
-        "stockQuantity": 12
-      },
-      {
-        "size": "8",
-        "color": "White/Navy",
-        "stockQuantity": 21
-      },
-      {
-        "size": "9",
-        "color": "White/Navy",
-        "stockQuantity": 9
-      },
-      {
-        "size": "10",
-        "color": "White/Navy",
-        "stockQuantity": 12
-      },
-      {
-        "size": "11",
-        "color": "White/Navy",
-        "stockQuantity": 15
-      },
-      {
-        "size": "6",
-        "color": "Grey/Red",
-        "stockQuantity": 4
-      },
-      {
-        "size": "7",
-        "color": "Grey/Red",
-        "stockQuantity": 18
-      },
-      {
-        "size": "8",
-        "color": "Grey/Red",
-        "stockQuantity": 13
-      },
-      {
-        "size": "9",
-        "color": "Grey/Red",
-        "stockQuantity": 11
-      },
-      {
-        "size": "10",
-        "color": "Grey/Red",
-        "stockQuantity": 3
-      },
-      {
-        "size": "11",
-        "color": "Grey/Red",
-        "stockQuantity": 3
-      }
-    ]
-  },
-  {
-    "sku": "VY-FTW-003",
-    "name": "VAYU Leather Penny Loafers",
-    "brand": "VAYU",
-    "description": "Hand-finished leather loafers with a flexible sole. Wear them with or without socks.\n\nColours: Tan, Brown.",
-    "category": "Footwear",
-    "price": 3299,
-    "discountPercentage": 0,
-    "rating": 4.4,
-    "reviewCount": 349,
-    "stockQuantity": 109,
-    "imageUrl": "/products/photos/loafers.webp",
-    "thumbnailUrl": "/products/photos/loafers.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "6",
-        "color": "Tan",
-        "stockQuantity": 10
-      },
-      {
-        "size": "7",
-        "color": "Tan",
-        "stockQuantity": 8
-      },
-      {
-        "size": "8",
-        "color": "Tan",
-        "stockQuantity": 13
-      },
-      {
-        "size": "9",
-        "color": "Tan",
-        "stockQuantity": 8
-      },
-      {
-        "size": "10",
-        "color": "Tan",
-        "stockQuantity": 0
-      },
-      {
-        "size": "11",
-        "color": "Tan",
-        "stockQuantity": 16
-      },
-      {
-        "size": "6",
-        "color": "Brown",
-        "stockQuantity": 0
-      },
-      {
-        "size": "7",
-        "color": "Brown",
-        "stockQuantity": 20
-      },
-      {
-        "size": "8",
-        "color": "Brown",
-        "stockQuantity": 20
-      },
-      {
-        "size": "9",
-        "color": "Brown",
-        "stockQuantity": 4
-      },
-      {
-        "size": "10",
-        "color": "Brown",
-        "stockQuantity": 5
-      },
-      {
-        "size": "11",
-        "color": "Brown",
-        "stockQuantity": 5
-      }
-    ]
-  },
-  {
-    "sku": "VY-FTW-004",
-    "name": "VAYU Chelsea Boots",
-    "brand": "VAYU",
-    "description": "Full-grain leather Chelsea boots with elastic side panels and a stacked heel.\n\nColours: Dark Brown.",
-    "category": "Footwear",
-    "price": 4299,
-    "discountPercentage": 0,
-    "rating": 4.3,
+    "discountPercentage": 33,
+    "rating": 4,
     "reviewCount": 305,
-    "stockQuantity": 116,
-    "imageUrl": "/products/photos/boots.webp",
-    "thumbnailUrl": "/products/photos/boots.webp",
+    "stockQuantity": 126,
+    "sku": "SKU-ELEC-038",
+    "imageUrl": "/products/photos/charger-0.webp",
+    "thumbnailUrl": "/products/photos/charger-0.webp",
     "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "6",
-        "color": "Dark Brown",
-        "stockQuantity": 21
-      },
-      {
-        "size": "7",
-        "color": "Dark Brown",
-        "stockQuantity": 21
-      },
-      {
-        "size": "8",
-        "color": "Dark Brown",
-        "stockQuantity": 18
-      },
-      {
-        "size": "9",
-        "color": "Dark Brown",
-        "stockQuantity": 15
-      },
-      {
-        "size": "10",
-        "color": "Dark Brown",
-        "stockQuantity": 22
-      },
-      {
-        "size": "11",
-        "color": "Dark Brown",
-        "stockQuantity": 19
-      }
-    ]
+    "description": "Compact 3-port charger for laptops, phones and tablets."
   },
   {
-    "sku": "VY-FTW-005",
-    "name": "VAYU Cushioned Slides",
-    "brand": "VAYU",
-    "description": "Moulded footbed slides with a double strap. Easy for the house, the beach or the gym.\n\nColours: Navy, Black.",
-    "category": "Footwear",
-    "price": 899,
-    "discountPercentage": 0,
-    "rating": 4.3,
-    "reviewCount": 323,
-    "stockQuantity": 104,
-    "imageUrl": "/products/photos/slides.webp",
-    "thumbnailUrl": "/products/photos/slides.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "6",
-        "color": "Navy",
-        "stockQuantity": 8
-      },
-      {
-        "size": "7",
-        "color": "Navy",
-        "stockQuantity": 19
-      },
-      {
-        "size": "8",
-        "color": "Navy",
-        "stockQuantity": 5
-      },
-      {
-        "size": "9",
-        "color": "Navy",
-        "stockQuantity": 4
-      },
-      {
-        "size": "10",
-        "color": "Navy",
-        "stockQuantity": 5
-      },
-      {
-        "size": "11",
-        "color": "Navy",
-        "stockQuantity": 7
-      },
-      {
-        "size": "6",
-        "color": "Black",
-        "stockQuantity": 7
-      },
-      {
-        "size": "7",
-        "color": "Black",
-        "stockQuantity": 17
-      },
-      {
-        "size": "8",
-        "color": "Black",
-        "stockQuantity": 13
-      },
-      {
-        "size": "9",
-        "color": "Black",
-        "stockQuantity": 9
-      },
-      {
-        "size": "10",
-        "color": "Black",
-        "stockQuantity": 0
-      },
-      {
-        "size": "11",
-        "color": "Black",
-        "stockQuantity": 10
-      }
-    ]
-  },
-  {
-    "sku": "VY-FTW-006",
-    "name": "VAYU Featherlight Runners",
-    "brand": "VAYU",
-    "description": "Breathable knit runners with responsive foam and a grippy outsole.\n\nColours: Black/Lime, Grey/Orange.",
-    "category": "Footwear",
-    "price": 3799,
-    "discountPercentage": 20,
+    "name": "Anker PowerExpand 7-in-1 USB-C Hub",
+    "brand": "Anker",
+    "category": "Electronics",
+    "price": 4499,
+    "discountPercentage": 21,
     "rating": 4.5,
-    "reviewCount": 136,
-    "stockQuantity": 134,
+    "reviewCount": 6186,
+    "stockQuantity": 129,
+    "sku": "SKU-ELEC-039",
+    "imageUrl": "/products/photos/usb-hub-k10.webp",
+    "thumbnailUrl": "/products/photos/usb-hub-k10.webp",
+    "availability": "IN_STOCK",
+    "description": "4K HDMI, 100W pass-through, SD reader and USB-A ports."
+  },
+  {
+    "name": "Mi Smart Band 8",
+    "brand": "Mi",
+    "category": "Electronics",
+    "price": 3499,
+    "discountPercentage": 18,
+    "rating": 4.6,
+    "reviewCount": 209,
+    "stockQuantity": 135,
+    "sku": "SKU-ELEC-041",
+    "imageUrl": "/products/photos/fitness-band-j1.webp",
+    "thumbnailUrl": "/products/photos/fitness-band-j1.webp",
+    "availability": "IN_STOCK",
+    "description": "1.62-inch AMOLED display with 16-day battery life."
+  },
+  {
+    "name": "Amazon Kindle Paperwhite 16GB",
+    "brand": "Amazon",
+    "category": "Electronics",
+    "price": 16999,
+    "discountPercentage": 13,
+    "rating": 4.1,
+    "reviewCount": 3641,
+    "stockQuantity": 42,
+    "sku": "SKU-ELEC-043",
+    "imageUrl": "/products/photos/ereader-1.webp",
+    "thumbnailUrl": "/products/photos/ereader-1.webp",
+    "availability": "IN_STOCK",
+    "description": "6.8-inch glare-free display with adjustable warm light."
+  },
+  {
+    "name": "Amazon Echo Dot (5th Gen) Smart Speaker",
+    "brand": "Amazon",
+    "category": "Electronics",
+    "price": 5499,
+    "discountPercentage": 15,
+    "rating": 4.1,
+    "reviewCount": 384,
+    "stockQuantity": 144,
+    "sku": "SKU-ELEC-044",
+    "imageUrl": "/products/photos/smart-speaker-j3.webp",
+    "thumbnailUrl": "/products/photos/smart-speaker-j3.webp",
+    "availability": "IN_STOCK",
+    "description": "Alexa smart speaker with improved bass and temperature sensor."
+  },
+  {
+    "name": "Levi's 511 Slim Fit Men's Jeans",
+    "brand": "Levi's",
+    "category": "Fashion",
+    "price": 2799,
+    "discountPercentage": 39,
+    "rating": 3.8,
+    "reviewCount": 1525,
+    "stockQuantity": 15,
+    "sku": "SKU-FASH-001",
+    "imageUrl": "/products/photos/jeans-i3.webp",
+    "thumbnailUrl": "/products/photos/jeans-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Stretch denim slim fit with a classic five-pocket design.",
+    "variants": [
+      {
+        "size": "28",
+        "color": "Indigo",
+        "stockQuantity": 3
+      },
+      {
+        "size": "30",
+        "color": "Indigo",
+        "stockQuantity": 3
+      },
+      {
+        "size": "32",
+        "color": "Indigo",
+        "stockQuantity": 3
+      },
+      {
+        "size": "34",
+        "color": "Indigo",
+        "stockQuantity": 3
+      },
+      {
+        "size": "36",
+        "color": "Indigo",
+        "stockQuantity": 3
+      }
+    ]
+  },
+  {
+    "name": "Levi's Men's Classic Crew Neck T-Shirt",
+    "brand": "Levi's",
+    "category": "Fashion",
+    "price": 899,
+    "discountPercentage": 32,
+    "rating": 3.9,
+    "reviewCount": 561,
+    "stockQuantity": 24,
+    "sku": "SKU-FASH-002",
+    "imageUrl": "/products/photos/tshirt-i2.webp",
+    "thumbnailUrl": "/products/photos/tshirt-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Soft cotton tee with the iconic batwing logo.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "White",
+        "stockQuantity": 2
+      },
+      {
+        "size": "M",
+        "color": "White",
+        "stockQuantity": 3
+      },
+      {
+        "size": "L",
+        "color": "White",
+        "stockQuantity": 3
+      },
+      {
+        "size": "XL",
+        "color": "White",
+        "stockQuantity": 3
+      },
+      {
+        "size": "XXL",
+        "color": "White",
+        "stockQuantity": 2
+      },
+      {
+        "size": "S",
+        "color": "Black",
+        "stockQuantity": 2
+      },
+      {
+        "size": "M",
+        "color": "Black",
+        "stockQuantity": 3
+      },
+      {
+        "size": "L",
+        "color": "Black",
+        "stockQuantity": 2
+      },
+      {
+        "size": "XL",
+        "color": "Black",
+        "stockQuantity": 2
+      },
+      {
+        "size": "XXL",
+        "color": "Black",
+        "stockQuantity": 2
+      }
+    ]
+  },
+  {
+    "name": "Levi's Men's Trucker Denim Jacket",
+    "brand": "Levi's",
+    "category": "Fashion",
+    "price": 4499,
+    "discountPercentage": 36,
+    "rating": 4.6,
+    "reviewCount": 455,
+    "stockQuantity": 32,
+    "sku": "SKU-FASH-004",
+    "imageUrl": "/products/photos/denim-jacket-j1.webp",
+    "thumbnailUrl": "/products/photos/denim-jacket-j1.webp",
+    "availability": "IN_STOCK",
+    "description": "The original denim jacket with button-flap chest pockets.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "Mid Blue",
+        "stockQuantity": 6
+      },
+      {
+        "size": "M",
+        "color": "Mid Blue",
+        "stockQuantity": 7
+      },
+      {
+        "size": "L",
+        "color": "Mid Blue",
+        "stockQuantity": 7
+      },
+      {
+        "size": "XL",
+        "color": "Mid Blue",
+        "stockQuantity": 6
+      },
+      {
+        "size": "XXL",
+        "color": "Mid Blue",
+        "stockQuantity": 6
+      }
+    ]
+  },
+  {
+    "name": "Nike Air Force 1 '07 Sneakers",
+    "brand": "Nike",
+    "category": "Fashion",
+    "price": 7495,
+    "discountPercentage": 16,
+    "rating": 4,
+    "reviewCount": 21,
+    "stockQuantity": 36,
+    "sku": "SKU-FASH-005",
+    "imageUrl": "/products/photos/sneakers-i3.webp",
+    "thumbnailUrl": "/products/photos/sneakers-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "The classic basketball-inspired leather low-top.",
+    "variants": [
+      {
+        "size": "6",
+        "color": "White",
+        "stockQuantity": 6
+      },
+      {
+        "size": "7",
+        "color": "White",
+        "stockQuantity": 6
+      },
+      {
+        "size": "8",
+        "color": "White",
+        "stockQuantity": 6
+      },
+      {
+        "size": "9",
+        "color": "White",
+        "stockQuantity": 6
+      },
+      {
+        "size": "10",
+        "color": "White",
+        "stockQuantity": 6
+      },
+      {
+        "size": "11",
+        "color": "White",
+        "stockQuantity": 6
+      }
+    ]
+  },
+  {
+    "name": "Nike Revolution 7 Men's Running Shoes",
+    "brand": "Nike",
+    "category": "Fashion",
+    "price": 3695,
+    "discountPercentage": 15,
+    "rating": 4.3,
+    "reviewCount": 174,
+    "stockQuantity": 40,
+    "sku": "SKU-FASH-006",
     "imageUrl": "/products/photos/running-shoes-i1.webp",
     "thumbnailUrl": "/products/photos/running-shoes-i1.webp",
     "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "6",
-        "color": "Black/Lime",
-        "stockQuantity": 23
-      },
-      {
-        "size": "7",
-        "color": "Black/Lime",
-        "stockQuantity": 8
-      },
-      {
-        "size": "8",
-        "color": "Black/Lime",
-        "stockQuantity": 9
-      },
-      {
-        "size": "9",
-        "color": "Black/Lime",
-        "stockQuantity": 5
-      },
-      {
-        "size": "10",
-        "color": "Black/Lime",
-        "stockQuantity": 10
-      },
-      {
-        "size": "11",
-        "color": "Black/Lime",
-        "stockQuantity": 12
-      },
-      {
-        "size": "6",
-        "color": "Grey/Orange",
-        "stockQuantity": 13
-      },
-      {
-        "size": "7",
-        "color": "Grey/Orange",
-        "stockQuantity": 13
-      },
-      {
-        "size": "8",
-        "color": "Grey/Orange",
-        "stockQuantity": 13
-      },
-      {
-        "size": "9",
-        "color": "Grey/Orange",
-        "stockQuantity": 0
-      },
-      {
-        "size": "10",
-        "color": "Grey/Orange",
-        "stockQuantity": 22
-      },
-      {
-        "size": "11",
-        "color": "Grey/Orange",
-        "stockQuantity": 6
-      }
-    ]
-  },
-  {
-    "sku": "VY-FTW-007",
-    "name": "VAYU Derby Formal Shoes",
-    "brand": "VAYU",
-    "description": "Polished leather derbies with a cushioned footbed and a Goodyear-style welt look.\n\nColours: Black.",
-    "category": "Footwear",
-    "price": 3999,
-    "discountPercentage": 0,
-    "rating": 4.3,
-    "reviewCount": 286,
-    "stockQuantity": 54,
-    "imageUrl": "/products/photos/formal-shoes.webp",
-    "thumbnailUrl": "/products/photos/formal-shoes.webp",
-    "availability": "IN_STOCK",
+    "description": "Soft foam cushioning for everyday runs.",
     "variants": [
       {
         "size": "6",
         "color": "Black",
-        "stockQuantity": 0
-      },
-      {
-        "size": "7",
-        "color": "Black",
-        "stockQuantity": 8
-      },
-      {
-        "size": "8",
-        "color": "Black",
-        "stockQuantity": 11
-      },
-      {
-        "size": "9",
-        "color": "Black",
-        "stockQuantity": 13
-      },
-      {
-        "size": "10",
-        "color": "Black",
-        "stockQuantity": 12
-      },
-      {
-        "size": "11",
-        "color": "Black",
-        "stockQuantity": 10
-      }
-    ]
-  },
-  {
-    "sku": "VY-ACC-001",
-    "name": "VAYU Reversible Leather Belt",
-    "brand": "VAYU",
-    "description": "One belt, two colours: black on one side, brown on the other. Rotating buckle.\n\nColours: Black/Brown.",
-    "category": "Accessories",
-    "price": 999,
-    "discountPercentage": 0,
-    "rating": 4.2,
-    "reviewCount": 177,
-    "stockQuantity": 56,
-    "imageUrl": "/products/photos/belt.webp",
-    "thumbnailUrl": "/products/photos/belt.webp",
-    "availability": "IN_STOCK",
-    "variants": [
-      {
-        "size": "32",
-        "color": "Black/Brown",
-        "stockQuantity": 21
-      },
-      {
-        "size": "34",
-        "color": "Black/Brown",
-        "stockQuantity": 12
-      },
-      {
-        "size": "36",
-        "color": "Black/Brown",
         "stockQuantity": 3
       },
       {
-        "size": "38",
-        "color": "Black/Brown",
-        "stockQuantity": 20
+        "size": "7",
+        "color": "Black",
+        "stockQuantity": 4
+      },
+      {
+        "size": "8",
+        "color": "Black",
+        "stockQuantity": 4
+      },
+      {
+        "size": "9",
+        "color": "Black",
+        "stockQuantity": 4
+      },
+      {
+        "size": "10",
+        "color": "Black",
+        "stockQuantity": 3
+      },
+      {
+        "size": "11",
+        "color": "Black",
+        "stockQuantity": 3
+      },
+      {
+        "size": "6",
+        "color": "Grey",
+        "stockQuantity": 3
+      },
+      {
+        "size": "7",
+        "color": "Grey",
+        "stockQuantity": 4
+      },
+      {
+        "size": "8",
+        "color": "Grey",
+        "stockQuantity": 3
+      },
+      {
+        "size": "9",
+        "color": "Grey",
+        "stockQuantity": 3
+      },
+      {
+        "size": "10",
+        "color": "Grey",
+        "stockQuantity": 3
+      },
+      {
+        "size": "11",
+        "color": "Grey",
+        "stockQuantity": 3
       }
     ]
   },
   {
-    "sku": "VY-ACC-002",
-    "name": "VAYU Slim Leather Wallet",
-    "brand": "VAYU",
-    "description": "A slim bifold with six card slots and a full-length bill pocket, in soft leather.",
-    "category": "Accessories",
-    "price": 1299,
-    "discountPercentage": 10,
-    "rating": 4.7,
-    "reviewCount": 303,
-    "stockQuantity": 47,
-    "imageUrl": "/products/photos/wallet-pocket.webp",
-    "thumbnailUrl": "/products/photos/wallet-pocket.webp",
-    "availability": "IN_STOCK"
-  },
-  {
-    "sku": "VY-ACC-003",
-    "name": "VAYU Everyday Cap",
-    "brand": "VAYU",
-    "description": "A six-panel cotton cap with an adjustable strap and a curved brim.\n\nColours: Stone, Black.",
-    "category": "Accessories",
-    "price": 699,
-    "discountPercentage": 0,
-    "rating": 4.7,
-    "reviewCount": 292,
-    "stockQuantity": 26,
-    "imageUrl": "/products/photos/cap.webp",
-    "thumbnailUrl": "/products/photos/cap.webp",
-    "availability": "IN_STOCK"
-  },
-  {
-    "sku": "VY-ACC-004",
-    "name": "VAYU Ribbed Beanie",
-    "brand": "VAYU",
-    "description": "A stretchy ribbed-knit beanie with a soft inner lining. One size.\n\nColours: Black, Charcoal.",
-    "category": "Accessories",
-    "price": 599,
-    "discountPercentage": 0,
-    "rating": 4.5,
-    "reviewCount": 448,
-    "stockQuantity": 62,
-    "imageUrl": "/products/photos/beanie.webp",
-    "thumbnailUrl": "/products/photos/beanie.webp",
-    "availability": "IN_STOCK"
-  },
-  {
-    "sku": "VY-ACC-005",
-    "name": "VAYU Aviator Sunglasses",
-    "brand": "VAYU",
-    "description": "Lightweight metal aviators with UV400 lenses and adjustable nose pads.",
-    "category": "Accessories",
-    "price": 1499,
-    "discountPercentage": 15,
-    "rating": 4.8,
-    "reviewCount": 298,
+    "name": "Nike Sportswear Club Fleece Hoodie",
+    "brand": "Nike",
+    "category": "Fashion",
+    "price": 3995,
+    "discountPercentage": 32,
+    "rating": 4,
+    "reviewCount": 63,
     "stockQuantity": 48,
-    "imageUrl": "/products/photos/sunglasses-men.webp",
-    "thumbnailUrl": "/products/photos/sunglasses-men.webp",
-    "availability": "IN_STOCK"
+    "sku": "SKU-FASH-008",
+    "imageUrl": "/products/photos/hoodie-i3.webp",
+    "thumbnailUrl": "/products/photos/hoodie-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Brushed-back fleece pullover hoodie.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "Grey",
+        "stockQuantity": 6
+      },
+      {
+        "size": "M",
+        "color": "Grey",
+        "stockQuantity": 5
+      },
+      {
+        "size": "L",
+        "color": "Grey",
+        "stockQuantity": 5
+      },
+      {
+        "size": "XL",
+        "color": "Grey",
+        "stockQuantity": 5
+      },
+      {
+        "size": "XXL",
+        "color": "Grey",
+        "stockQuantity": 4
+      },
+      {
+        "size": "S",
+        "color": "Black",
+        "stockQuantity": 4
+      },
+      {
+        "size": "M",
+        "color": "Black",
+        "stockQuantity": 5
+      },
+      {
+        "size": "L",
+        "color": "Black",
+        "stockQuantity": 5
+      },
+      {
+        "size": "XL",
+        "color": "Black",
+        "stockQuantity": 5
+      },
+      {
+        "size": "XXL",
+        "color": "Black",
+        "stockQuantity": 4
+      }
+    ]
   },
   {
-    "sku": "VY-ACC-006",
-    "name": "VAYU Minimal Analog Watch",
-    "brand": "VAYU",
-    "description": "A 40 mm analog watch with a sapphire-coated dial, mesh strap and 3 ATM water resistance.",
-    "category": "Accessories",
-    "price": 3499,
-    "discountPercentage": 0,
-    "rating": 4.6,
-    "reviewCount": 387,
+    "name": "Adidas Essentials 3-Stripes Track Pants",
+    "brand": "Adidas",
+    "category": "Fashion",
+    "price": 2599,
+    "discountPercentage": 35,
+    "rating": 4.2,
+    "reviewCount": 6503,
     "stockQuantity": 60,
-    "imageUrl": "/products/photos/wristwatch-i0.webp",
-    "thumbnailUrl": "/products/photos/wristwatch-i0.webp",
-    "availability": "IN_STOCK"
+    "sku": "SKU-FASH-011",
+    "imageUrl": "/products/photos/trousers-i3.webp",
+    "thumbnailUrl": "/products/photos/trousers-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Tapered track pants with an elastic waistband.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "Black",
+        "stockQuantity": 12
+      },
+      {
+        "size": "M",
+        "color": "Black",
+        "stockQuantity": 12
+      },
+      {
+        "size": "L",
+        "color": "Black",
+        "stockQuantity": 12
+      },
+      {
+        "size": "XL",
+        "color": "Black",
+        "stockQuantity": 12
+      },
+      {
+        "size": "XXL",
+        "color": "Black",
+        "stockQuantity": 12
+      }
+    ]
   },
   {
-    "sku": "VY-ACC-007",
-    "name": "VAYU Daypack Backpack",
-    "brand": "VAYU",
-    "description": "A water-resistant backpack with a padded 15-inch laptop sleeve and two side pockets.",
-    "category": "Accessories",
-    "price": 2499,
-    "discountPercentage": 0,
+    "name": "Puma Men's Essentials Logo Polo",
+    "brand": "Puma",
+    "category": "Fashion",
+    "price": 1499,
+    "discountPercentage": 16,
+    "rating": 3.8,
+    "reviewCount": 45,
+    "stockQuantity": 72,
+    "sku": "SKU-FASH-014",
+    "imageUrl": "/products/photos/polo-k3.webp",
+    "thumbnailUrl": "/products/photos/polo-k3.webp",
+    "availability": "IN_STOCK",
+    "description": "Cotton piqué polo with embroidered logo.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "Navy",
+        "stockQuantity": 7
+      },
+      {
+        "size": "M",
+        "color": "Navy",
+        "stockQuantity": 8
+      },
+      {
+        "size": "L",
+        "color": "Navy",
+        "stockQuantity": 8
+      },
+      {
+        "size": "XL",
+        "color": "Navy",
+        "stockQuantity": 7
+      },
+      {
+        "size": "XXL",
+        "color": "Navy",
+        "stockQuantity": 7
+      },
+      {
+        "size": "S",
+        "color": "White",
+        "stockQuantity": 7
+      },
+      {
+        "size": "M",
+        "color": "White",
+        "stockQuantity": 7
+      },
+      {
+        "size": "L",
+        "color": "White",
+        "stockQuantity": 7
+      },
+      {
+        "size": "XL",
+        "color": "White",
+        "stockQuantity": 7
+      },
+      {
+        "size": "XXL",
+        "color": "White",
+        "stockQuantity": 7
+      }
+    ]
+  },
+  {
+    "name": "Puma Women's Training Leggings",
+    "brand": "Puma",
+    "category": "Fashion",
+    "price": 1999,
+    "discountPercentage": 42,
+    "rating": 3.8,
+    "reviewCount": 796,
+    "stockQuantity": 76,
+    "sku": "SKU-FASH-015",
+    "imageUrl": "/products/photos/leggings-j0.webp",
+    "thumbnailUrl": "/products/photos/leggings-j0.webp",
+    "availability": "IN_STOCK",
+    "description": "High-waist leggings with drycELL moisture wicking.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "Black",
+        "stockQuantity": 15
+      },
+      {
+        "size": "M",
+        "color": "Black",
+        "stockQuantity": 16
+      },
+      {
+        "size": "L",
+        "color": "Black",
+        "stockQuantity": 15
+      },
+      {
+        "size": "XL",
+        "color": "Black",
+        "stockQuantity": 15
+      },
+      {
+        "size": "XXL",
+        "color": "Black",
+        "stockQuantity": 15
+      }
+    ]
+  },
+  {
+    "name": "Allen Solly Men's Slim Fit Formal Shirt",
+    "brand": "Allen Solly",
+    "category": "Fashion",
+    "price": 1499,
+    "discountPercentage": 12,
+    "rating": 4.2,
+    "reviewCount": 3134,
+    "stockQuantity": 80,
+    "sku": "SKU-FASH-016",
+    "imageUrl": "/products/photos/shirt-i0.webp",
+    "thumbnailUrl": "/products/photos/shirt-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Crisp cotton shirt for the office.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "White",
+        "stockQuantity": 8
+      },
+      {
+        "size": "M",
+        "color": "White",
+        "stockQuantity": 8
+      },
+      {
+        "size": "L",
+        "color": "White",
+        "stockQuantity": 8
+      },
+      {
+        "size": "XL",
+        "color": "White",
+        "stockQuantity": 8
+      },
+      {
+        "size": "XXL",
+        "color": "White",
+        "stockQuantity": 8
+      },
+      {
+        "size": "S",
+        "color": "Light Blue",
+        "stockQuantity": 8
+      },
+      {
+        "size": "M",
+        "color": "Light Blue",
+        "stockQuantity": 8
+      },
+      {
+        "size": "L",
+        "color": "Light Blue",
+        "stockQuantity": 8
+      },
+      {
+        "size": "XL",
+        "color": "Light Blue",
+        "stockQuantity": 8
+      },
+      {
+        "size": "XXL",
+        "color": "Light Blue",
+        "stockQuantity": 8
+      }
+    ]
+  },
+  {
+    "name": "Allen Solly Women's Regular Fit Blazer",
+    "brand": "Allen Solly",
+    "category": "Fashion",
+    "price": 3499,
+    "discountPercentage": 19,
+    "rating": 4.4,
+    "reviewCount": 1141,
+    "stockQuantity": 12,
+    "sku": "SKU-FASH-017",
+    "imageUrl": "/products/photos/blazer-i3.webp",
+    "thumbnailUrl": "/products/photos/blazer-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Tailored single-button blazer for work.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "Black",
+        "stockQuantity": 2
+      },
+      {
+        "size": "M",
+        "color": "Black",
+        "stockQuantity": 3
+      },
+      {
+        "size": "L",
+        "color": "Black",
+        "stockQuantity": 3
+      },
+      {
+        "size": "XL",
+        "color": "Black",
+        "stockQuantity": 2
+      },
+      {
+        "size": "XXL",
+        "color": "Black",
+        "stockQuantity": 2
+      }
+    ]
+  },
+  {
+    "name": "H&M Women's Rib-Knit Top",
+    "brand": "H&M",
+    "category": "Fashion",
+    "price": 799,
+    "discountPercentage": 30,
+    "rating": 4.8,
+    "reviewCount": 6311,
+    "stockQuantity": 124,
+    "sku": "SKU-FASH-027",
+    "imageUrl": "/products/photos/womens-top-i0.webp",
+    "thumbnailUrl": "/products/photos/womens-top-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Fitted top in soft ribbed jersey.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "Cream",
+        "stockQuantity": 25
+      },
+      {
+        "size": "M",
+        "color": "Cream",
+        "stockQuantity": 25
+      },
+      {
+        "size": "L",
+        "color": "Cream",
+        "stockQuantity": 25
+      },
+      {
+        "size": "XL",
+        "color": "Cream",
+        "stockQuantity": 25
+      },
+      {
+        "size": "XXL",
+        "color": "Cream",
+        "stockQuantity": 24
+      }
+    ]
+  },
+  {
+    "name": "Zara Women's Satin Effect Midi Skirt",
+    "brand": "Zara",
+    "category": "Fashion",
+    "price": 3590,
+    "discountPercentage": 35,
+    "rating": 3.9,
+    "reviewCount": 4675,
+    "stockQuantity": 132,
+    "sku": "SKU-FASH-029",
+    "imageUrl": "/products/photos/skirt-1.webp",
+    "thumbnailUrl": "/products/photos/skirt-1.webp",
+    "availability": "IN_STOCK",
+    "description": "Flowing midi skirt with an elastic waist.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "Champagne",
+        "stockQuantity": 26
+      },
+      {
+        "size": "M",
+        "color": "Champagne",
+        "stockQuantity": 27
+      },
+      {
+        "size": "L",
+        "color": "Champagne",
+        "stockQuantity": 27
+      },
+      {
+        "size": "XL",
+        "color": "Champagne",
+        "stockQuantity": 26
+      },
+      {
+        "size": "XXL",
+        "color": "Champagne",
+        "stockQuantity": 26
+      }
+    ]
+  },
+  {
+    "name": "Uniqlo Ultra Light Down Jacket",
+    "brand": "Uniqlo",
+    "category": "Fashion",
+    "price": 5990,
+    "discountPercentage": 10,
+    "rating": 3.8,
+    "reviewCount": 20,
+    "stockQuantity": 140,
+    "sku": "SKU-FASH-031",
+    "imageUrl": "/products/photos/puffer-jacket-i2.webp",
+    "thumbnailUrl": "/products/photos/puffer-jacket-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Packable down jacket that folds into its own pouch.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "Black",
+        "stockQuantity": 14
+      },
+      {
+        "size": "M",
+        "color": "Black",
+        "stockQuantity": 14
+      },
+      {
+        "size": "L",
+        "color": "Black",
+        "stockQuantity": 14
+      },
+      {
+        "size": "XL",
+        "color": "Black",
+        "stockQuantity": 14
+      },
+      {
+        "size": "XXL",
+        "color": "Black",
+        "stockQuantity": 14
+      },
+      {
+        "size": "S",
+        "color": "Navy",
+        "stockQuantity": 14
+      },
+      {
+        "size": "M",
+        "color": "Navy",
+        "stockQuantity": 14
+      },
+      {
+        "size": "L",
+        "color": "Navy",
+        "stockQuantity": 14
+      },
+      {
+        "size": "XL",
+        "color": "Navy",
+        "stockQuantity": 14
+      },
+      {
+        "size": "XXL",
+        "color": "Navy",
+        "stockQuantity": 14
+      }
+    ]
+  },
+  {
+    "name": "W for Woman Printed Straight Cotton Kurta",
+    "brand": "W for Woman",
+    "category": "Fashion",
+    "price": 1299,
+    "discountPercentage": 36,
     "rating": 4.7,
-    "reviewCount": 196,
-    "stockQuantity": 74,
-    "imageUrl": "/products/photos/backpack-leather.webp",
-    "thumbnailUrl": "/products/photos/backpack-leather.webp",
-    "availability": "IN_STOCK"
+    "reviewCount": 1772,
+    "stockQuantity": 152,
+    "sku": "SKU-FASH-034",
+    "imageUrl": "/products/photos/kurta-i2.webp",
+    "thumbnailUrl": "/products/photos/kurta-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Cotton kurta with a mandarin collar.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "Indigo",
+        "stockQuantity": 30
+      },
+      {
+        "size": "M",
+        "color": "Indigo",
+        "stockQuantity": 31
+      },
+      {
+        "size": "L",
+        "color": "Indigo",
+        "stockQuantity": 31
+      },
+      {
+        "size": "XL",
+        "color": "Indigo",
+        "stockQuantity": 30
+      },
+      {
+        "size": "XXL",
+        "color": "Indigo",
+        "stockQuantity": 30
+      }
+    ]
   },
   {
-    "sku": "VY-ACC-008",
-    "name": "VAYU Ankle Socks (Pack of 3)",
-    "brand": "VAYU",
-    "description": "Soft combed-cotton ankle socks with a cushioned sole. A pack of three.",
-    "category": "Accessories",
-    "price": 499,
-    "discountPercentage": 0,
+    "name": "Fabindia Women's Block Print Cotton Dupatta",
+    "brand": "Fabindia",
+    "category": "Fashion",
+    "price": 990,
+    "discountPercentage": 21,
+    "rating": 3.9,
+    "reviewCount": 43,
+    "stockQuantity": 164,
+    "sku": "SKU-FASH-037",
+    "imageUrl": "/products/photos/scarf-k5.webp",
+    "thumbnailUrl": "/products/photos/scarf-k5.webp",
+    "availability": "IN_STOCK",
+    "description": "Hand-block printed dupatta in pure cotton."
+  },
+  {
+    "name": "HRX Men's Rapid-Dry Training Shorts",
+    "brand": "HRX",
+    "category": "Fashion",
+    "price": 699,
+    "discountPercentage": 10,
+    "rating": 4,
+    "reviewCount": 330,
+    "stockQuantity": 196,
+    "sku": "SKU-FASH-045",
+    "imageUrl": "/products/photos/shorts-j0.webp",
+    "thumbnailUrl": "/products/photos/shorts-j0.webp",
+    "availability": "IN_STOCK",
+    "description": "Lightweight shorts with zip pocket.",
+    "variants": [
+      {
+        "size": "S",
+        "color": "Black",
+        "stockQuantity": 39
+      },
+      {
+        "size": "M",
+        "color": "Black",
+        "stockQuantity": 40
+      },
+      {
+        "size": "L",
+        "color": "Black",
+        "stockQuantity": 39
+      },
+      {
+        "size": "XL",
+        "color": "Black",
+        "stockQuantity": 39
+      },
+      {
+        "size": "XXL",
+        "color": "Black",
+        "stockQuantity": 39
+      }
+    ]
+  },
+  {
+    "name": "Ray-Ban RB2140 Wayfarer Sunglasses",
+    "brand": "Ray-Ban",
+    "category": "Fashion",
+    "price": 9790,
+    "discountPercentage": 18,
+    "rating": 3.8,
+    "reviewCount": 973,
+    "stockQuantity": 236,
+    "sku": "SKU-FASH-055",
+    "imageUrl": "/products/photos/sunglasses-k10.webp",
+    "thumbnailUrl": "/products/photos/sunglasses-k10.webp",
+    "availability": "IN_STOCK",
+    "description": "The iconic Wayfarer with G-15 lenses."
+  },
+  {
+    "name": "Prestige Svachh 5L Pressure Cooker",
+    "brand": "Prestige",
+    "category": "Home & Living",
+    "price": 2299,
+    "discountPercentage": 28,
+    "rating": 4.7,
+    "reviewCount": 821,
+    "stockQuantity": 4,
+    "sku": "SKU-HOME-001",
+    "imageUrl": "/products/photos/pressure-cooker-j1.webp",
+    "thumbnailUrl": "/products/photos/pressure-cooker-j1.webp",
+    "availability": "IN_STOCK",
+    "description": "Aluminium cooker with spillage-control lid."
+  },
+  {
+    "name": "Prestige Iris 750W Mixer Grinder",
+    "brand": "Prestige",
+    "category": "Home & Living",
+    "price": 3299,
+    "discountPercentage": 42,
+    "rating": 4.1,
+    "reviewCount": 1141,
+    "stockQuantity": 23,
+    "sku": "SKU-HOME-002",
+    "imageUrl": "/products/photos/mixer-grinder-i3.webp",
+    "thumbnailUrl": "/products/photos/mixer-grinder-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Three stainless steel jars for wet and dry grinding."
+  },
+  {
+    "name": "Prestige PIC 20 Induction Cooktop",
+    "brand": "Prestige",
+    "category": "Home & Living",
+    "price": 2499,
+    "discountPercentage": 10,
+    "rating": 3.7,
+    "reviewCount": 5943,
+    "stockQuantity": 28,
+    "sku": "SKU-HOME-003",
+    "imageUrl": "/products/photos/cooktop-k1.webp",
+    "thumbnailUrl": "/products/photos/cooktop-k1.webp",
+    "availability": "IN_STOCK",
+    "description": "1600W induction with Indian menu presets."
+  },
+  {
+    "name": "Pigeon Amaze Plus 1.5L Electric Kettle",
+    "brand": "Pigeon",
+    "category": "Home & Living",
+    "price": 699,
+    "discountPercentage": 42,
     "rating": 4.5,
-    "reviewCount": 203,
-    "stockQuantity": 46,
-    "imageUrl": "/products/photos/socks.webp",
-    "thumbnailUrl": "/products/photos/socks.webp",
-    "availability": "IN_STOCK"
+    "reviewCount": 22,
+    "stockQuantity": 33,
+    "sku": "SKU-HOME-004",
+    "imageUrl": "/products/photos/kettle-i3.webp",
+    "thumbnailUrl": "/products/photos/kettle-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Stainless steel kettle with auto shut-off."
   },
   {
-    "sku": "VY-ACC-009",
-    "name": "VAYU Wool-Blend Scarf",
-    "brand": "VAYU",
-    "description": "A soft, wide wool-blend scarf with fringed ends. Warm without being bulky.\n\nColours: Black, Charcoal.",
-    "category": "Accessories",
-    "price": 1199,
-    "discountPercentage": 0,
-    "rating": 4.3,
-    "reviewCount": 469,
+    "name": "Philips HD9252 Air Fryer 4.1L",
+    "brand": "Philips",
+    "category": "Home & Living",
+    "price": 7999,
+    "discountPercentage": 13,
+    "rating": 4.4,
+    "reviewCount": 488,
+    "stockQuantity": 38,
+    "sku": "SKU-HOME-005",
+    "imageUrl": "/products/photos/air-fryer-1.webp",
+    "thumbnailUrl": "/products/photos/air-fryer-1.webp",
+    "availability": "IN_STOCK",
+    "description": "Rapid Air technology for crispy food with little oil."
+  },
+  {
+    "name": "Philips GC1905 Steam Iron",
+    "brand": "Philips",
+    "category": "Home & Living",
+    "price": 1999,
+    "discountPercentage": 29,
+    "rating": 3.9,
+    "reviewCount": 37,
+    "stockQuantity": 48,
+    "sku": "SKU-HOME-007",
+    "imageUrl": "/products/photos/steam-iron-i1.webp",
+    "thumbnailUrl": "/products/photos/steam-iron-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "1440W steam iron with non-stick soleplate."
+  },
+  {
+    "name": "Bajaj Majesty RX11 Room Heater",
+    "brand": "Bajaj",
+    "category": "Home & Living",
+    "price": 1999,
+    "discountPercentage": 43,
+    "rating": 4.4,
+    "reviewCount": 311,
+    "stockQuantity": 53,
+    "sku": "SKU-HOME-008",
+    "imageUrl": "/products/photos/heater-k0.webp",
+    "thumbnailUrl": "/products/photos/heater-k0.webp",
+    "availability": "IN_STOCK",
+    "description": "2000W heater with two heat settings."
+  },
+  {
+    "name": "Borosil Vision Glass Set of 6 (350ml)",
+    "brand": "Borosil",
+    "category": "Home & Living",
+    "price": 599,
+    "discountPercentage": 15,
+    "rating": 3.8,
+    "reviewCount": 6568,
     "stockQuantity": 68,
-    "imageUrl": "/products/photos/scarf.webp",
-    "thumbnailUrl": "/products/photos/scarf.webp",
-    "availability": "IN_STOCK"
+    "sku": "SKU-HOME-011",
+    "imageUrl": "/products/photos/drinking-glasses-j1.webp",
+    "thumbnailUrl": "/products/photos/drinking-glasses-j1.webp",
+    "availability": "IN_STOCK",
+    "description": "Clear, microwave-safe borosilicate glasses."
   },
   {
-    "sku": "VY-ACC-010",
-    "name": "VAYU Printed Silk Tie",
-    "brand": "VAYU",
-    "description": "A woven silk-blend tie with a classic dot pattern. 7 cm width.",
-    "category": "Accessories",
+    "name": "Borosil Prime Glass Lunch Box Set of 3",
+    "brand": "Borosil",
+    "category": "Home & Living",
     "price": 899,
+    "discountPercentage": 18,
+    "rating": 4.3,
+    "reviewCount": 2566,
+    "stockQuantity": 73,
+    "sku": "SKU-HOME-012",
+    "imageUrl": "/products/photos/lunch-box-k1.webp",
+    "thumbnailUrl": "/products/photos/lunch-box-k1.webp",
+    "availability": "IN_STOCK",
+    "description": "Microwave-safe glass containers with leak-proof lids."
+  },
+  {
+    "name": "Milton Thermosteel Flip Lid Flask 1L",
+    "brand": "Milton",
+    "category": "Home & Living",
+    "price": 999,
+    "discountPercentage": 16,
+    "rating": 3.7,
+    "reviewCount": 27,
+    "stockQuantity": 78,
+    "sku": "SKU-HOME-013",
+    "imageUrl": "/products/photos/water-bottle-1.webp",
+    "thumbnailUrl": "/products/photos/water-bottle-1.webp",
+    "availability": "IN_STOCK",
+    "description": "Keeps drinks hot or cold for 24 hours."
+  },
+  {
+    "name": "Cello Opalware Dinner Set (27 Pieces)",
+    "brand": "Cello",
+    "category": "Home & Living",
+    "price": 2499,
+    "discountPercentage": 30,
+    "rating": 4.1,
+    "reviewCount": 493,
+    "stockQuantity": 88,
+    "sku": "SKU-HOME-015",
+    "imageUrl": "/products/photos/dinnerware-k11.webp",
+    "thumbnailUrl": "/products/photos/dinnerware-k11.webp",
+    "availability": "IN_STOCK",
+    "description": "Toughened opalware that resists chips and stains."
+  },
+  {
+    "name": "Hawkins Futura Non-Stick Kadhai 26cm",
+    "brand": "Hawkins",
+    "category": "Home & Living",
+    "price": 1999,
+    "discountPercentage": 12,
+    "rating": 3.7,
+    "reviewCount": 44,
+    "stockQuantity": 93,
+    "sku": "SKU-HOME-016",
+    "imageUrl": "/products/photos/cookware-i0.webp",
+    "thumbnailUrl": "/products/photos/cookware-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Hard-anodised kadhai with a glass lid."
+  },
+  {
+    "name": "Wonderchef Granite Non-Stick Cookware Set (3 Pieces)",
+    "brand": "Wonderchef",
+    "category": "Home & Living",
+    "price": 2999,
+    "discountPercentage": 22,
+    "rating": 4.3,
+    "reviewCount": 369,
+    "stockQuantity": 98,
+    "sku": "SKU-HOME-017",
+    "imageUrl": "/products/photos/cookware-i1.webp",
+    "thumbnailUrl": "/products/photos/cookware-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Induction-friendly frying pan, kadhai and tawa."
+  },
+  {
+    "name": "Tupperware Modular Mates Container Set",
+    "brand": "Tupperware",
+    "category": "Home & Living",
+    "price": 1899,
+    "discountPercentage": 16,
+    "rating": 4.3,
+    "reviewCount": 493,
+    "stockQuantity": 0,
+    "sku": "SKU-HOME-019",
+    "imageUrl": "/products/photos/storage-jars-i1.webp",
+    "thumbnailUrl": "/products/photos/storage-jars-i1.webp",
+    "availability": "OUT_OF_STOCK",
+    "description": "Space-saving stackable storage for the pantry."
+  },
+  {
+    "name": "Solimo Microfibre Reversible Comforter (Double)",
+    "brand": "Solimo",
+    "category": "Home & Living",
+    "price": 1599,
+    "discountPercentage": 32,
+    "rating": 3.7,
+    "reviewCount": 114,
+    "stockQuantity": 113,
+    "sku": "SKU-HOME-020",
+    "imageUrl": "/products/photos/bedding-i2.webp",
+    "thumbnailUrl": "/products/photos/bedding-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "All-season comforter with soft microfibre fill."
+  },
+  {
+    "name": "Spaces Cotton Bath Towel Set of 2",
+    "brand": "Spaces",
+    "category": "Home & Living",
+    "price": 899,
+    "discountPercentage": 12,
+    "rating": 4,
+    "reviewCount": 2231,
+    "stockQuantity": 128,
+    "sku": "SKU-HOME-023",
+    "imageUrl": "/products/photos/towels-j1.webp",
+    "thumbnailUrl": "/products/photos/towels-j1.webp",
+    "availability": "IN_STOCK",
+    "description": "Soft, absorbent 500 GSM cotton towels."
+  },
+  {
+    "name": "Sleepwell Gel Memory Foam Pillow",
+    "brand": "Sleepwell",
+    "category": "Home & Living",
+    "price": 1499,
+    "discountPercentage": 20,
+    "rating": 4.2,
+    "reviewCount": 237,
+    "stockQuantity": 133,
+    "sku": "SKU-HOME-024",
+    "imageUrl": "/products/photos/pillow-i1.webp",
+    "thumbnailUrl": "/products/photos/pillow-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Cooling gel memory foam for neck support."
+  },
+  {
+    "name": "Kent Instant Electric Kettle 1.8L",
+    "brand": "Kent",
+    "category": "Home & Living",
+    "price": 1299,
+    "discountPercentage": 34,
+    "rating": 4.8,
+    "reviewCount": 100,
+    "stockQuantity": 308,
+    "sku": "SKU-HOME-059",
+    "imageUrl": "/products/photos/kettle-i1.webp",
+    "thumbnailUrl": "/products/photos/kettle-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Food-grade steel kettle with a boil-dry guard."
+  },
+  {
+    "name": "Yonex Nanoray 7000i Badminton Racquet",
+    "brand": "Yonex",
+    "category": "Sports",
+    "price": 2490,
+    "discountPercentage": 27,
+    "rating": 4.5,
+    "reviewCount": 178,
+    "stockQuantity": 0,
+    "sku": "SKU-SPOR-001",
+    "imageUrl": "/products/photos/badminton-racket-i0.webp",
+    "thumbnailUrl": "/products/photos/badminton-racket-i0.webp",
+    "availability": "OUT_OF_STOCK",
+    "description": "Head-light racquet for fast drives and control."
+  },
+  {
+    "name": "Yonex Mavis 350 Nylon Shuttlecocks (Pack of 6)",
+    "brand": "Yonex",
+    "category": "Sports",
+    "price": 1195,
+    "discountPercentage": 13,
+    "rating": 4.7,
+    "reviewCount": 1176,
+    "stockQuantity": 28,
+    "sku": "SKU-SPOR-002",
+    "imageUrl": "/products/photos/shuttlecock-i2.webp",
+    "thumbnailUrl": "/products/photos/shuttlecock-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Durable nylon shuttles with consistent flight."
+  },
+  {
+    "name": "SG RSD Xtreme English Willow Cricket Bat",
+    "brand": "SG",
+    "category": "Sports",
+    "price": 8999,
+    "discountPercentage": 26,
+    "rating": 4.7,
+    "reviewCount": 871,
+    "stockQuantity": 40,
+    "sku": "SKU-SPOR-006",
+    "imageUrl": "/products/photos/cricket-bat-i3.webp",
+    "thumbnailUrl": "/products/photos/cricket-bat-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Grade-3 English willow with a thick edge."
+  },
+  {
+    "name": "SG Test White Leather Cricket Ball",
+    "brand": "SG",
+    "category": "Sports",
+    "price": 1499,
+    "discountPercentage": 6,
+    "rating": 4.5,
+    "reviewCount": 3361,
+    "stockQuantity": 43,
+    "sku": "SKU-SPOR-007",
+    "imageUrl": "/products/photos/cricket-ball-3.webp",
+    "thumbnailUrl": "/products/photos/cricket-ball-3.webp",
+    "availability": "IN_STOCK",
+    "description": "Hand-stitched four-piece leather ball."
+  },
+  {
+    "name": "Nivia Storm Football (Size 5)",
+    "brand": "Nivia",
+    "category": "Sports",
+    "price": 599,
+    "discountPercentage": 21,
+    "rating": 4.5,
+    "reviewCount": 183,
+    "stockQuantity": 55,
+    "sku": "SKU-SPOR-011",
+    "imageUrl": "/products/photos/football-i1.webp",
+    "thumbnailUrl": "/products/photos/football-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Rubberised football for training on all surfaces."
+  },
+  {
+    "name": "Nivia Pro Carbonite Basketball (Size 7)",
+    "brand": "Nivia",
+    "category": "Sports",
+    "price": 1299,
     "discountPercentage": 20,
     "rating": 4.3,
-    "reviewCount": 136,
+    "reviewCount": 567,
+    "stockQuantity": 58,
+    "sku": "SKU-SPOR-012",
+    "imageUrl": "/products/photos/basketball-0.webp",
+    "thumbnailUrl": "/products/photos/basketball-0.webp",
+    "availability": "IN_STOCK",
+    "description": "Moulded rubber ball with a deep channel grip."
+  },
+  {
+    "name": "Adidas UEFA Champions League Club Football (Size 5)",
+    "brand": "Adidas",
+    "category": "Sports",
+    "price": 1999,
+    "discountPercentage": 13,
+    "rating": 4.2,
+    "reviewCount": 48,
+    "stockQuantity": 64,
+    "sku": "SKU-SPOR-014",
+    "imageUrl": "/products/photos/football-0.webp",
+    "thumbnailUrl": "/products/photos/football-0.webp",
+    "availability": "IN_STOCK",
+    "description": "Machine-stitched ball with a TPU cover."
+  },
+  {
+    "name": "Spalding TF-250 Indoor/Outdoor Basketball (Size 7)",
+    "brand": "Spalding",
+    "category": "Sports",
+    "price": 2499,
+    "discountPercentage": 29,
+    "rating": 4.1,
+    "reviewCount": 2864,
+    "stockQuantity": 0,
+    "sku": "SKU-SPOR-015",
+    "imageUrl": "/products/photos/basketball-1.webp",
+    "thumbnailUrl": "/products/photos/basketball-1.webp",
+    "availability": "OUT_OF_STOCK",
+    "description": "Composite leather cover with superior grip."
+  },
+  {
+    "name": "Vector X Volleyball (Official Size)",
+    "brand": "Vector X",
+    "category": "Sports",
+    "price": 699,
+    "discountPercentage": 32,
+    "rating": 4.4,
+    "reviewCount": 262,
+    "stockQuantity": 70,
+    "sku": "SKU-SPOR-016",
+    "imageUrl": "/products/photos/volleyball-i2.webp",
+    "thumbnailUrl": "/products/photos/volleyball-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Synthetic leather ball for indoor and beach play."
+  },
+  {
+    "name": "Stag Iconic Table Tennis Racket",
+    "brand": "Stag",
+    "category": "Sports",
+    "price": 899,
+    "discountPercentage": 39,
+    "rating": 4.3,
+    "reviewCount": 27,
+    "stockQuantity": 73,
+    "sku": "SKU-SPOR-017",
+    "imageUrl": "/products/photos/table-tennis-i1.webp",
+    "thumbnailUrl": "/products/photos/table-tennis-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "ITTF-approved rubber for beginners."
+  },
+  {
+    "name": "Stiga Pro Carbon+ Table Tennis Blade",
+    "brand": "Stiga",
+    "category": "Sports",
+    "price": 4999,
+    "discountPercentage": 40,
+    "rating": 4.5,
+    "reviewCount": 172,
+    "stockQuantity": 76,
+    "sku": "SKU-SPOR-018",
+    "imageUrl": "/products/photos/table-tennis-2.webp",
+    "thumbnailUrl": "/products/photos/table-tennis-2.webp",
+    "availability": "IN_STOCK",
+    "description": "Carbon blade for speed and control."
+  },
+  {
+    "name": "Wilson US Open Tennis Balls (Can of 3)",
+    "brand": "Wilson",
+    "category": "Sports",
+    "price": 599,
+    "discountPercentage": 7,
+    "rating": 4.3,
+    "reviewCount": 340,
+    "stockQuantity": 82,
+    "sku": "SKU-SPOR-020",
+    "imageUrl": "/products/photos/tennis-ball-i2.webp",
+    "thumbnailUrl": "/products/photos/tennis-ball-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Extra-duty felt for hard courts."
+  },
+  {
+    "name": "Head Ti S6 Tennis Racquet",
+    "brand": "Head",
+    "category": "Sports",
+    "price": 5990,
+    "discountPercentage": 31,
+    "rating": 4.8,
+    "reviewCount": 829,
+    "stockQuantity": 85,
+    "sku": "SKU-SPOR-021",
+    "imageUrl": "/products/photos/tennis-racket-i0.webp",
+    "thumbnailUrl": "/products/photos/tennis-racket-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Oversized head with a light titanium frame."
+  },
+  {
+    "name": "Decathlon Domyos Yoga Mat 8mm",
+    "brand": "Decathlon",
+    "category": "Sports",
+    "price": 1299,
+    "discountPercentage": 24,
+    "rating": 3.7,
+    "reviewCount": 1188,
+    "stockQuantity": 91,
+    "sku": "SKU-SPOR-023",
+    "imageUrl": "/products/photos/yoga-mat-i2.webp",
+    "thumbnailUrl": "/products/photos/yoga-mat-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Thick, cushioned mat for floor exercises."
+  },
+  {
+    "name": "Decathlon Quechua MH100 Hiking Backpack 20L",
+    "brand": "Decathlon",
+    "category": "Sports",
+    "price": 799,
+    "discountPercentage": 38,
+    "rating": 3.7,
+    "reviewCount": 260,
+    "stockQuantity": 94,
+    "sku": "SKU-SPOR-024",
+    "imageUrl": "/products/photos/sports-bag-k8.webp",
+    "thumbnailUrl": "/products/photos/sports-bag-k8.webp",
+    "availability": "IN_STOCK",
+    "description": "Lightweight daypack with padded straps."
+  },
+  {
+    "name": "Decathlon Rockrider ST50 Mountain Bike",
+    "brand": "Decathlon",
+    "category": "Sports",
+    "price": 19999,
+    "discountPercentage": 36,
+    "rating": 4.4,
+    "reviewCount": 125,
+    "stockQuantity": 97,
+    "sku": "SKU-SPOR-025",
+    "imageUrl": "/products/photos/bicycle-i2.webp",
+    "thumbnailUrl": "/products/photos/bicycle-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "21-speed MTB with front suspension."
+  },
+  {
+    "name": "Decathlon Kiprun Running Water Bottle 500ml",
+    "brand": "Decathlon",
+    "category": "Sports",
+    "price": 299,
+    "discountPercentage": 35,
+    "rating": 4.6,
+    "reviewCount": 2592,
+    "stockQuantity": 100,
+    "sku": "SKU-SPOR-026",
+    "imageUrl": "/products/photos/sports-bottle-i0.webp",
+    "thumbnailUrl": "/products/photos/sports-bottle-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Easy-squeeze bottle for running belts."
+  },
+  {
+    "name": "Boldfit Yoga Mat 6mm with Strap",
+    "brand": "Boldfit",
+    "category": "Sports",
+    "price": 599,
+    "discountPercentage": 6,
+    "rating": 3.9,
+    "reviewCount": 1274,
+    "stockQuantity": 103,
+    "sku": "SKU-SPOR-027",
+    "imageUrl": "/products/photos/yoga-mat-0.webp",
+    "thumbnailUrl": "/products/photos/yoga-mat-0.webp",
+    "availability": "IN_STOCK",
+    "description": "Anti-slip TPE mat with carry strap."
+  },
+  {
+    "name": "Designing Data-Intensive Applications by Martin Kleppmann",
+    "brand": "O'Reilly",
+    "category": "Books",
+    "price": 1899,
+    "discountPercentage": 26,
+    "rating": 3.9,
+    "reviewCount": 44,
     "stockQuantity": 32,
-    "imageUrl": "/products/photos/tie.webp",
-    "thumbnailUrl": "/products/photos/tie.webp",
-    "availability": "IN_STOCK"
+    "sku": "SKU-BOOK-001",
+    "imageUrl": "/products/photos/books-1.webp",
+    "thumbnailUrl": "/products/photos/books-1.webp",
+    "availability": "IN_STOCK",
+    "description": "The big ideas behind reliable, scalable and maintainable systems."
+  },
+  {
+    "name": "Building Microservices (2nd Edition) by Sam Newman",
+    "brand": "O'Reilly",
+    "category": "Books",
+    "price": 1999,
+    "discountPercentage": 19,
+    "rating": 4.3,
+    "reviewCount": 169,
+    "stockQuantity": 40,
+    "sku": "SKU-BOOK-003",
+    "imageUrl": "/products/photos/books-5.webp",
+    "thumbnailUrl": "/products/photos/books-5.webp",
+    "availability": "IN_STOCK",
+    "description": "Designing fine-grained systems that are easy to change."
+  },
+  {
+    "name": "Head First Design Patterns (2nd Edition) by Eric Freeman & Elisabeth Robson",
+    "brand": "O'Reilly",
+    "category": "Books",
+    "price": 1499,
+    "discountPercentage": 6,
+    "rating": 4.2,
+    "reviewCount": 1200,
+    "stockQuantity": 55,
+    "sku": "SKU-BOOK-006",
+    "imageUrl": "/products/photos/books-8.webp",
+    "thumbnailUrl": "/products/photos/books-8.webp",
+    "availability": "IN_STOCK",
+    "description": "A brain-friendly guide to object-oriented design patterns."
+  },
+  {
+    "name": "Clean Code by Robert C. Martin",
+    "brand": "Pearson",
+    "category": "Books",
+    "price": 699,
+    "discountPercentage": 30,
+    "rating": 3.7,
+    "reviewCount": 103,
+    "stockQuantity": 60,
+    "sku": "SKU-BOOK-007",
+    "imageUrl": "/products/photos/books-2.webp",
+    "thumbnailUrl": "/products/photos/books-2.webp",
+    "availability": "IN_STOCK",
+    "description": "A handbook of agile software craftsmanship."
+  },
+  {
+    "name": "The Pragmatic Programmer (20th Anniversary Edition) by David Thomas & Andrew Hunt",
+    "brand": "Pearson",
+    "category": "Books",
+    "price": 899,
+    "discountPercentage": 5,
+    "rating": 4.1,
+    "reviewCount": 590,
+    "stockQuantity": 23,
+    "sku": "SKU-BOOK-011",
+    "imageUrl": "/products/photos/books-3.webp",
+    "thumbnailUrl": "/products/photos/books-3.webp",
+    "availability": "IN_STOCK",
+    "description": "Your journey to mastery."
+  },
+  {
+    "name": "Effective Java (3rd Edition) by Joshua Bloch",
+    "brand": "Addison-Wesley",
+    "category": "Books",
+    "price": 999,
+    "discountPercentage": 21,
+    "rating": 4.4,
+    "reviewCount": 1022,
+    "stockQuantity": 85,
+    "sku": "SKU-BOOK-012",
+    "imageUrl": "/products/photos/books-0.webp",
+    "thumbnailUrl": "/products/photos/books-0.webp",
+    "availability": "IN_STOCK",
+    "description": "Best practices for the Java platform."
+  },
+  {
+    "name": "Spring in Action (6th Edition) by Craig Walls",
+    "brand": "Manning",
+    "category": "Books",
+    "price": 1599,
+    "discountPercentage": 23,
+    "rating": 3.8,
+    "reviewCount": 7187,
+    "stockQuantity": 95,
+    "sku": "SKU-BOOK-014",
+    "imageUrl": "/products/photos/books-6.webp",
+    "thumbnailUrl": "/products/photos/books-6.webp",
+    "availability": "IN_STOCK",
+    "description": "Covers Spring Boot, Spring Data and Spring Security."
+  },
+  {
+    "name": "Grokking Algorithms (2nd Edition) by Aditya Bhargava",
+    "brand": "Manning",
+    "category": "Books",
+    "price": 999,
+    "discountPercentage": 21,
+    "rating": 4.8,
+    "reviewCount": 114,
+    "stockQuantity": 105,
+    "sku": "SKU-BOOK-016",
+    "imageUrl": "/products/photos/books-4.webp",
+    "thumbnailUrl": "/products/photos/books-4.webp",
+    "availability": "IN_STOCK",
+    "description": "An illustrated guide for programmers and other curious people."
+  },
+  {
+    "name": "Cracking the Coding Interview (6th Edition) by Gayle Laakmann McDowell",
+    "brand": "CareerCup",
+    "category": "Books",
+    "price": 699,
+    "discountPercentage": 25,
+    "rating": 4.8,
+    "reviewCount": 39,
+    "stockQuantity": 115,
+    "sku": "SKU-BOOK-018",
+    "imageUrl": "/products/photos/books-1.webp",
+    "thumbnailUrl": "/products/photos/books-1.webp",
+    "availability": "IN_STOCK",
+    "description": "189 programming questions and solutions."
+  },
+  {
+    "name": "System Design Interview (Volume 1) by Alex Xu",
+    "brand": "Independently Published",
+    "category": "Books",
+    "price": 1499,
+    "discountPercentage": 21,
+    "rating": 4,
+    "reviewCount": 144,
+    "stockQuantity": 120,
+    "sku": "SKU-BOOK-019",
+    "imageUrl": "/products/photos/books-5.webp",
+    "thumbnailUrl": "/products/photos/books-5.webp",
+    "availability": "IN_STOCK",
+    "description": "An insider's guide to system design interviews."
+  },
+  {
+    "name": "Atomic Habits by James Clear",
+    "brand": "Penguin",
+    "category": "Books",
+    "price": 499,
+    "discountPercentage": 5,
+    "rating": 3.7,
+    "reviewCount": 854,
+    "stockQuantity": 14,
+    "sku": "SKU-BOOK-021",
+    "imageUrl": "/products/photos/books-8.webp",
+    "thumbnailUrl": "/products/photos/books-8.webp",
+    "availability": "IN_STOCK",
+    "description": "An easy and proven way to build good habits and break bad ones."
+  },
+  {
+    "name": "The Psychology of Money by Morgan Housel",
+    "brand": "Penguin",
+    "category": "Books",
+    "price": 399,
+    "discountPercentage": 19,
+    "rating": 4.8,
+    "reviewCount": 412,
+    "stockQuantity": 135,
+    "sku": "SKU-BOOK-022",
+    "imageUrl": "/products/photos/books-2.webp",
+    "thumbnailUrl": "/products/photos/books-2.webp",
+    "availability": "IN_STOCK",
+    "description": "Timeless lessons on wealth, greed and happiness."
+  },
+  {
+    "name": "Sapiens by Yuval Noah Harari",
+    "brand": "Penguin",
+    "category": "Books",
+    "price": 499,
+    "discountPercentage": 24,
+    "rating": 4.2,
+    "reviewCount": 508,
+    "stockQuantity": 140,
+    "sku": "SKU-BOOK-023",
+    "imageUrl": "/products/photos/books-3.webp",
+    "thumbnailUrl": "/products/photos/books-3.webp",
+    "availability": "IN_STOCK",
+    "description": "A brief history of humankind."
+  },
+  {
+    "name": "Wings of Fire by A. P. J. Abdul Kalam",
+    "brand": "Penguin",
+    "category": "Books",
+    "price": 299,
+    "discountPercentage": 11,
+    "rating": 4.7,
+    "reviewCount": 39,
+    "stockQuantity": 150,
+    "sku": "SKU-BOOK-025",
+    "imageUrl": "/products/photos/books-0.webp",
+    "thumbnailUrl": "/products/photos/books-0.webp",
+    "availability": "IN_STOCK",
+    "description": "An autobiography of India's Missile Man."
+  },
+  {
+    "name": "The White Tiger by Aravind Adiga",
+    "brand": "Penguin",
+    "category": "Books",
+    "price": 399,
+    "discountPercentage": 27,
+    "rating": 4.1,
+    "reviewCount": 7480,
+    "stockQuantity": 160,
+    "sku": "SKU-BOOK-027",
+    "imageUrl": "/products/photos/books-6.webp",
+    "thumbnailUrl": "/products/photos/books-6.webp",
+    "availability": "IN_STOCK",
+    "description": "Booker Prize-winning novel about ambition in modern India."
+  },
+  {
+    "name": "The Alchemist by Paulo Coelho",
+    "brand": "HarperCollins",
+    "category": "Books",
+    "price": 299,
+    "discountPercentage": 12,
+    "rating": 3.9,
+    "reviewCount": 192,
+    "stockQuantity": 170,
+    "sku": "SKU-BOOK-029",
+    "imageUrl": "/products/photos/books-4.webp",
+    "thumbnailUrl": "/products/photos/books-4.webp",
+    "availability": "IN_STOCK",
+    "description": "A fable about following your dream."
+  },
+  {
+    "name": "Rich Dad Poor Dad by Robert T. Kiyosaki",
+    "brand": "HarperCollins",
+    "category": "Books",
+    "price": 399,
+    "discountPercentage": 24,
+    "rating": 4.2,
+    "reviewCount": 6438,
+    "stockQuantity": 175,
+    "sku": "SKU-BOOK-030",
+    "imageUrl": "/products/photos/books-1.webp",
+    "thumbnailUrl": "/products/photos/books-1.webp",
+    "availability": "IN_STOCK",
+    "description": "What the rich teach their kids about money."
+  },
+  {
+    "name": "Harry Potter and the Philosopher's Stone by J. K. Rowling",
+    "brand": "Bloomsbury",
+    "category": "Books",
+    "price": 399,
+    "discountPercentage": 30,
+    "rating": 4.3,
+    "reviewCount": 255,
+    "stockQuantity": 210,
+    "sku": "SKU-BOOK-037",
+    "imageUrl": "/products/photos/books-5.webp",
+    "thumbnailUrl": "/products/photos/books-5.webp",
+    "availability": "IN_STOCK",
+    "description": "The first book in the Harry Potter series."
+  },
+  {
+    "name": "Minimalist 10% Niacinamide Face Serum 30ml",
+    "brand": "Minimalist",
+    "category": "Beauty",
+    "price": 599,
+    "discountPercentage": 9,
+    "rating": 4.6,
+    "reviewCount": 4273,
+    "stockQuantity": 30,
+    "sku": "SKU-BEAU-001",
+    "imageUrl": "/products/photos/serum-i3.webp",
+    "thumbnailUrl": "/products/photos/serum-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Reduces blemishes and controls excess oil."
+  },
+  {
+    "name": "Minimalist SPF 50 Sunscreen with Multi-Vitamins 50g",
+    "brand": "Minimalist",
+    "category": "Beauty",
+    "price": 399,
+    "discountPercentage": 29,
+    "rating": 4.7,
+    "reviewCount": 262,
+    "stockQuantity": 29,
+    "sku": "SKU-BEAU-002",
+    "imageUrl": "/products/photos/sunscreen-4.webp",
+    "thumbnailUrl": "/products/photos/sunscreen-4.webp",
+    "availability": "IN_STOCK",
+    "description": "Lightweight, no white cast broad-spectrum sunscreen."
+  },
+  {
+    "name": "The Ordinary Niacinamide 10% + Zinc 1% 30ml",
+    "brand": "The Ordinary",
+    "category": "Beauty",
+    "price": 950,
+    "discountPercentage": 13,
+    "rating": 4.6,
+    "reviewCount": 148,
+    "stockQuantity": 37,
+    "sku": "SKU-BEAU-004",
+    "imageUrl": "/products/photos/serum-i2.webp",
+    "thumbnailUrl": "/products/photos/serum-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Visibly reduces blemishes and congestion."
+  },
+  {
+    "name": "CeraVe Moisturising Cream 340g",
+    "brand": "CeraVe",
+    "category": "Beauty",
+    "price": 1999,
+    "discountPercentage": 25,
+    "rating": 4.8,
+    "reviewCount": 5432,
+    "stockQuantity": 53,
+    "sku": "SKU-BEAU-008",
+    "imageUrl": "/products/photos/moisturizer-i0.webp",
+    "thumbnailUrl": "/products/photos/moisturizer-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Rich cream that restores the skin barrier."
+  },
+  {
+    "name": "L'Oreal Paris Total Repair 5 Shampoo 340ml",
+    "brand": "L'Oreal Paris",
+    "category": "Beauty",
+    "price": 399,
+    "discountPercentage": 11,
+    "rating": 4.6,
+    "reviewCount": 889,
+    "stockQuantity": 81,
+    "sku": "SKU-BEAU-015",
+    "imageUrl": "/products/photos/shampoo-i1.webp",
+    "thumbnailUrl": "/products/photos/shampoo-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Repairs damaged hair with keratin XS."
+  },
+  {
+    "name": "Lakme 9to5 Primer + Matte Lipstick",
+    "brand": "Lakme",
+    "category": "Beauty",
+    "price": 500,
+    "discountPercentage": 25,
+    "rating": 4.2,
+    "reviewCount": 1394,
+    "stockQuantity": 85,
+    "sku": "SKU-BEAU-016",
+    "imageUrl": "/products/photos/lipstick-i4.webp",
+    "thumbnailUrl": "/products/photos/lipstick-i4.webp",
+    "availability": "IN_STOCK",
+    "description": "Long-wearing matte lipstick with primer."
+  },
+  {
+    "name": "Lakme Absolute Perfect Radiance Compact",
+    "brand": "Lakme",
+    "category": "Beauty",
+    "price": 525,
+    "discountPercentage": 27,
+    "rating": 4.1,
+    "reviewCount": 30,
+    "stockQuantity": 27,
+    "sku": "SKU-BEAU-017",
+    "imageUrl": "/products/photos/compact-powder-i3.webp",
+    "thumbnailUrl": "/products/photos/compact-powder-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Lightweight compact for a natural glow."
+  },
+  {
+    "name": "Lakme Eyeconic Kajal",
+    "brand": "Lakme",
+    "category": "Beauty",
+    "price": 240,
+    "discountPercentage": 29,
+    "rating": 4.5,
+    "reviewCount": 7785,
+    "stockQuantity": 93,
+    "sku": "SKU-BEAU-018",
+    "imageUrl": "/products/photos/mascara-i2.webp",
+    "thumbnailUrl": "/products/photos/mascara-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Smudge-proof kajal that lasts all day."
+  },
+  {
+    "name": "Maybelline New York Fit Me Matte + Poreless Foundation 30ml",
+    "brand": "Maybelline New York",
+    "category": "Beauty",
+    "price": 649,
+    "discountPercentage": 26,
+    "rating": 4.7,
+    "reviewCount": 2981,
+    "stockQuantity": 97,
+    "sku": "SKU-BEAU-019",
+    "imageUrl": "/products/photos/foundation-i1.webp",
+    "thumbnailUrl": "/products/photos/foundation-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Mattifying foundation that refines pores."
+  },
+  {
+    "name": "Swiss Beauty Makeup Fixer Spray 70ml",
+    "brand": "Swiss Beauty",
+    "category": "Beauty",
+    "price": 299,
+    "discountPercentage": 27,
+    "rating": 3.8,
+    "reviewCount": 32,
+    "stockQuantity": 16,
+    "sku": "SKU-BEAU-025",
+    "imageUrl": "/products/photos/setting-spray-i1.webp",
+    "thumbnailUrl": "/products/photos/setting-spray-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Sets makeup for long-lasting wear."
+  },
+  {
+    "name": "Mamaearth Onion Hair Oil 250ml",
+    "brand": "Mamaearth",
+    "category": "Beauty",
+    "price": 419,
+    "discountPercentage": 28,
+    "rating": 3.8,
+    "reviewCount": 692,
+    "stockQuantity": 125,
+    "sku": "SKU-BEAU-026",
+    "imageUrl": "/products/photos/oil-bottle-i1.webp",
+    "thumbnailUrl": "/products/photos/oil-bottle-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Reduces hair fall with onion and redensyl."
+  },
+  {
+    "name": "Mamaearth Ubtan Face Mask 100g",
+    "brand": "Mamaearth",
+    "category": "Beauty",
+    "price": 499,
+    "discountPercentage": 14,
+    "rating": 4.4,
+    "reviewCount": 437,
+    "stockQuantity": 133,
+    "sku": "SKU-BEAU-028",
+    "imageUrl": "/products/photos/face-mask-3.webp",
+    "thumbnailUrl": "/products/photos/face-mask-3.webp",
+    "availability": "IN_STOCK",
+    "description": "Brightening mask with turmeric and saffron."
+  },
+  {
+    "name": "Bioderma Sensibio H2O Micellar Water 250ml",
+    "brand": "Bioderma",
+    "category": "Beauty",
+    "price": 1199,
+    "discountPercentage": 30,
+    "rating": 4.4,
+    "reviewCount": 441,
+    "stockQuantity": 157,
+    "sku": "SKU-BEAU-034",
+    "imageUrl": "/products/photos/micellar-water-k2.webp",
+    "thumbnailUrl": "/products/photos/micellar-water-k2.webp",
+    "availability": "IN_STOCK",
+    "description": "Gentle make-up remover for sensitive skin."
+  },
+  {
+    "name": "Philips BHH880 Heated Straightening Brush",
+    "brand": "Philips",
+    "category": "Beauty",
+    "price": 2999,
+    "discountPercentage": 12,
+    "rating": 4.2,
+    "reviewCount": 4403,
+    "stockQuantity": 225,
+    "sku": "SKU-BEAU-051",
+    "imageUrl": "/products/photos/hair-straightener-i0.webp",
+    "thumbnailUrl": "/products/photos/hair-straightener-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Straightens hair in one pass with ThermoProtect."
+  },
+  {
+    "name": "Philips BHD308 Hair Dryer 1600W",
+    "brand": "Philips",
+    "category": "Beauty",
+    "price": 1799,
+    "discountPercentage": 11,
+    "rating": 4.3,
+    "reviewCount": 493,
+    "stockQuantity": 229,
+    "sku": "SKU-BEAU-052",
+    "imageUrl": "/products/photos/hair-dryer-i2.webp",
+    "thumbnailUrl": "/products/photos/hair-dryer-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Three heat and speed settings with cool shot."
+  },
+  {
+    "name": "Philips BT3241 Beard Trimmer",
+    "brand": "Philips",
+    "category": "Beauty",
+    "price": 1599,
+    "discountPercentage": 24,
+    "rating": 4.8,
+    "reviewCount": 2101,
+    "stockQuantity": 233,
+    "sku": "SKU-BEAU-053",
+    "imageUrl": "/products/photos/trimmer-i2.webp",
+    "thumbnailUrl": "/products/photos/trimmer-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Lift & Trim system with 20 length settings."
+  },
+  {
+    "name": "Gillette Mach3 Razor with 2 Cartridges",
+    "brand": "Gillette",
+    "category": "Beauty",
+    "price": 349,
+    "discountPercentage": 13,
+    "rating": 4.8,
+    "reviewCount": 1075,
+    "stockQuantity": 237,
+    "sku": "SKU-BEAU-054",
+    "imageUrl": "/products/photos/razor-i0.webp",
+    "thumbnailUrl": "/products/photos/razor-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Three-blade razor for a close, comfortable shave."
+  },
+  {
+    "name": "Park Avenue Good Morning Perfume Body Spray 150ml",
+    "brand": "Park Avenue",
+    "category": "Beauty",
+    "price": 249,
+    "discountPercentage": 22,
+    "rating": 4.3,
+    "reviewCount": 889,
+    "stockQuantity": 253,
+    "sku": "SKU-BEAU-058",
+    "imageUrl": "/products/photos/perfume-4.webp",
+    "thumbnailUrl": "/products/photos/perfume-4.webp",
+    "availability": "IN_STOCK",
+    "description": "Long-lasting fresh fragrance."
+  },
+  {
+    "name": "Tata Sampann Unpolished Toor Dal 1kg",
+    "brand": "Tata Sampann",
+    "category": "Groceries",
+    "price": 199,
+    "discountPercentage": 20,
+    "rating": 4.8,
+    "reviewCount": 226,
+    "stockQuantity": 14,
+    "sku": "SKU-GROC-001",
+    "imageUrl": "/products/photos/lentils-i1.webp",
+    "thumbnailUrl": "/products/photos/lentils-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Unpolished arhar dal rich in protein."
+  },
+  {
+    "name": "Tata Salt 1kg",
+    "brand": "Tata",
+    "category": "Groceries",
+    "price": 28,
+    "discountPercentage": 13,
+    "rating": 4.5,
+    "reviewCount": 4146,
+    "stockQuantity": 60,
+    "sku": "SKU-GROC-003",
+    "imageUrl": "/products/photos/salt-i3.webp",
+    "thumbnailUrl": "/products/photos/salt-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Vacuum-evaporated iodised salt."
+  },
+  {
+    "name": "Tata Coffee Grand 100g",
+    "brand": "Tata",
+    "category": "Groceries",
+    "price": 289,
+    "discountPercentage": 9,
+    "rating": 4.6,
+    "reviewCount": 3905,
+    "stockQuantity": 80,
+    "sku": "SKU-GROC-005",
+    "imageUrl": "/products/photos/coffee-i1.webp",
+    "thumbnailUrl": "/products/photos/coffee-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Instant coffee with flavour-locked decoction crystals."
+  },
+  {
+    "name": "Aashirvaad Shudh Chakki Atta 5kg",
+    "brand": "Aashirvaad",
+    "category": "Groceries",
+    "price": 299,
+    "discountPercentage": 18,
+    "rating": 4.5,
+    "reviewCount": 5432,
+    "stockQuantity": 90,
+    "sku": "SKU-GROC-006",
+    "imageUrl": "/products/photos/flour-i0.webp",
+    "thumbnailUrl": "/products/photos/flour-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Whole wheat flour for soft rotis."
+  },
+  {
+    "name": "India Gate Basmati Rice Classic 1kg",
+    "brand": "India Gate",
+    "category": "Groceries",
+    "price": 189,
+    "discountPercentage": 3,
+    "rating": 3.8,
+    "reviewCount": 47,
+    "stockQuantity": 110,
+    "sku": "SKU-GROC-008",
+    "imageUrl": "/products/photos/rice-i3.webp",
+    "thumbnailUrl": "/products/photos/rice-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Long-grain aged basmati rice."
+  },
+  {
+    "name": "Fortune Sunlite Refined Sunflower Oil 1L",
+    "brand": "Fortune",
+    "category": "Groceries",
+    "price": 165,
+    "discountPercentage": 9,
+    "rating": 4.6,
+    "reviewCount": 100,
+    "stockQuantity": 130,
+    "sku": "SKU-GROC-010",
+    "imageUrl": "/products/photos/cooking-oil-i0.webp",
+    "thumbnailUrl": "/products/photos/cooking-oil-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Light oil for everyday cooking."
+  },
+  {
+    "name": "Amul Pure Ghee 1L",
+    "brand": "Amul",
+    "category": "Groceries",
+    "price": 649,
+    "discountPercentage": 12,
+    "rating": 4.8,
+    "reviewCount": 36,
+    "stockQuantity": 47,
+    "sku": "SKU-GROC-013",
+    "imageUrl": "/products/photos/ghee-k2.webp",
+    "thumbnailUrl": "/products/photos/ghee-k2.webp",
+    "availability": "IN_STOCK",
+    "description": "Rich, aromatic cow ghee."
+  },
+  {
+    "name": "Amul Butter 500g",
+    "brand": "Amul",
+    "category": "Groceries",
+    "price": 285,
+    "discountPercentage": 8,
+    "rating": 4.4,
+    "reviewCount": 5064,
+    "stockQuantity": 170,
+    "sku": "SKU-GROC-014",
+    "imageUrl": "/products/photos/butter-0.webp",
+    "thumbnailUrl": "/products/photos/butter-0.webp",
+    "availability": "IN_STOCK",
+    "description": "Pasteurised salted butter."
+  },
+  {
+    "name": "Amul Dark Chocolate 55% 150g",
+    "brand": "Amul",
+    "category": "Groceries",
+    "price": 180,
+    "discountPercentage": 15,
+    "rating": 4.3,
+    "reviewCount": 37,
+    "stockQuantity": 180,
+    "sku": "SKU-GROC-015",
+    "imageUrl": "/products/photos/chocolate-i0.webp",
+    "thumbnailUrl": "/products/photos/chocolate-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Smooth dark chocolate with real cocoa."
+  },
+  {
+    "name": "Everest Garam Masala 100g",
+    "brand": "Everest",
+    "category": "Groceries",
+    "price": 92,
+    "discountPercentage": 2,
+    "rating": 4.7,
+    "reviewCount": 2540,
+    "stockQuantity": 200,
+    "sku": "SKU-GROC-017",
+    "imageUrl": "/products/photos/spices-5.webp",
+    "thumbnailUrl": "/products/photos/spices-5.webp",
+    "availability": "IN_STOCK",
+    "description": "A balanced blend of whole spices."
+  },
+  {
+    "name": "Kissan Fresh Tomato Ketchup 950g",
+    "brand": "Kissan",
+    "category": "Groceries",
+    "price": 139,
+    "discountPercentage": 20,
+    "rating": 3.7,
+    "reviewCount": 380,
+    "stockQuantity": 260,
+    "sku": "SKU-GROC-023",
+    "imageUrl": "/products/photos/ketchup-i0.webp",
+    "thumbnailUrl": "/products/photos/ketchup-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Made with 100% real tomatoes."
+  },
+  {
+    "name": "Kissan Mixed Fruit Jam 500g",
+    "brand": "Kissan",
+    "category": "Groceries",
+    "price": 175,
+    "discountPercentage": 2,
+    "rating": 3.8,
+    "reviewCount": 513,
+    "stockQuantity": 270,
+    "sku": "SKU-GROC-024",
+    "imageUrl": "/products/photos/jam-i1.webp",
+    "thumbnailUrl": "/products/photos/jam-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Jam made with real fruit."
+  },
+  {
+    "name": "Nestle Everyday Dairy Whitener 400g",
+    "brand": "Nestle",
+    "category": "Groceries",
+    "price": 219,
+    "discountPercentage": 16,
+    "rating": 4.1,
+    "reviewCount": 192,
+    "stockQuantity": 2,
+    "sku": "SKU-GROC-025",
+    "imageUrl": "/products/photos/milk-powder-i1.webp",
+    "thumbnailUrl": "/products/photos/milk-powder-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Dairy whitener for tea and coffee."
+  },
+  {
+    "name": "Taj Mahal Tea 500g",
+    "brand": "Taj Mahal",
+    "category": "Groceries",
+    "price": 345,
+    "discountPercentage": 3,
+    "rating": 4.3,
+    "reviewCount": 47,
+    "stockQuantity": 320,
+    "sku": "SKU-GROC-029",
+    "imageUrl": "/products/photos/tea-i3.webp",
+    "thumbnailUrl": "/products/photos/tea-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Rich, flavourful premium tea."
+  },
+  {
+    "name": "Dabur Honey 500g",
+    "brand": "Dabur",
+    "category": "Groceries",
+    "price": 239,
+    "discountPercentage": 13,
+    "rating": 4,
+    "reviewCount": 2368,
+    "stockQuantity": 360,
+    "sku": "SKU-GROC-033",
+    "imageUrl": "/products/photos/honey-i1.webp",
+    "thumbnailUrl": "/products/photos/honey-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Pure honey that passes the NMR test."
+  },
+  {
+    "name": "Dabur Chyawanprash 1kg",
+    "brand": "Dabur",
+    "category": "Groceries",
+    "price": 399,
+    "discountPercentage": 15,
+    "rating": 3.8,
+    "reviewCount": 2416,
+    "stockQuantity": 370,
+    "sku": "SKU-GROC-034",
+    "imageUrl": "/products/photos/chyawanprash-k0.webp",
+    "thumbnailUrl": "/products/photos/chyawanprash-k0.webp",
+    "availability": "IN_STOCK",
+    "description": "Ayurvedic immunity booster."
+  },
+  {
+    "name": "Quaker Oats 1kg",
+    "brand": "Quaker",
+    "category": "Groceries",
+    "price": 199,
+    "discountPercentage": 0,
+    "rating": 3.9,
+    "reviewCount": 56,
+    "stockQuantity": 3,
+    "sku": "SKU-GROC-037",
+    "imageUrl": "/products/photos/oats-i0.webp",
+    "thumbnailUrl": "/products/photos/oats-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "100% wholegrain rolled oats."
+  },
+  {
+    "name": "Kellogg's Corn Flakes Original 875g",
+    "brand": "Kellogg's",
+    "category": "Groceries",
+    "price": 339,
+    "discountPercentage": 15,
+    "rating": 4.8,
+    "reviewCount": 21,
+    "stockQuantity": 410,
+    "sku": "SKU-GROC-038",
+    "imageUrl": "/products/photos/cereal-i2.webp",
+    "thumbnailUrl": "/products/photos/cereal-i2.webp",
+    "availability": "IN_STOCK",
+    "description": "Crispy corn flakes for a quick breakfast."
+  },
+  {
+    "name": "Spigen Ultra Hybrid Case for iPhone 15",
+    "brand": "Spigen",
+    "category": "Accessories",
+    "price": 1999,
+    "discountPercentage": 43,
+    "rating": 4.5,
+    "reviewCount": 26,
+    "stockQuantity": 35,
+    "sku": "SKU-ACCE-001",
+    "imageUrl": "/products/photos/phone-case-i4.webp",
+    "thumbnailUrl": "/products/photos/phone-case-i4.webp",
+    "availability": "IN_STOCK",
+    "description": "Clear case with air-cushion corners."
+  },
+  {
+    "name": "Apple 20W USB-C Power Adapter",
+    "brand": "Apple",
+    "category": "Accessories",
+    "price": 1900,
+    "discountPercentage": 41,
+    "rating": 4.1,
+    "reviewCount": 2951,
+    "stockQuantity": 55,
+    "sku": "SKU-ACCE-005",
+    "imageUrl": "/products/photos/charger-i0.webp",
+    "thumbnailUrl": "/products/photos/charger-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Fast charging for iPhone and iPad."
+  },
+  {
+    "name": "Apple USB-C to Lightning Cable (1m)",
+    "brand": "Apple",
+    "category": "Accessories",
+    "price": 1900,
+    "discountPercentage": 50,
+    "rating": 4.8,
+    "reviewCount": 24,
+    "stockQuantity": 65,
+    "sku": "SKU-ACCE-007",
+    "imageUrl": "/products/photos/usb-cable-1.webp",
+    "thumbnailUrl": "/products/photos/usb-cable-1.webp",
+    "availability": "IN_STOCK",
+    "description": "Charge and sync Lightning devices."
+  },
+  {
+    "name": "Anker 622 Magnetic Battery 5000mAh",
+    "brand": "Anker",
+    "category": "Accessories",
+    "price": 3999,
+    "discountPercentage": 27,
+    "rating": 4.4,
+    "reviewCount": 171,
+    "stockQuantity": 85,
+    "sku": "SKU-ACCE-011",
+    "imageUrl": "/products/photos/power-bank-1.webp",
+    "thumbnailUrl": "/products/photos/power-bank-1.webp",
+    "availability": "IN_STOCK",
+    "description": "MagSafe-compatible battery with a foldable stand."
+  },
+  {
+    "name": "Portronics Clamp X Car Phone Holder",
+    "brand": "Portronics",
+    "category": "Accessories",
+    "price": 599,
+    "discountPercentage": 35,
+    "rating": 4.8,
+    "reviewCount": 69,
+    "stockQuantity": 105,
+    "sku": "SKU-ACCE-015",
+    "imageUrl": "/products/photos/car-mount-i0.webp",
+    "thumbnailUrl": "/products/photos/car-mount-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "One-hand-operated dashboard mount."
+  },
+  {
+    "name": "boAt Bassheads 100 Wired Earphones",
+    "brand": "boAt",
+    "category": "Accessories",
+    "price": 399,
+    "discountPercentage": 28,
+    "rating": 4.7,
+    "reviewCount": 4915,
+    "stockQuantity": 110,
+    "sku": "SKU-ACCE-016",
+    "imageUrl": "/products/photos/earphones-i1.webp",
+    "thumbnailUrl": "/products/photos/earphones-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "In-line mic with super extra bass."
+  },
+  {
+    "name": "AmazonBasics Laptop Sleeve 15.6-inch",
+    "brand": "AmazonBasics",
+    "category": "Accessories",
+    "price": 799,
+    "discountPercentage": 41,
+    "rating": 4.3,
+    "reviewCount": 268,
+    "stockQuantity": 125,
+    "sku": "SKU-ACCE-019",
+    "imageUrl": "/products/photos/laptop-bag-k1.webp",
+    "thumbnailUrl": "/products/photos/laptop-bag-k1.webp",
+    "availability": "IN_STOCK",
+    "description": "Padded sleeve with a front pocket."
+  },
+  {
+    "name": "American Tourister Valex 28L Laptop Backpack",
+    "brand": "American Tourister",
+    "category": "Accessories",
+    "price": 1999,
+    "discountPercentage": 49,
+    "rating": 4.1,
+    "reviewCount": 23,
+    "stockQuantity": 135,
+    "sku": "SKU-ACCE-021",
+    "imageUrl": "/products/photos/sports-bag-k6.webp",
+    "thumbnailUrl": "/products/photos/sports-bag-k6.webp",
+    "availability": "IN_STOCK",
+    "description": "Water-resistant backpack with three compartments."
+  },
+  {
+    "name": "Safari Pentagon 55cm Cabin Trolley",
+    "brand": "Safari",
+    "category": "Accessories",
+    "price": 2999,
+    "discountPercentage": 44,
+    "rating": 3.8,
+    "reviewCount": 25,
+    "stockQuantity": 145,
+    "sku": "SKU-ACCE-023",
+    "imageUrl": "/products/photos/suitcase-i3.webp",
+    "thumbnailUrl": "/products/photos/suitcase-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Hard-shell cabin bag with four spinner wheels."
+  },
+  {
+    "name": "American Tourister Luggage Tag (Pack of 2)",
+    "brand": "American Tourister",
+    "category": "Accessories",
+    "price": 499,
+    "discountPercentage": 26,
+    "rating": 4.6,
+    "reviewCount": 44,
+    "stockQuantity": 160,
+    "sku": "SKU-ACCE-026",
+    "imageUrl": "/products/photos/luggage-tag-i1.webp",
+    "thumbnailUrl": "/products/photos/luggage-tag-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Bright tags with an address card."
+  },
+  {
+    "name": "Tommy Hilfiger Leather Passport Holder",
+    "brand": "Tommy Hilfiger",
+    "category": "Accessories",
+    "price": 1999,
+    "discountPercentage": 26,
+    "rating": 4.1,
+    "reviewCount": 270,
+    "stockQuantity": 175,
+    "sku": "SKU-ACCE-029",
+    "imageUrl": "/products/photos/passport-holder-i1.webp",
+    "thumbnailUrl": "/products/photos/passport-holder-i1.webp",
+    "availability": "IN_STOCK",
+    "description": "Slim cover for your passport and cards."
+  },
+  {
+    "name": "Bellroy Slim Sleeve Leather Wallet",
+    "brand": "Bellroy",
+    "category": "Accessories",
+    "price": 6499,
+    "discountPercentage": 39,
+    "rating": 4.1,
+    "reviewCount": 2864,
+    "stockQuantity": 180,
+    "sku": "SKU-ACCE-030",
+    "imageUrl": "/products/photos/wallet-i3.webp",
+    "thumbnailUrl": "/products/photos/wallet-i3.webp",
+    "availability": "IN_STOCK",
+    "description": "Minimal wallet that holds up to 12 cards."
+  },
+  {
+    "name": "Urban Forest RFID Blocking Leather Cardholder",
+    "brand": "Urban Forest",
+    "category": "Accessories",
+    "price": 599,
+    "discountPercentage": 31,
+    "rating": 4.8,
+    "reviewCount": 169,
+    "stockQuantity": 185,
+    "sku": "SKU-ACCE-031",
+    "imageUrl": "/products/photos/wallet-i0.webp",
+    "thumbnailUrl": "/products/photos/wallet-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Slim cardholder with RFID protection."
+  },
+  {
+    "name": "Mokobara The Em Leather Keychain",
+    "brand": "Mokobara",
+    "category": "Accessories",
+    "price": 899,
+    "discountPercentage": 14,
+    "rating": 4.6,
+    "reviewCount": 287,
+    "stockQuantity": 190,
+    "sku": "SKU-ACCE-032",
+    "imageUrl": "/products/photos/keychain-i0.webp",
+    "thumbnailUrl": "/products/photos/keychain-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Leather key ring with a metal clasp."
+  },
+  {
+    "name": "Johns 3-Fold Automatic Umbrella",
+    "brand": "Johns",
+    "category": "Accessories",
+    "price": 599,
+    "discountPercentage": 21,
+    "rating": 3.7,
+    "reviewCount": 95,
+    "stockQuantity": 205,
+    "sku": "SKU-ACCE-035",
+    "imageUrl": "/products/photos/umbrella-i0.webp",
+    "thumbnailUrl": "/products/photos/umbrella-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Auto open/close with wind-resistant frame."
+  },
+  {
+    "name": "Fastrack Analog Watch for Men",
+    "brand": "Fastrack",
+    "category": "Accessories",
+    "price": 1495,
+    "discountPercentage": 18,
+    "rating": 3.7,
+    "reviewCount": 5768,
+    "stockQuantity": 210,
+    "sku": "SKU-ACCE-036",
+    "imageUrl": "/products/photos/wristwatch-i4.webp",
+    "thumbnailUrl": "/products/photos/wristwatch-i4.webp",
+    "availability": "IN_STOCK",
+    "description": "Casual watch with a silicone strap."
+  },
+  {
+    "name": "Titan Raga Women's Analog Watch",
+    "brand": "Titan",
+    "category": "Accessories",
+    "price": 7995,
+    "discountPercentage": 29,
+    "rating": 4.5,
+    "reviewCount": 4915,
+    "stockQuantity": 215,
+    "sku": "SKU-ACCE-037",
+    "imageUrl": "/products/photos/wristwatch-i0.webp",
+    "thumbnailUrl": "/products/photos/wristwatch-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Elegant bracelet watch in gold tone."
+  },
+  {
+    "name": "Lenskart Vincent Chase Blue Light Glasses",
+    "brand": "Lenskart",
+    "category": "Accessories",
+    "price": 1500,
+    "discountPercentage": 34,
+    "rating": 4.6,
+    "reviewCount": 281,
+    "stockQuantity": 225,
+    "sku": "SKU-ACCE-039",
+    "imageUrl": "/products/photos/eyeglasses-i0.webp",
+    "thumbnailUrl": "/products/photos/eyeglasses-i0.webp",
+    "availability": "IN_STOCK",
+    "description": "Screen glasses that reduce eye strain."
   }
 ]

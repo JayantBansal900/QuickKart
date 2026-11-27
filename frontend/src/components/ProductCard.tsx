@@ -124,7 +124,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
 
         <h3 className="mt-1 line-clamp-2 text-sm font-medium leading-snug text-fg group-hover:underline group-hover:underline-offset-2">{product.name}</h3>
 
-        {hasSizes && colourCount > 0 && <p className="mt-1 text-xs text-muted">{colourCount} {colourCount === 1 ? 'colour' : 'colours'}</p>}
+        {hasSizes && colourCount > 1 && <p className="mt-1 text-xs text-muted">{colourCount} {colourCount === 1 ? 'colour' : 'colours'}</p>}
 
         <div className="mt-auto flex flex-wrap items-baseline gap-x-2 pt-1.5">
           <span className="text-[15px] font-semibold tracking-tight text-fg">{formatPrice(product.price)}</span>
